@@ -36,4 +36,24 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.toString())); 
     }
   }
+  @override
+  Future<Either<Failure, User>> register(String name, String email, String password) async {
+    try {
+      final userModel = await remoteDatasource.register(name, email, password);
+      
+      if (userModel.token != null) {
+        await localDatasource.saveToken(userModel.token!);
+      }
+
+      final user = User(
+        id: userModel.id,
+        name: userModel.name,
+        email: userModel.email,
+      );
+
+      return Right(user);
+    } catch (e) {
+      return Left(ServerFailure(e.toString())); 
+    }
+  }
 }

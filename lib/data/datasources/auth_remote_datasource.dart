@@ -9,7 +9,7 @@ class AuthRemoteDatasource {
   Future<UserModel> login(String email, String password) async {
     try {
       final response = await dio.post(
-        '/api/login',
+        '/login',
         data: {
           'email': email,
           'password': password,
@@ -17,11 +17,9 @@ class AuthRemoteDatasource {
       );
 
       if (response.statusCode == 200) {
-        // Struktur ini menyesuaikan format standar balikan Sanctum pada umumnya
-        // Ubah key 'user'/'token' jika struktur JSON backend Anda berbeda
-        final data = response.data;
-        final userJson = data['user'];
-        final token = data['token'];
+        final responseData = response.data['data'];
+        final userJson = responseData['user'];
+        final token = responseData['token'];
         
         return UserModel.fromJson(userJson, token: token);
       } else {
@@ -29,6 +27,33 @@ class AuthRemoteDatasource {
       }
     } on DioException catch (e) {
       // Menangkap error dari backend (misal: kredensial salah, validasi gagal, dll)
+      throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan pada server');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan yang tidak diketahui: $e');
+    }
+  }
+  Future<UserModel> register(String name, String email, String password) async {
+    try {
+      final response = await dio.post(
+        '/register',
+        data: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'phone': '08123456789',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = response.data['data'];
+        final userJson = responseData['user'];
+        final token = responseData['token'];
+        
+        return UserModel.fromJson(userJson, token: token);
+      } else {
+        throw Exception('Gagal melakukan pendaftaran');
+      }
+    } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Terjadi kesalahan pada server');
     } catch (e) {
       throw Exception('Terjadi kesalahan yang tidak diketahui: $e');

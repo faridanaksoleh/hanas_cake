@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
-import '../../../data/datasources/auth_local_datasource.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../blocs/auth/auth_event.dart';
+import '../blocs/auth/auth_state.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -15,48 +17,46 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkAuthAndNavigate();
+    _checkAuth();
   }
 
-  Future<void> _checkAuthAndNavigate() async {
+  Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 2));
-
-    const secureStorage = FlutterSecureStorage();
-    final localDatasource = AuthLocalDatasource(secureStorage: secureStorage);
-    
-    final String? token = await localDatasource.getToken();
-
     if (!mounted) return;
-
-    if (token != null && token.isNotEmpty) {
-      GoRouter.of(context).go('/home');
-    } else {
-      GoRouter.of(context).go('/landing');
-    }
+    context.read<AuthBloc>().add(CheckTokenEvent());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.cake,
-              size: 100,
-              color: AppColors.primary,
-            ),
-            const SpaceHeight(24),
-            Text(
-              "Hana's Cake",
-              style: AppTextStyles.display.copyWith(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthSuccess) {
+          context.go('/home');
+        } else if (state is AuthInitial || state is AuthFailure) {
+          context.go('/landing');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.cake,
+                size: 100,
                 color: AppColors.primary,
-                letterSpacing: 1.5,
               ),
-            ),
-          ],
+              const SpaceHeight(24),
+              Text(
+                "Hana's Cake",
+                style: AppTextStyles.display.copyWith(
+                  color: AppColors.primary,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

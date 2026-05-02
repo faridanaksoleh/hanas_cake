@@ -9,6 +9,7 @@ import 'package:hanas_cake/data/datasources/auth_local_datasource.dart';
 import 'package:hanas_cake/data/datasources/auth_remote_datasource.dart';
 import 'package:hanas_cake/data/repositories/auth_repository_impl.dart';
 import 'package:hanas_cake/domain/usecases/login_usecase.dart';
+import 'package:hanas_cake/domain/usecases/register_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
 
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // 1. Setup Dependencies (Idealnya menggunakan library seperti get_it)
     // Dio untuk network request
-    final dio = Dio(BaseOptions(baseUrl: 'https://example.com/api')); 
+    final dio = Dio(BaseOptions(baseUrl: 'https://hanascake.syauqiebill.my.id/api')); 
     const secureStorage = FlutterSecureStorage();
     
     final authRemoteDatasource = AuthRemoteDatasource(dio: dio);
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
     );
     
     final loginUseCase = LoginUseCase(authRepository);
+    final registerUseCase = RegisterUseCase(authRepository);
 
     // 2. Setup GoRouter
     final GoRouter router = GoRouter(
@@ -72,7 +74,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(loginUseCase: loginUseCase),
+          create: (context) => AuthBloc(
+            loginUseCase: loginUseCase,
+            registerUseCase: registerUseCase,
+            localDatasource: authLocalDatasource,
+          ),
         ),
       ],
       child: MaterialApp.router(
