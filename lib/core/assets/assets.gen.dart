@@ -179,6 +179,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/promo.png
   AssetGenImage get promo => const AssetGenImage('assets/images/promo.png');
 
+  /// File path: assets/images/young_man_walking_with_coffee.png
+  AssetGenImage get youngManWalkingWithCoffee =>
+      const AssetGenImage('assets/images/young_man_walking_with_coffee.png');
+
   /// List of all assets
   List<AssetGenImage> get values => [
     bgLanding,
@@ -186,6 +190,7 @@ class $AssetsImagesGen {
     homeDelivery,
     homePickup,
     promo,
+    youngManWalkingWithCoffee,
   ];
 }
 
