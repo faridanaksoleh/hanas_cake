@@ -19,11 +19,11 @@ class _PickUpPageState extends State<PickUpPage> {
   // DATA MOCK
   // ────────────────────────────────────────────────────────
   final List<Map<String, dynamic>> _mustTryItems = [
-    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Best Seller', 'badgeColor': 0xFFDCFCE7, 'badgeTextColor': 0xFF166534},
-    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Top Ordered', 'badgeColor': 0xFFEEF2FF, 'badgeTextColor': 0xFF3454D1},
-    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': 0xFFFEF3C7, 'badgeTextColor': 0xFF92400E},
-    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': 0xFFFEF3C7, 'badgeTextColor': 0xFF92400E},
-    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': 0xFFFEF3C7, 'badgeTextColor': 0xFF92400E},
+    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Best Seller',   'badgeColor': AppColors.successBg,  'badgeTextColor': AppColors.successText},
+    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Top Ordered',   'badgeColor': AppColors.secondaryXLight, 'badgeTextColor': AppColors.secondary},
+    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': AppColors.warningBg,   'badgeTextColor': AppColors.warningText},
+    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': AppColors.warningBg,   'badgeTextColor': AppColors.warningText},
+    {'name': 'Croissant mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'badge': 'Most Popular', 'badgeColor': AppColors.warningBg,   'badgeTextColor': AppColors.warningText},
   ];
 
   final List<Map<String, String>> _allItems = [
@@ -97,59 +97,74 @@ class _PickUpPageState extends State<PickUpPage> {
                 ],
               ),
             ),
-            // Content row: image left, text+button right
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+            // Content area: Stack so image is flush with bottom edge
+            SizedBox(
+              height: 140,
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  // Character image
-                  Image.asset(
-                    Assets.images.youngManWalkingWithCoffee.path,
-                    height: 130,
-                    fit: BoxFit.contain,
+                  // Character image — pinned flush to bottom-left
+                  Positioned(
+                    left: 0,
+                    bottom: 0,
+                    child: Image.asset(
+                      Assets.images.youngManWalkingWithCoffee.path,
+                      height: 140,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.bottomLeft,
+                    ),
                   ),
-                  const SpaceWidth(8),
-                  // Title + description
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  // Text + button — vertically centered in the SizedBox
+                  Positioned.fill(
+                    left: 156,
+                    right: 16,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          'Pick Up',
-                          style: AppTextStyles.display.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32,
+                        // Title + description
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Pick Up',
+                                style: AppTextStyles.display.copyWith(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 28,
+                                ),
+                              ),
+                              const SpaceHeight(4),
+                              Text(
+                                'Ambil di Store tanpa antri',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.white.withValues(alpha: 0.85),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          'Ambil di Store tanpa antri',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.white.withValues(alpha: 0.85),
+                        const SpaceWidth(12),
+                        // Ubah button
+                        GestureDetector(
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Text(
+                              'Ubah',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  const SpaceWidth(8),
-                  // Ubah button
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Text(
-                        'Ubah',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -454,7 +469,7 @@ class _PickUpPageState extends State<PickUpPage> {
           // Header
           Row(
             children: [
-              const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 22),
+              const Icon(Icons.star_rounded, color: AppColors.warningText, size: 22),
               const SpaceWidth(6),
               Text(
                 'Must Try!',
@@ -492,8 +507,8 @@ class _PickUpPageState extends State<PickUpPage> {
                 category: item['category'] as String,
                 price: item['price'] as String,
                 badgeLabel: item['badge'] as String,
-                badgeColor: Color(item['badgeColor'] as int),
-                badgeTextColor: Color(item['badgeTextColor'] as int),
+                badgeColor: item['badgeColor'] as Color,
+                badgeTextColor: item['badgeTextColor'] as Color,
               );
             },
           ),
@@ -616,7 +631,7 @@ class _MustTryCard extends StatelessWidget {
                 height: 130,
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: AppColors.primaryXLight,
+                  color: AppColors.primaryMid,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
               ),
@@ -741,7 +756,7 @@ class _AllItemCard extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryXLight,
+                  color: AppColors.primaryMid,
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
