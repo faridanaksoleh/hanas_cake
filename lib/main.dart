@@ -16,6 +16,7 @@ import 'package:hanas_cake/presentation/pages/home_page.dart';
 import 'package:hanas_cake/presentation/pages/landing_page.dart';
 import 'package:hanas_cake/presentation/pages/login_page.dart';
 import 'package:hanas_cake/presentation/pages/pick_up_page.dart';
+import 'package:hanas_cake/presentation/pages/profile_page.dart';
 import 'package:hanas_cake/presentation/pages/register_page.dart';
 import 'package:hanas_cake/presentation/pages/splash_page.dart';
 
@@ -71,6 +72,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/pickup',
           builder: (context, state) => const PickUpPage(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfilePage(),
         ),
       ],
     );

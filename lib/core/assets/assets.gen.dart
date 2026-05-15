@@ -14,6 +14,9 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/apple_inc.svg
+  String get appleInc => 'assets/icons/apple_inc.svg';
+
   /// File path: assets/icons/bell_filled.svg
   String get bellFilled => 'assets/icons/bell_filled.svg';
 
@@ -64,17 +67,26 @@ class $AssetsIconsGen {
   /// File path: assets/icons/eyeclosed_outline.svg
   String get eyeclosedOutline => 'assets/icons/eyeclosed_outline.svg';
 
+  /// File path: assets/icons/facebook.svg
+  String get facebook => 'assets/icons/facebook.svg';
+
   /// File path: assets/icons/gearsix_filled.svg
   String get gearsixFilled => 'assets/icons/gearsix_filled.svg';
 
   /// File path: assets/icons/gearsix_outline.svg
   String get gearsixOutline => 'assets/icons/gearsix_outline.svg';
 
+  /// File path: assets/icons/google.svg
+  String get google => 'assets/icons/google.svg';
+
   /// File path: assets/icons/heart_filled.svg
   String get heartFilled => 'assets/icons/heart_filled.svg';
 
   /// File path: assets/icons/heart_outline.svg
   String get heartOutline => 'assets/icons/heart_outline.svg';
+
+  /// File path: assets/icons/instagram.svg
+  String get instagram => 'assets/icons/instagram.svg';
 
   /// File path: assets/icons/magnifyingglass_filled.svg
   String get magnifyingglassFilled => 'assets/icons/magnifyingglass_filled.svg';
@@ -110,8 +122,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/trash_outline.svg
   String get trashOutline => 'assets/icons/trash_outline.svg';
 
+  /// File path: assets/icons/whatsapp.svg
+  String get whatsapp => 'assets/icons/whatsapp.svg';
+
   /// File path: assets/icons/whatsapp_logo.svg
   String get whatsappLogo => 'assets/icons/whatsapp_logo.svg';
+
+  /// File path: assets/icons/x.svg
+  String get x => 'assets/icons/x.svg';
 
   /// File path: assets/icons/xcircle_filled.svg
   String get xcircleFilled => 'assets/icons/xcircle_filled.svg';
@@ -121,6 +139,7 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<String> get values => [
+    appleInc,
     bellFilled,
     bellOutline,
     caretCircleLeftFilled,
@@ -137,10 +156,13 @@ class $AssetsIconsGen {
     eyeOutline,
     eyeclosedFilled,
     eyeclosedOutline,
+    facebook,
     gearsixFilled,
     gearsixOutline,
+    google,
     heartFilled,
     heartOutline,
+    instagram,
     magnifyingglassFilled,
     magnifyingglassOutline,
     mappinFilled,
@@ -152,7 +174,9 @@ class $AssetsIconsGen {
     ticketOutline,
     trashFilled,
     trashOutline,
+    whatsapp,
     whatsappLogo,
+    x,
     xcircleFilled,
     xcircleOutline,
   ];

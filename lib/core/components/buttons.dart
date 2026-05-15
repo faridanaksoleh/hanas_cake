@@ -37,6 +37,10 @@ class AppButton extends StatelessWidget {
     return AppButton._(text: text, onPressed: onPressed, backgroundColor: AppColors.dangerBg, textColor: AppColors.dangerText, height: 44, radius: 10);
   }
 
+  factory AppButton.logout({required String text, VoidCallback? onPressed}) {
+    return AppButton._(text: text, onPressed: onPressed, backgroundColor: AppColors.dangerText, textColor: Colors.white, height: 52, radius: 0);
+  }
+
   factory AppButton.disabled({required String text}) {
     return AppButton._(text: text, onPressed: null, backgroundColor: AppColors.border, textColor: AppColors.textSecondary, height: 44, radius: 10);
   }

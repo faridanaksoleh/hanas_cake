@@ -10,13 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedNavIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      bottomNavigationBar: _buildFloatingNavBar(),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -433,77 +432,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // 5. FLOATING BOTTOM NAV BAR
-  // ─────────────────────────────────────────────────────────
-  Widget _buildFloatingNavBar() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.15),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildNavItem(index: 0, icon: Icons.home_rounded, label: 'Home'),
-          _buildNavItem(index: 1, icon: Icons.confirmation_number_outlined, label: 'Ticket'),
-          _buildNavItem(index: 2, icon: Icons.shopping_bag_outlined, label: 'Cart'),
-          _buildNavItem(index: 3, icon: Icons.person_outline_rounded, label: 'Profile'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required String label,
-  }) {
-    final isActive = _selectedNavIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedNavIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: isActive
-            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
-            : const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isActive ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isActive ? AppColors.white : AppColors.textSecondary,
-              size: 22,
-            ),
-            if (isActive) ...[
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: AppTextStyles.micro.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // ─────────────────────────────────────────────────────────
