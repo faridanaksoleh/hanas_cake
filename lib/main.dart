@@ -15,6 +15,7 @@ import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
 import 'package:hanas_cake/presentation/pages/landing_page.dart';
 import 'package:hanas_cake/presentation/pages/login_page.dart';
+import 'package:hanas_cake/presentation/pages/my_account_page.dart';
 import 'package:hanas_cake/presentation/pages/pick_up_page.dart';
 import 'package:hanas_cake/presentation/pages/profile_page.dart';
 import 'package:hanas_cake/presentation/pages/register_page.dart';
@@ -76,6 +77,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/profile',
           builder: (context, state) => const ProfilePage(),
+        ),
+        GoRoute(
+          path: '/my-account',
+          builder: (context, state) => const MyAccountPage(),
         ),
       ],
     );

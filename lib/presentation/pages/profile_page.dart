@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -20,7 +21,7 @@ class ProfilePage extends StatelessWidget {
                     bottom: false,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                      child: _buildProfileCard(),
+                      child: _buildProfileCard(context),
                     ),
                   ),
                   const SpaceHeight(16),
@@ -83,54 +84,57 @@ class ProfilePage extends StatelessWidget {
   // ─────────────────────────────────────────────────────────
   // 1. PROFILE CARD
   // ─────────────────────────────────────────────────────────
-  Widget _buildProfileCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          // Avatar
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: AppColors.primaryMid,
-            child: const Icon(
-              Icons.person_rounded,
-              color: AppColors.primaryLight,
-              size: 32,
+  Widget _buildProfileCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () => GoRouter.of(context).push('/my-account'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: AppColors.primaryMid,
+              child: const Icon(
+                Icons.person_rounded,
+                color: AppColors.primaryLight,
+                size: 32,
+              ),
             ),
-          ),
-          const SpaceWidth(14),
-          // Name + phone
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'RINA',
-                  style: AppTextStyles.h2.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
+            const SpaceWidth(14),
+            // Name + phone
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'RINA',
+                    style: AppTextStyles.h2.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SpaceHeight(2),
-                Text(
-                  '+62999999',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.white.withValues(alpha: 0.80),
+                  const SpaceHeight(2),
+                  Text(
+                    '+62999999',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.white.withValues(alpha: 0.80),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.white,
-            size: 18,
-          ),
-        ],
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.white,
+              size: 18,
+            ),
+          ],
+        ),
       ),
     );
   }

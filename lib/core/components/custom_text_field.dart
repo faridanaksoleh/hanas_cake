@@ -8,6 +8,8 @@ class CustomTextField extends StatefulWidget {
   final String? hintText;
   final TextInputType? keyboardType;
   final int? maxLength;
+  final Widget? suffixWidget;
+  final Color? labelColor;
 
   const CustomTextField({
     super.key,
@@ -17,6 +19,8 @@ class CustomTextField extends StatefulWidget {
     this.hintText,
     this.keyboardType,
     this.maxLength,
+    this.suffixWidget,
+    this.labelColor,
   });
 
   @override
@@ -40,7 +44,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         Text(
           widget.label,
           style: AppTextStyles.body.copyWith(
-            color: AppColors.primary,
+            color: widget.labelColor ?? AppColors.primary,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -62,7 +66,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               color: AppColors.border,
             ),
             counterText: '', // Menghilangkan counter bawaan di bawah
-            suffix: widget.isPassword
+            suffix: widget.suffixWidget ?? (
+              widget.isPassword
                 ? GestureDetector(
                     onTap: () {
                       setState(() {
@@ -82,7 +87,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         '${widget.controller?.text.length ?? 0}/${widget.maxLength}',
                         style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary),
                       )
-                    : null,
+                    : null
+            ),
             border: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.primaryLight),
             ),
