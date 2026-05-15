@@ -227,7 +227,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
       children: [
         // Hapus Akun
         GestureDetector(
-          onTap: () {},
+          onTap: () => GoRouter.of(context).push('/delete-account'),
           child: Container(
             width: double.infinity,
             height: 60,
