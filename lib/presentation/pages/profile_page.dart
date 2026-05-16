@@ -27,7 +27,10 @@ class ProfilePage extends StatelessWidget {
                   const SpaceHeight(16),
                   // Pengaturan section
                   _buildMenuSection(children: [
-                    _buildMenuItem(title: 'Alamat Tersimpan'),
+                    _buildMenuItem(
+                      title: 'Alamat Tersimpan',
+                      onTap: () => GoRouter.of(context).push('/saved-address'),
+                    ),
                     _buildMenuItem(title: 'Pembayaran'),
                     _buildMenuItem(title: 'Pengaturan', isLast: true),
                   ]),
@@ -167,9 +170,10 @@ class ProfilePage extends StatelessWidget {
     required String title,
     Widget? trailing,
     bool isLast = false,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       borderRadius: isLast ? const BorderRadius.vertical(bottom: Radius.circular(12)) : BorderRadius.zero,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

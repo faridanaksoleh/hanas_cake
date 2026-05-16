@@ -14,8 +14,9 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
-  /// File path: assets/icons/apple_inc.svg
-  String get appleInc => 'assets/icons/apple_inc.svg';
+  /// File path: assets/icons/apple_inc.png
+  AssetGenImage get appleInc =>
+      const AssetGenImage('assets/icons/apple_inc.png');
 
   /// File path: assets/icons/bell_filled.svg
   String get bellFilled => 'assets/icons/bell_filled.svg';
@@ -67,8 +68,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/eyeclosed_outline.svg
   String get eyeclosedOutline => 'assets/icons/eyeclosed_outline.svg';
 
-  /// File path: assets/icons/facebook.svg
-  String get facebook => 'assets/icons/facebook.svg';
+  /// File path: assets/icons/facebook.png
+  AssetGenImage get facebook =>
+      const AssetGenImage('assets/icons/facebook.png');
 
   /// File path: assets/icons/gearsix_filled.svg
   String get gearsixFilled => 'assets/icons/gearsix_filled.svg';
@@ -76,8 +78,8 @@ class $AssetsIconsGen {
   /// File path: assets/icons/gearsix_outline.svg
   String get gearsixOutline => 'assets/icons/gearsix_outline.svg';
 
-  /// File path: assets/icons/google.svg
-  String get google => 'assets/icons/google.svg';
+  /// File path: assets/icons/google.png
+  AssetGenImage get google => const AssetGenImage('assets/icons/google.png');
 
   /// File path: assets/icons/heart_filled.svg
   String get heartFilled => 'assets/icons/heart_filled.svg';
@@ -85,8 +87,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/heart_outline.svg
   String get heartOutline => 'assets/icons/heart_outline.svg';
 
-  /// File path: assets/icons/instagram.svg
-  String get instagram => 'assets/icons/instagram.svg';
+  /// File path: assets/icons/instagram.png
+  AssetGenImage get instagram =>
+      const AssetGenImage('assets/icons/instagram.png');
 
   /// File path: assets/icons/magnifyingglass_filled.svg
   String get magnifyingglassFilled => 'assets/icons/magnifyingglass_filled.svg';
@@ -122,14 +125,15 @@ class $AssetsIconsGen {
   /// File path: assets/icons/trash_outline.svg
   String get trashOutline => 'assets/icons/trash_outline.svg';
 
-  /// File path: assets/icons/whatsapp.svg
-  String get whatsapp => 'assets/icons/whatsapp.svg';
+  /// File path: assets/icons/whatsapp.png
+  AssetGenImage get whatsapp =>
+      const AssetGenImage('assets/icons/whatsapp.png');
 
   /// File path: assets/icons/whatsapp_logo.svg
   String get whatsappLogo => 'assets/icons/whatsapp_logo.svg';
 
-  /// File path: assets/icons/x.svg
-  String get x => 'assets/icons/x.svg';
+  /// File path: assets/icons/x.png
+  AssetGenImage get x => const AssetGenImage('assets/icons/x.png');
 
   /// File path: assets/icons/xcircle_filled.svg
   String get xcircleFilled => 'assets/icons/xcircle_filled.svg';
@@ -138,7 +142,7 @@ class $AssetsIconsGen {
   String get xcircleOutline => 'assets/icons/xcircle_outline.svg';
 
   /// List of all assets
-  List<String> get values => [
+  List<dynamic> get values => [
     appleInc,
     bellFilled,
     bellOutline,
@@ -185,6 +189,9 @@ class $AssetsIconsGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
+  /// File path: assets/images/address.png
+  AssetGenImage get address => const AssetGenImage('assets/images/address.png');
+
   /// File path: assets/images/bg_landing.png
   AssetGenImage get bgLanding =>
       const AssetGenImage('assets/images/bg_landing.png');
@@ -209,6 +216,7 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
+    address,
     bgLanding,
     home,
     homeDelivery,

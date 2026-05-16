@@ -12,6 +12,7 @@ import 'package:hanas_cake/domain/usecases/login_usecase.dart';
 import 'package:hanas_cake/domain/usecases/register_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
 
+import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
 import 'package:hanas_cake/presentation/pages/landing_page.dart';
@@ -20,6 +21,7 @@ import 'package:hanas_cake/presentation/pages/my_account_page.dart';
 import 'package:hanas_cake/presentation/pages/pick_up_page.dart';
 import 'package:hanas_cake/presentation/pages/profile_page.dart';
 import 'package:hanas_cake/presentation/pages/register_page.dart';
+import 'package:hanas_cake/presentation/pages/saved_address_page.dart';
 import 'package:hanas_cake/presentation/pages/splash_page.dart';
 
 void main() {
@@ -86,6 +88,14 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/delete-account',
           builder: (context, state) => const DeleteAccountPage(),
+        ),
+        GoRoute(
+          path: '/saved-address',
+          builder: (context, state) => const SavedAddressPage(),
+        ),
+        GoRoute(
+          path: '/add-address',
+          builder: (context, state) => const AddAddressPage(),
         ),
       ],
     );

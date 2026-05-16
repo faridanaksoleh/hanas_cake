@@ -10,6 +10,7 @@ class CustomTextField extends StatefulWidget {
   final int? maxLength;
   final Widget? suffixWidget;
   final Color? labelColor;
+  final bool isOutlineBorder;
 
   const CustomTextField({
     super.key,
@@ -21,6 +22,7 @@ class CustomTextField extends StatefulWidget {
     this.maxLength,
     this.suffixWidget,
     this.labelColor,
+    this.isOutlineBorder = false,
   });
 
   @override
@@ -60,7 +62,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           decoration: InputDecoration(
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            contentPadding: widget.isOutlineBorder
+                ? const EdgeInsets.symmetric(horizontal: 14, vertical: 14)
+                : const EdgeInsets.symmetric(vertical: 8),
             hintText: widget.hintText,
             hintStyle: AppTextStyles.body.copyWith(
               color: AppColors.border,
@@ -89,15 +93,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       )
                     : null
             ),
-            border: const UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.primaryLight),
-            ),
-            enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.primaryLight),
-            ),
-            focusedBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.primaryLight),
-            ),
+            border: widget.isOutlineBorder
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  )
+                : const UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.primaryLight),
+                  ),
+            enabledBorder: widget.isOutlineBorder
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  )
+                : const UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.primaryLight),
+                  ),
+            focusedBorder: widget.isOutlineBorder
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                  )
+                : const UnderlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.primaryLight),
+                  ),
           ),
           onChanged: (value) {
             if (widget.maxLength != null) {
