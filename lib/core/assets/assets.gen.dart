@@ -50,6 +50,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/clockclockwise_outline.svg
   String get clockclockwiseOutline => 'assets/icons/clockclockwise_outline.svg';
 
+  /// File path: assets/icons/dana.png
+  AssetGenImage get dana => const AssetGenImage('assets/icons/dana.png');
+
   /// File path: assets/icons/dotsthree_filled.svg
   String get dotsthreeFilled => 'assets/icons/dotsthree_filled.svg';
 
@@ -81,6 +84,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/google.png
   AssetGenImage get google => const AssetGenImage('assets/icons/google.png');
 
+  /// File path: assets/icons/gopay.png
+  AssetGenImage get gopay => const AssetGenImage('assets/icons/gopay.png');
+
   /// File path: assets/icons/heart_filled.svg
   String get heartFilled => 'assets/icons/heart_filled.svg';
 
@@ -106,6 +112,13 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/phone.svg
   String get phone => 'assets/icons/phone.svg';
+
+  /// File path: assets/icons/qris.png
+  AssetGenImage get qris => const AssetGenImage('assets/icons/qris.png');
+
+  /// File path: assets/icons/shopeepay.png
+  AssetGenImage get shopeepay =>
+      const AssetGenImage('assets/icons/shopeepay.png');
 
   /// File path: assets/icons/sliders_filled.svg
   String get slidersFilled => 'assets/icons/sliders_filled.svg';
@@ -154,6 +167,7 @@ class $AssetsIconsGen {
     chatscircleOutline,
     clockclockwiseFilled,
     clockclockwiseOutline,
+    dana,
     dotsthreeFilled,
     dotsthreeOutline,
     eyeFilled,
@@ -164,6 +178,7 @@ class $AssetsIconsGen {
     gearsixFilled,
     gearsixOutline,
     google,
+    gopay,
     heartFilled,
     heartOutline,
     instagram,
@@ -172,6 +187,8 @@ class $AssetsIconsGen {
     mappinFilled,
     mappinOutline,
     phone,
+    qris,
+    shopeepay,
     slidersFilled,
     slidersOutline,
     ticketFilled,

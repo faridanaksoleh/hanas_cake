@@ -31,7 +31,10 @@ class ProfilePage extends StatelessWidget {
                       title: 'Alamat Tersimpan',
                       onTap: () => GoRouter.of(context).push('/saved-address'),
                     ),
-                    _buildMenuItem(title: 'Pembayaran'),
+                    _buildMenuItem(
+                      title: 'Pembayaran',
+                      onTap: () => GoRouter.of(context).push('/payment-method'),
+                    ),
                     _buildMenuItem(title: 'Pengaturan', isLast: true),
                   ]),
                   const SpaceHeight(16),

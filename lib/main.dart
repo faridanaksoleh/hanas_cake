@@ -18,6 +18,7 @@ import 'package:hanas_cake/presentation/pages/home_page.dart';
 import 'package:hanas_cake/presentation/pages/landing_page.dart';
 import 'package:hanas_cake/presentation/pages/login_page.dart';
 import 'package:hanas_cake/presentation/pages/my_account_page.dart';
+import 'package:hanas_cake/presentation/pages/payment_method_page.dart';
 import 'package:hanas_cake/presentation/pages/pick_up_page.dart';
 import 'package:hanas_cake/presentation/pages/profile_page.dart';
 import 'package:hanas_cake/presentation/pages/register_page.dart';
@@ -96,6 +97,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/add-address',
           builder: (context, state) => const AddAddressPage(),
+        ),
+        GoRoute(
+          path: '/payment-method',
+          builder: (context, state) => const PaymentMethodPage(),
         ),
       ],
     );
