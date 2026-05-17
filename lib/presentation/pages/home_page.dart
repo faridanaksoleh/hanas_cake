@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart'; 
 import 'package:hanas_cake/core/core.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,7 +15,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      // SafeArea agar konten tidak tertutup notch/status bar
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -30,7 +30,6 @@ class _HomePageState extends State<HomePage> {
               _buildPreorderBanner(),
               const SpaceHeight(32),
               _buildCustomerService(),
-              // 🔥 Space 100px yang kosong melompong sudah resmi DIHAPUS!
             ],
           ),
         ),
@@ -40,7 +39,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ─────────────────────────────────────────────────────────
-  // TOP BAR
+  // TOP BAR 
   // ─────────────────────────────────────────────────────────
   Widget _buildTopBar() {
     return Row(
@@ -59,16 +58,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        // Lonceng Notifikasi
-        Container(
-          width: 44,
-          height: 44,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(Icons.notifications_none, color: AppColors.white),
+        // 🔥 FIX: Navigasi anti-merah
+        GestureDetector(
+          onTap: () {
+            GoRouter.of(context).push('/notification');
+          }, 
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(Icons.notifications_none, color: AppColors.white),
+            ),
           ),
         ),
       ],
@@ -89,7 +93,6 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Stack(
         children: [
-          // Gambar di kanan
           Positioned(
             right: 0,
             top: 0,
@@ -99,7 +102,6 @@ class _HomePageState extends State<HomePage> {
               fit: BoxFit.fitHeight, 
             ),
           ),
-          // Gradient
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -116,7 +118,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Content Teks & Button
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), 
             child: Column(
@@ -378,7 +379,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SpaceHeight(12),
-        // WhatsApp CS card
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -438,7 +438,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SpaceHeight(12),
-        // Halal certification tile
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

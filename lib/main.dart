@@ -26,6 +26,7 @@ import 'package:hanas_cake/presentation/pages/saved_address_page.dart';
 import 'package:hanas_cake/presentation/pages/splash_page.dart';
 import 'package:hanas_cake/presentation/pages/terms_and_conditions_page.dart';
 import 'package:hanas_cake/presentation/pages/privacy_policy_page.dart';
+import 'package:hanas_cake/presentation/pages/notification_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -111,6 +112,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/privacy',
           builder: (context, state) => const PrivacyPolicyPage(),
+        ),
+        GoRoute(
+          path: '/notification',
+          builder: (context, state) => const NotificationPage(),
         ),
       ],
     );

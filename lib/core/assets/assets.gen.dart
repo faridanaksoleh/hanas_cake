@@ -87,8 +87,8 @@ class $AssetsIconsGen {
   /// File path: assets/icons/gopay.png
   AssetGenImage get gopay => const AssetGenImage('assets/icons/gopay.png');
 
-  /// File path: assets/icons/halal.svg
-  String get halal => 'assets/icons/halal.svg';
+  /// File path: assets/icons/halal.png
+  AssetGenImage get halal => const AssetGenImage('assets/icons/halal.png');
 
   /// File path: assets/icons/heart_filled.svg
   String get heartFilled => 'assets/icons/heart_filled.svg';
@@ -221,6 +221,10 @@ class $AssetsImagesGen {
   AssetGenImage get bgLanding =>
       const AssetGenImage('assets/images/bg_landing.png');
 
+  /// File path: assets/images/croissant.png
+  AssetGenImage get croissant =>
+      const AssetGenImage('assets/images/croissant.png');
+
   /// File path: assets/images/home.png
   AssetGenImage get home => const AssetGenImage('assets/images/home.png');
 
@@ -247,6 +251,7 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [
     address,
     bgLanding,
+    croissant,
     home,
     homeDelivery,
     homePickup,
