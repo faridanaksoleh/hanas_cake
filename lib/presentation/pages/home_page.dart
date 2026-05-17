@@ -58,7 +58,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        // 🔥 FIX: Navigasi anti-merah
         GestureDetector(
           onTap: () {
             GoRouter.of(context).push('/notification');
@@ -70,8 +69,15 @@ class _HomePageState extends State<HomePage> {
               color: AppColors.primary,
               shape: BoxShape.circle,
             ),
-            child: const Center(
-              child: Icon(Icons.notifications_none, color: AppColors.white),
+            child: Center(
+              // 🔥 FIX: Pakai SVG Bell sesuai request
+              child: SvgPicture.asset(
+                'assets/icons/bell.svg',
+                width: 24,
+                height: 24,
+                // Pastikan warnanya putih
+                colorFilter: const ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+              ),
             ),
           ),
         ),
@@ -379,6 +385,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SpaceHeight(12),
+        // WhatsApp CS card
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -438,43 +445,198 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SpaceHeight(12),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
+        
+        // HALAL CARD dengan GestureDetector
+        GestureDetector(
+          onTap: () => _showHalalModal(context), 
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/icons/halal.png', 
+                  width: 36, 
+                  height: 36,
+                  fit: BoxFit.contain,
+                ),
+                const SpaceWidth(12),
+                Expanded(
+                  child: Text(
+                    "Hana's Bakery sudah tersertifikasi halal oleh MUI",
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
           ),
-          child: Row(
+        ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // BOTTOM SHEET MODAL (POP-UP HALAL)
+  // ─────────────────────────────────────────────────────────
+  void _showHalalModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.only(top: 12, left: 24, right: 24, bottom: 24),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, 
             children: [
-              Image.asset(
-                'assets/icons/halal.png', 
-                width: 36, 
-                height: 36,
-                fit: BoxFit.contain,
+              // Garis Drag Handle
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-              const SpaceWidth(12),
-              Expanded(
-                child: Text(
-                  "Hana's Bakery sudah tersertifikasi halal oleh MUI",
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+              const SpaceHeight(24),
+              // Judul Modal
+              Text(
+                'Sertifikasi Halal',
+                style: AppTextStyles.h2.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SpaceHeight(16),
+              // Sub Judul
+              Text(
+                "Hana's Bakery sudah terferifikasi halal oleh MUI",
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SpaceHeight(16),
+              // Inner Card Halal
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  // 🔥 FIX: Custom Hex Color #7A5248 dengan opacity 30% sesuai Figma
+                  color: const Color(0xFF7A5248).withValues(alpha: 0.30),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/icons/halal.png',
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.contain,
+                    ),
+                    const SpaceWidth(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Majelis Ulama Indonesia',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            '( NOMOR SERTIFIKAT HALAL )',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SpaceHeight(24),
+              // Bullet Points
+              _buildBulletPoint('Bebas dari bahan-bahan yang dilarang syariat islam'),
+              const SpaceHeight(12),
+              _buildBulletPoint('Diproses dan disajikan sesuai dengan standar islami'),
+              const SpaceHeight(32),
+              // Tombol Mengerti
+              GestureDetector(
+                onTap: () => Navigator.pop(context), 
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Saya Mengerti',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
+              const SpaceHeight(16), 
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper untuk bikin List Bullet
+  Widget _buildBulletPoint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 6, right: 12),
+          width: 6,
+          height: 6,
+          decoration: const BoxDecoration(
+            color: AppColors.textPrimary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
           ),
         ),
       ],
