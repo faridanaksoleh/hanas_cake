@@ -40,8 +40,14 @@ class ProfilePage extends StatelessWidget {
                   const SpaceHeight(16),
                   // Informasi & Sosial Media section
                   _buildMenuSection(children: [
-                    _buildMenuItem(title: 'Syarat dan Ketentuan'),
-                    _buildMenuItem(title: 'Kebijakan Privasi'),
+                    _buildMenuItem(
+                      title: 'Syarat dan Ketentuan',
+                      onTap: () => GoRouter.of(context).push('/terms'),
+                    ),
+                    _buildMenuItem(
+                      title: 'Kebijakan Privasi',
+                      onTap: () => GoRouter.of(context).push('/privacy'),
+                    ),
                     _buildMenuItem(
                       title: 'Media Sosial',
                       isLast: true,

@@ -24,6 +24,8 @@ import 'package:hanas_cake/presentation/pages/profile_page.dart';
 import 'package:hanas_cake/presentation/pages/register_page.dart';
 import 'package:hanas_cake/presentation/pages/saved_address_page.dart';
 import 'package:hanas_cake/presentation/pages/splash_page.dart';
+import 'package:hanas_cake/presentation/pages/terms_and_conditions_page.dart';
+import 'package:hanas_cake/presentation/pages/privacy_policy_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -101,6 +103,14 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/payment-method',
           builder: (context, state) => const PaymentMethodPage(),
+        ),
+        GoRoute(
+          path: '/terms',
+          builder: (context, state) => const TermsAndConditionsPage(),
+        ),
+        GoRoute(
+          path: '/privacy',
+          builder: (context, state) => const PrivacyPolicyPage(),
         ),
       ],
     );
