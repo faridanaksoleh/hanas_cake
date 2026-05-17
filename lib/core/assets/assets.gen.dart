@@ -87,6 +87,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/gopay.png
   AssetGenImage get gopay => const AssetGenImage('assets/icons/gopay.png');
 
+  /// File path: assets/icons/halal.svg
+  String get halal => 'assets/icons/halal.svg';
+
   /// File path: assets/icons/heart_filled.svg
   String get heartFilled => 'assets/icons/heart_filled.svg';
 
@@ -142,6 +145,9 @@ class $AssetsIconsGen {
   AssetGenImage get whatsapp =>
       const AssetGenImage('assets/icons/whatsapp.png');
 
+  /// File path: assets/icons/whatsapp1.svg
+  String get whatsapp1 => 'assets/icons/whatsapp1.svg';
+
   /// File path: assets/icons/whatsapp_logo.svg
   String get whatsappLogo => 'assets/icons/whatsapp_logo.svg';
 
@@ -179,6 +185,7 @@ class $AssetsIconsGen {
     gearsixOutline,
     google,
     gopay,
+    halal,
     heartFilled,
     heartOutline,
     instagram,
@@ -196,6 +203,7 @@ class $AssetsIconsGen {
     trashFilled,
     trashOutline,
     whatsapp,
+    whatsapp1,
     whatsappLogo,
     x,
     xcircleFilled,
@@ -224,6 +232,10 @@ class $AssetsImagesGen {
   AssetGenImage get homePickup =>
       const AssetGenImage('assets/images/home_pickup.png');
 
+  /// File path: assets/images/home_preorder.png
+  AssetGenImage get homePreorder =>
+      const AssetGenImage('assets/images/home_preorder.png');
+
   /// File path: assets/images/promo.png
   AssetGenImage get promo => const AssetGenImage('assets/images/promo.png');
 
@@ -238,6 +250,7 @@ class $AssetsImagesGen {
     home,
     homeDelivery,
     homePickup,
+    homePreorder,
     promo,
     youngManWalkingWithCoffee,
   ];

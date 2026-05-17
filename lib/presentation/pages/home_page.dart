@@ -10,32 +10,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
+      // SafeArea agar konten tidak tertutup notch/status bar
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SpaceHeight(20),
               _buildTopBar(),
-              const SpaceHeight(20),
+              const SpaceHeight(24),
               _buildPromoBanner(),
               const SpaceHeight(24),
               _buildOrderOptions(),
-              const SpaceHeight(24),
-              _buildPopularMenu(),
-              const SpaceHeight(24),
+              const SpaceHeight(16),
+              _buildPreorderBanner(),
+              const SpaceHeight(32),
               _buildCustomerService(),
-              const SpaceHeight(100),
+              // 🔥 Space 100px yang kosong melompong sudah resmi DIHAPUS!
             ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
     );
   }
 
@@ -43,124 +43,135 @@ class _HomePageState extends State<HomePage> {
   // TOP BAR
   // ─────────────────────────────────────────────────────────
   Widget _buildTopBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Selamat datang 👋',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  "Hana's Cake",
-                  style: AppTextStyles.h1.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hi Rina, Selamat Datang!',
+              style: AppTextStyles.display.copyWith( 
+                color: AppColors.primary, 
+                fontWeight: FontWeight.bold,
+                fontSize: 22, 
+              ),
             ),
+          ],
+        ),
+        // Lonceng Notifikasi
+        Container(
+          width: 44,
+          height: 44,
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
           ),
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primaryXLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: AppColors.primary,
-              size: 22,
-            ),
+          child: const Center(
+            child: Icon(Icons.notifications_none, color: AppColors.white),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   // ─────────────────────────────────────────────────────────
-  // 1. PROMO BANNER
+  // 1. PROMO BANNER 
   // ─────────────────────────────────────────────────────────
   Widget _buildPromoBanner() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: Assets.images.promo.provider(),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                AppColors.primary.withValues(alpha: 0.90),
-                AppColors.primary.withValues(alpha: 0.0),
-              ],
+    return Container(
+      height: 170, 
+      width: double.infinity,
+      clipBehavior: Clip.hardEdge, 
+      decoration: BoxDecoration(
+        color: AppColors.primary, 
+        borderRadius: BorderRadius.circular(16), 
+      ),
+      child: Stack(
+        children: [
+          // Gambar di kanan
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Image.asset(
+              'assets/images/promo.png', 
+              fit: BoxFit.fitHeight, 
             ),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Promo Hari Ini',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.white.withValues(alpha: 0.85),
-                  fontWeight: FontWeight.w500,
+          // Gradient
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    AppColors.primary, 
+                    AppColors.primary, 
+                    AppColors.primary.withValues(alpha: 0.0), 
+                  ],
+                  stops: const [0.0, 0.55, 1.0], 
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Diskon 20%\nuntuk semua pastri',
-                style: AppTextStyles.h2.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Berlaku Sampai Pukul 17.00 WIB',
-                style: AppTextStyles.micro.copyWith(
-                  color: AppColors.white.withValues(alpha: 0.80),
-                ),
-              ),
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary,
-                    borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          // Content Teks & Button
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), 
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Promo Hari Ini',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.white.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w400, 
                   ),
-                  child: Text(
-                    'Pesan sekarang',
-                    style: AppTextStyles.micro.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w600,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Diskon 20%\nuntuk semua pastri',
+                  style: AppTextStyles.h2.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w600, 
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Berlaku Sampai Pukul 17.00 WIB',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.white.withValues(alpha: 0.85),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary, 
+                      borderRadius: BorderRadius.circular(8), 
+                    ),
+                    child: Text(
+                      'Pesan sekarang',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -169,51 +180,59 @@ class _HomePageState extends State<HomePage> {
   // 2. ORDER OPTIONS
   // ─────────────────────────────────────────────────────────
   Widget _buildOrderOptions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Hi Rina, Pesan Sekarang?',
-            style: AppTextStyles.h2.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pesan Sekarang?',
+          style: AppTextStyles.h2.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
           ),
-          const SpaceHeight(12),
-          Row(
-            children: [
-              Expanded(child: _buildPickUpCard()),
-              const SpaceWidth(12),
-              Expanded(child: _buildDeliveryCard()),
-            ],
-          ),
-        ],
-      ),
+        ),
+        const SpaceHeight(12),
+        Row(
+          children: [
+            Expanded(child: _buildPickUpCard()),
+            const SpaceWidth(12),
+            Expanded(child: _buildDeliveryCard()),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildPickUpCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary, width: 1.5),
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 16, 4, 14),
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        height: 140, 
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary, width: 1.5),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 4,  
+              bottom: 8, 
+              child: Image.asset(
+                'assets/images/home_pickup.png', 
+                height: 110,
+                fit: BoxFit.contain,
+              ),
+            ),
+            Positioned(
+              right: 12,
+              top: 24,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Pick Up',
-                    style: AppTextStyles.h3.copyWith(
+                    style: AppTextStyles.h2.copyWith( 
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -221,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 4),
                   Text(
                     'Ambil di Store\ntanpa antri',
-                    style: AppTextStyles.micro.copyWith(
+                    style: AppTextStyles.caption.copyWith( 
                       color: AppColors.white.withValues(alpha: 0.85),
                       height: 1.4,
                     ),
@@ -229,59 +248,55 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-          ),
-          Image.asset(
-            Assets.images.homePickup.path,
-            height: 95,
-            fit: BoxFit.contain,
-            alignment: Alignment.bottomCenter,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildDeliveryCard() {
     return Container(
+      height: 140,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: AppColors.primaryMid,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12), 
         border: Border.all(color: AppColors.primaryLight, width: 1.5),
       ),
-      clipBehavior: Clip.hardEdge,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Stack(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 16, 4, 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Delivery',
-                    style: AppTextStyles.h3.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+          Positioned(
+            left: 14,
+            top: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Delivery',
+                  style: AppTextStyles.h2.copyWith( 
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Garansi tepat\nwaktu. dijamin!',
-                    style: AppTextStyles.micro.copyWith(
-                      color: AppColors.primaryLight,
-                      height: 1.4,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Garansi tepat\nwaktu. dijamin!',
+                  style: AppTextStyles.caption.copyWith( 
+                    color: AppColors.primaryLight,
+                    height: 1.4,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          Image.asset(
-            Assets.images.homeDelivery.path,
-            height: 95,
-            fit: BoxFit.contain,
-            alignment: Alignment.bottomCenter,
+          Positioned(
+            right: 4, 
+            bottom: 8, 
+            child: Image.asset(
+              'assets/images/home_delivery.png', 
+              height: 105,
+              fit: BoxFit.contain,
+            ),
           ),
         ],
       ),
@@ -289,59 +304,62 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ─────────────────────────────────────────────────────────
-  // 3. POPULAR MENU
+  // 3. PREORDER BANNER
   // ─────────────────────────────────────────────────────────
-  Widget _buildPopularMenu() {
-    final menuItems = [
-      {'name': 'Croissant Mentega', 'category': 'Pastri', 'price': 'Rp15.000', 'isBestSeller': true},
-      {'name': 'Red Velvet Cake', 'category': 'Kue Slice', 'price': 'Rp28.000', 'isBestSeller': false},
-      {'name': 'Choco Lava', 'category': 'Dessert', 'price': 'Rp22.000', 'isBestSeller': true},
-      {'name': 'Banana Bread', 'category': 'Roti', 'price': 'Rp18.000', 'isBestSeller': false},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Popular Menu',
-                style: AppTextStyles.h2.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
+  Widget _buildPreorderBanner() {
+    return Container(
+      height: 120, 
+      width: double.infinity,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12), 
+        border: Border.all(color: AppColors.border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            left: 20,
+            top: 28,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Pre-Order',
+                  style: AppTextStyles.h2.copyWith( 
+                    color: AppColors.primaryLight, 
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: AppColors.textSecondary,
-                size: 16,
-              ),
-            ],
+                const SpaceHeight(6),
+                Text(
+                  'Rencanakan momen spesial\nbareng hana\'s bakery',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SpaceHeight(12),
-        SizedBox(
-          height: 220,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: menuItems.length,
-            separatorBuilder: (_, __) => const SpaceWidth(12),
-            itemBuilder: (context, index) {
-              final item = menuItems[index];
-              return _ProductCard(
-                name: item['name'] as String,
-                category: item['category'] as String,
-                price: item['price'] as String,
-                isBestSeller: item['isBestSeller'] as bool,
-              );
-            },
+          Positioned(
+            right: 25, 
+            bottom: 0,
+            child: Image.asset(
+              'assets/images/home_preorder.png', 
+              height: 105,
+              fit: BoxFit.contain,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -349,221 +367,118 @@ class _HomePageState extends State<HomePage> {
   // 4. CUSTOMER SERVICE
   // ─────────────────────────────────────────────────────────
   Widget _buildCustomerService() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Perlu Bantuan?',
-            style: AppTextStyles.h2.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Perlu Bantuan?',
+          style: AppTextStyles.h2.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
           ),
-          const SpaceHeight(12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.08),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.successBg,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SvgPicture.asset(
-                      Assets.icons.whatsappLogo,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.successText,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ),
-                ),
-                const SpaceWidth(12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hana's Bakery Customer Service",
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '+62 812-3456-7890',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.successText,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-}
-
-// ─────────────────────────────────────────────────────────
-// PRODUCT CARD (Sub-widget)
-// ─────────────────────────────────────────────────────────
-class _ProductCard extends StatelessWidget {
-  final String name;
-  final String category;
-  final String price;
-  final bool isBestSeller;
-
-  const _ProductCard({
-    required this.name,
-    required this.category,
-    required this.price,
-    required this.isBestSeller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image area with badge
-          Stack(
-            children: [
-              Container(
-                height: 110,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryXLight,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.bakery_dining_rounded,
-                    size: 48,
-                    color: AppColors.primaryMid,
-                  ),
-                ),
+        ),
+        const SpaceHeight(12),
+        // WhatsApp CS card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
-              if (isBestSeller)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.successBg,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'Best Seller',
-                      style: AppTextStyles.micro.copyWith(
-                        color: AppColors.successText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
-          // Info area
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category,
-                  style: AppTextStyles.micro.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(8),
+                child: SvgPicture.asset(
+                  'assets/icons/whatsapp1.svg', 
+                  fit: BoxFit.contain,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              const SpaceWidth(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      price,
+                      "Hana's Bakery Customer Service (chat only)",
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1, 
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppColors.white,
-                          size: 18,
-                        ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '081-2222-3333',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.successText,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        const SpaceHeight(12),
+        // Halal certification tile
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.06),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/icons/halal.png', 
+                width: 36, 
+                height: 36,
+                fit: BoxFit.contain,
+              ),
+              const SpaceWidth(12),
+              Expanded(
+                child: Text(
+                  "Hana's Bakery sudah tersertifikasi halal oleh MUI",
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
