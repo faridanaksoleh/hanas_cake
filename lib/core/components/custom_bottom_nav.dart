@@ -1,41 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:hanas_cake/core/core.dart';
+import 'package:hanas_cake/core/core.dart'; 
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
+  final Function(int) onTap;
 
-  const CustomBottomNav({super.key, required this.currentIndex});
+  const CustomBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // List menu navbar beserta path routing-nya
-    final List<Map<String, dynamic>> tabs = [
-      {
-        'icon': 'assets/icons/home.svg',
-        'label': 'Home',
-        'route': '/home',
-      },
-      {
-        'icon': 'assets/icons/voucher.svg', 
-        'label': 'Voucher',
-        'route': '/voucher', 
-      },
-      {
-        'icon': 'assets/icons/order.svg', 
-        'label': 'Order',
-        'route': '/order', 
-      },
-      {
-        'icon': 'assets/icons/profile.svg', 
-        'label': 'Profile',
-        'route': '/profile', 
-      },
+    final List<Map<String, String>> tabs = [
+      {'icon': 'assets/icons/home.svg', 'label': 'Home'},
+      {'icon': 'assets/icons/voucher.svg', 'label': 'Voucher'},
+      {'icon': 'assets/icons/order.svg', 'label': 'Order'},
+      {'icon': 'assets/icons/profile.svg', 'label': 'Profile'},
     ];
 
     return Container(
-      // 🔥 FIX 1: Background pakai primaryMid sesuai request
       decoration: const BoxDecoration(
         color: AppColors.primaryMid, 
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -43,68 +29,127 @@ class CustomBottomNav extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: SafeArea(
         top: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(tabs.length, (index) {
-            final isActive = currentIndex == index;
+        child: SizedBox(
+          height: 48, // Kunci tinggi navbar agar stabil seimbang
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Membagi rata lebar grid menjadi 4 bagian presisi sesuai figma
+              final tabWidth = constraints.maxWidth / tabs.length;
 
-            return GestureDetector(
-              onTap: () {
-                // Jangan pindah kalau tab sudah aktif
-                if (!isActive) {
-                  context.go(tabs[index]['route']); 
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300), // Kecepatan animasi
-                curve: Curves.easeInOutCubic, // Gaya animasi biar smooth
-                padding: EdgeInsets.symmetric(
-                  horizontal: isActive ? 16.0 : 12.0,
-                  vertical: 12.0,
-                ),
-                decoration: BoxDecoration(
-                  color: isActive ? AppColors.primary : Colors.transparent,
-                  // 🔥 FIX 2: Corner radius dibuat 12, tidak bulat 100 lagi!
-                  borderRadius: BorderRadius.circular(12), 
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Manipulasi Warna SVG
-                    SvgPicture.asset(
-                      tabs[index]['icon'],
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        isActive ? AppColors.white : AppColors.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    // Teks Muncul / Hilang
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOutCubic,
-                      child: SizedBox(
-                        width: isActive ? null : 0, 
-                        child: Padding(
-                          padding: EdgeInsets.only(left: isActive ? 8.0 : 0.0),
-                          child: Text(
-                            tabs[index]['label'],
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.clip,
+              return Stack(
+                children: [
+                  // ──────────────────────────────────────────────────
+                  // 1. LAPISAN BELAKANG: BACKGROUND SLIDING PILL
+                  // ──────────────────────────────────────────────────
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOutCubic,
+                    left: currentIndex * tabWidth, 
+                    width: tabWidth,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      // 🔥 FIX DEWA: OverflowBox mengizinkan pill cokelat melebar melebihi jatah grid tanpa memicu error
+                      child: OverflowBox(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOutCubic,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          // Row dummy di dalam pill untuk mendeteksi panjang teks otomatis
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 24, height: 24), // Ukuran dummy ikon
+                              const SizedBox(width: 6),
+                              Text(
+                                tabs[currentIndex]['label']!,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.transparent, // Dibuat transparan karena hanya cetakan lebar
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          }),
+                  ),
+
+                  // ──────────────────────────────────────────────────
+                  // 2. LAPISAN DEPAN: ICONS & LABELS TEXT
+                  // ──────────────────────────────────────────────────
+                  Row(
+                    children: List.generate(tabs.length, (index) {
+                      final isActive = currentIndex == index;
+
+                      return Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => onTap(index),
+                          child: Center(
+                            // 🔥 FIX DEWA: Foreground juga dibungkus OverflowBox agar teks panjang leluasa mengembang
+                            child: OverflowBox(
+                              maxWidth: double.infinity,
+                              maxHeight: double.infinity,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Ikon SVG dinamis warna
+                                    SvgPicture.asset(
+                                      tabs[index]['icon']!,
+                                      width: 24,
+                                      height: 24,
+                                      colorFilter: ColorFilter.mode(
+                                        isActive ? AppColors.white : AppColors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    // Animasi pelebaran teks saat aktif
+                                    AnimatedSize(
+                                      duration: const Duration(milliseconds: 300),
+                                      curve: Curves.easeInOutCubic,
+                                      child: SizedBox(
+                                        width: isActive ? null : 0, 
+                                        child: ClipRect(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (isActive) const SizedBox(width: 6),
+                                              Text(
+                                                tabs[index]['label']!,
+                                                style: AppTextStyles.bodySmall.copyWith(
+                                                  color: AppColors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                maxLines: 1,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

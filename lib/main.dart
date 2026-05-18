@@ -27,6 +27,7 @@ import 'package:hanas_cake/presentation/pages/splash_page.dart';
 import 'package:hanas_cake/presentation/pages/terms_and_conditions_page.dart';
 import 'package:hanas_cake/presentation/pages/privacy_policy_page.dart';
 import 'package:hanas_cake/presentation/pages/notification_page.dart';
+import 'package:hanas_cake/presentation/pages/main_layout.dart';
 
 void main() {
   runApp(const MyApp());
@@ -73,17 +74,56 @@ class MyApp extends StatelessWidget {
           path: '/register',
           builder: (context, state) => const RegisterPage(),
         ),
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomePage(),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return MainLayout(navigationShell: navigationShell);
+          },
+          branches: [
+            // TAB 0: HOME
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/home',
+                  builder: (context, state) => const HomePage(),
+                ),
+              ],
+            ),
+            // TAB 1: VOUCHER (DUMMY)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/voucher',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Halaman Voucher (Dummy)')),
+                  ),
+                ),
+              ],
+            ),
+            // TAB 2: ORDER (DUMMY)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/order',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Halaman Order (Dummy)')),
+                  ),
+                ),
+              ],
+            ),
+            // TAB 3: PROFILE
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/profile',
+                  builder: (context, state) => const ProfilePage(),
+                ),
+              ],
+            ),
+          ],
         ),
         GoRoute(
           path: '/pickup',
           builder: (context, state) => const PickUpPage(),
-        ),
-        GoRoute(
-          path: '/profile',
-          builder: (context, state) => const ProfilePage(),
         ),
         GoRoute(
           path: '/my-account',

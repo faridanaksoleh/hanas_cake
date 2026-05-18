@@ -9,7 +9,6 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
       body: Column(
         children: [
           Expanded(
