@@ -28,7 +28,9 @@ import 'package:hanas_cake/presentation/pages/terms_and_conditions_page.dart';
 import 'package:hanas_cake/presentation/pages/privacy_policy_page.dart';
 import 'package:hanas_cake/presentation/pages/notification_page.dart';
 import 'package:hanas_cake/presentation/pages/main_layout.dart';
-
+import 'package:hanas_cake/presentation/pages/order_page.dart';
+import 'package:hanas_cake/presentation/pages/order_filter_page.dart';
+import 'package:hanas_cake/presentation/pages/order_detail_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -99,14 +101,22 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-            // TAB 2: ORDER (DUMMY)
+            // TAB 2: ORDER
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: '/order',
-                  builder: (context, state) => const Scaffold(
-                    body: Center(child: Text('Halaman Order (Dummy)')),
-                  ),
+                  builder: (context, state) => const OrderPage(),
+                  routes: [
+                    GoRoute(
+                      path: 'filter',
+                      builder: (context, state) => const OrderFilterPage(),
+                    ),
+                    GoRoute(
+                      path: 'detail',
+                      builder: (context, state) => const OrderDetailPage(),
+                    ),
+                  ],
                 ),
               ],
             ),
