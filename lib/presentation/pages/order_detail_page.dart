@@ -29,7 +29,6 @@ class OrderDetailPage extends StatelessWidget {
           'Rincian Pesanan',
           style: AppTextStyles.h1.copyWith(
             color: AppColors.primary, 
-            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [

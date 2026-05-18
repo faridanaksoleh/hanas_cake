@@ -37,7 +37,6 @@ class _OrderPageState extends State<OrderPage> {
           'Riwayat Pesanan',
           style: AppTextStyles.h1.copyWith(
             color: AppColors.primary, 
-            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [

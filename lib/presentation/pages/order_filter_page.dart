@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
 class OrderFilterPage extends StatefulWidget {
@@ -9,48 +10,118 @@ class OrderFilterPage extends StatefulWidget {
 }
 
 class _OrderFilterPageState extends State<OrderFilterPage> {
+  // 🔥 KEMBALI KE SINGLE SELECT (Hanya bisa pilih 1 per kategori)
   String selectedFilter = 'Semua';
   String selectedDate = 'Semua';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.white, 
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
-        title: Text('Filter', style: AppTextStyles.h2.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              GoRouter.of(context).pop();
+            } else {
+              GoRouter.of(context).go('/order');
+            }
+          },
+        ),
+        title: Text(
+          'Filter',
+          style: AppTextStyles.h1.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.normal, 
+          ),
+        ),
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.zero,
               children: [
-                Text('TAMPILKAN BERDASARKAN', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
-                _buildRadio('Semua', selectedFilter, (val) => setState(() => selectedFilter = val!)),
-                _buildRadio('Pemesanan via Aplikasi', selectedFilter, (val) => setState(() => selectedFilter = val!)),
-                _buildRadio('Pick Up', selectedFilter, (val) => setState(() => selectedFilter = val!)),
-                _buildRadio('Delivery', selectedFilter, (val) => setState(() => selectedFilter = val!)),
-                _buildRadio('Pemesanan di store', selectedFilter, (val) => setState(() => selectedFilter = val!)),
                 const SpaceHeight(24),
-                Text('URUTKAN TANGGAL', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'TAMPILKAN BERDASARKAN',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SpaceHeight(8),
+                _buildRadio('Semua', selectedFilter, (val) => setState(() => selectedFilter = val!)),
+                _buildDivider(),
+                _buildRadio('Pemesanan via Aplikasi', selectedFilter, (val) => setState(() => selectedFilter = val!)),
+                _buildDivider(),
+                _buildRadio('Pick Up', selectedFilter, (val) => setState(() => selectedFilter = val!)),
+                _buildDivider(),
+                _buildRadio('Delivery', selectedFilter, (val) => setState(() => selectedFilter = val!)),
+                _buildDivider(),
+                _buildRadio('Pemesanan di store', selectedFilter, (val) => setState(() => selectedFilter = val!)),
+                
+                const SpaceHeight(16),
+                Container(height: 8, color: AppColors.surface), 
+                const SpaceHeight(24),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'URUTKAN TANGGAL',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SpaceHeight(8),
                 _buildRadio('Semua', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildDivider(),
                 _buildRadio('Pemesanan via Aplikasi', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildDivider(),
+                _buildRadio('Pick Up', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildDivider(),
+                _buildRadio('Delivery', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildDivider(),
+                _buildRadio('Pemesanan di store', selectedDate, (val) => setState(() => selectedDate = val!)),
+                
+                const SpaceHeight(40), 
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
+          
+          SizedBox(
+            width: double.infinity,
+            height: 56, 
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  GoRouter.of(context).pop();
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1B5E20), // Warna Hijau Gelap Figma
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                backgroundColor: const Color(0xFF1B5E20), 
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, 
+                ),
+                elevation: 0,
               ),
-              child: const Text('TERAPKAN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'TERAPKAN',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
         ],
@@ -58,14 +129,33 @@ class _OrderFilterPageState extends State<OrderFilterPage> {
     );
   }
 
+  // ─────────────────────────────────────────────────────────
+  // HELPER WIDGETS
+  // ─────────────────────────────────────────────────────────
+  
+  // 🔥 KEMBALI MENGGUNAKAN RADIOLISTTILE ASLI
   Widget _buildRadio(String title, String groupVal, Function(String?) onChange) {
     return RadioListTile<String>(
-      title: Text(title, style: AppTextStyles.body),
+      title: Text(
+        title, 
+        style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+      ),
       value: title,
       groupValue: groupVal,
       activeColor: AppColors.primary,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      controlAffinity: ListTileControlAffinity.leading, 
       onChanged: onChange,
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Divider(
+      height: 1,
+      thickness: 1,
+      color: AppColors.border,
+      indent: 64, 
+      endIndent: 24,
     );
   }
 }

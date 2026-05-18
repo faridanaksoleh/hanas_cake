@@ -56,8 +56,11 @@ class MyApp extends StatelessWidget {
     final loginUseCase = LoginUseCase(authRepository);
     final registerUseCase = RegisterUseCase(authRepository);
 
+    final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
     // 2. Setup GoRouter
     final GoRouter router = GoRouter(
+      navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
       routes: [
         GoRoute(
@@ -110,10 +113,12 @@ class MyApp extends StatelessWidget {
                   routes: [
                     GoRoute(
                       path: 'filter',
+                      parentNavigatorKey: _rootNavigatorKey,
                       builder: (context, state) => const OrderFilterPage(),
                     ),
                     GoRoute(
                       path: 'detail',
+                      parentNavigatorKey: _rootNavigatorKey,
                       builder: (context, state) => const OrderDetailPage(),
                     ),
                   ],
