@@ -17,9 +17,10 @@ class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surface, // Background body tetap surface
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        // 🔥 FIX: Background AppBar diubah jadi putih solid
+        backgroundColor: AppColors.white, 
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -55,9 +56,6 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // EMPTY STATE
-  // ─────────────────────────────────────────────────────────
   Widget _buildEmptyState() {
     return Center(
       child: Text(
@@ -70,9 +68,6 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // LIST PESANAN
-  // ─────────────────────────────────────────────────────────
   Widget _buildOrderList() {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -84,9 +79,6 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // CARD PESANAN
-  // ─────────────────────────────────────────────────────────
   Widget _buildOrderCard(bool showRating) {
     return GestureDetector(
       onTap: () => GoRouter.of(context).push('/order/detail'),
@@ -102,7 +94,6 @@ class _OrderPageState extends State<OrderPage> {
         ),
         child: Column(
           children: [
-            // BARIS 1: Judul & Tanggal
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -110,11 +101,10 @@ class _OrderPageState extends State<OrderPage> {
                   'Croissant Mentega...', 
                   style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
                 ),
-                // 🔥 FIX: Icon Panah dipindah ke samping kiri tanggal
                 Row(
                   children: [
                     const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.textSecondary),
-                    const SpaceWidth(8), // Jarak antara icon dan teks tanggal
+                    const SpaceWidth(8),
                     Text(
                       '21 Apr 2026', 
                       style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary),
@@ -124,8 +114,6 @@ class _OrderPageState extends State<OrderPage> {
               ],
             ),
             const SpaceHeight(12),
-            
-            // BARIS 2: Gambar & Harga
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -155,12 +143,9 @@ class _OrderPageState extends State<OrderPage> {
                 ),
               ],
             ),
-            
             const SpaceHeight(12),
             const Divider(height: 1, thickness: 1, color: AppColors.border), 
             const SpaceHeight(12),
-
-            // BARIS 3: Status & Tombol Pesan Lagi
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
