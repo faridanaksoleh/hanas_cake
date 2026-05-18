@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
@@ -7,69 +8,104 @@ class CustomBottomNav extends StatelessWidget {
 
   const CustomBottomNav({super.key, required this.currentIndex});
 
-  static const _items = [
-    (icon: Icons.home_rounded,              label: 'Home',    route: '/home'),
-    (icon: Icons.confirmation_number_outlined, label: 'Ticket',  route: '/home'),
-    (icon: Icons.shopping_bag_outlined,     label: 'Cart',    route: '/home'),
-    (icon: Icons.person_outline_rounded,    label: 'Profile', route: '/profile'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // List menu navbar beserta path routing-nya
+    final List<Map<String, dynamic>> tabs = [
+      {
+        'icon': 'assets/icons/home.svg',
+        'label': 'Home',
+        'route': '/home',
+      },
+      {
+        'icon': 'assets/icons/voucher.svg', 
+        'label': 'Voucher',
+        'route': '/voucher', 
+      },
+      {
+        'icon': 'assets/icons/order.svg', 
+        'label': 'Order',
+        'route': '/order', 
+      },
+      {
+        'icon': 'assets/icons/profile.svg', 
+        'label': 'Profile',
+        'route': '/profile', 
+      },
+    ];
+
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.15),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+      // 🔥 FIX 1: Background pakai primaryMid sesuai request
+      decoration: const BoxDecoration(
+        color: AppColors.primaryMid, 
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(_items.length, (index) {
-          final item = _items[index];
-          final isActive = currentIndex == index;
-          return GestureDetector(
-            onTap: () => GoRouter.of(context).go(item.route),
-            behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              padding: isActive
-                  ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
-                  : const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isActive ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    item.icon,
-                    color: isActive ? AppColors.white : AppColors.textSecondary,
-                    size: 22,
-                  ),
-                  if (isActive) ...[
-                    const SizedBox(width: 6),
-                    Text(
-                      item.label,
-                      style: AppTextStyles.micro.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(tabs.length, (index) {
+            final isActive = currentIndex == index;
+
+            return GestureDetector(
+              onTap: () {
+                // Jangan pindah kalau tab sudah aktif
+                if (!isActive) {
+                  context.go(tabs[index]['route']); 
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300), // Kecepatan animasi
+                curve: Curves.easeInOutCubic, // Gaya animasi biar smooth
+                padding: EdgeInsets.symmetric(
+                  horizontal: isActive ? 16.0 : 12.0,
+                  vertical: 12.0,
+                ),
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.primary : Colors.transparent,
+                  // 🔥 FIX 2: Corner radius dibuat 12, tidak bulat 100 lagi!
+                  borderRadius: BorderRadius.circular(12), 
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Manipulasi Warna SVG
+                    SvgPicture.asset(
+                      tabs[index]['icon'],
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        isActive ? AppColors.white : AppColors.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    // Teks Muncul / Hilang
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOutCubic,
+                      child: SizedBox(
+                        width: isActive ? null : 0, 
+                        child: Padding(
+                          padding: EdgeInsets.only(left: isActive ? 8.0 : 0.0),
+                          child: Text(
+                            tabs[index]['label'],
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }

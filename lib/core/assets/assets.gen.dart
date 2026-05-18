@@ -18,6 +18,9 @@ class $AssetsIconsGen {
   AssetGenImage get appleInc =>
       const AssetGenImage('assets/icons/apple_inc.png');
 
+  /// File path: assets/icons/bell.svg
+  String get bell => 'assets/icons/bell.svg';
+
   /// File path: assets/icons/bell_filled.svg
   String get bellFilled => 'assets/icons/bell_filled.svg';
 
@@ -96,6 +99,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/heart_outline.svg
   String get heartOutline => 'assets/icons/heart_outline.svg';
 
+  /// File path: assets/icons/home.svg
+  String get home => 'assets/icons/home.svg';
+
   /// File path: assets/icons/instagram.png
   AssetGenImage get instagram =>
       const AssetGenImage('assets/icons/instagram.png');
@@ -113,8 +119,14 @@ class $AssetsIconsGen {
   /// File path: assets/icons/mappin_outline.svg
   String get mappinOutline => 'assets/icons/mappin_outline.svg';
 
+  /// File path: assets/icons/order.svg
+  String get order => 'assets/icons/order.svg';
+
   /// File path: assets/icons/phone.svg
   String get phone => 'assets/icons/phone.svg';
+
+  /// File path: assets/icons/profile.svg
+  String get profile => 'assets/icons/profile.svg';
 
   /// File path: assets/icons/qris.png
   AssetGenImage get qris => const AssetGenImage('assets/icons/qris.png');
@@ -141,6 +153,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/trash_outline.svg
   String get trashOutline => 'assets/icons/trash_outline.svg';
 
+  /// File path: assets/icons/voucher.svg
+  String get voucher => 'assets/icons/voucher.svg';
+
   /// File path: assets/icons/whatsapp.png
   AssetGenImage get whatsapp =>
       const AssetGenImage('assets/icons/whatsapp.png');
@@ -163,6 +178,7 @@ class $AssetsIconsGen {
   /// List of all assets
   List<dynamic> get values => [
     appleInc,
+    bell,
     bellFilled,
     bellOutline,
     caretCircleLeftFilled,
@@ -188,12 +204,15 @@ class $AssetsIconsGen {
     halal,
     heartFilled,
     heartOutline,
+    home,
     instagram,
     magnifyingglassFilled,
     magnifyingglassOutline,
     mappinFilled,
     mappinOutline,
+    order,
     phone,
+    profile,
     qris,
     shopeepay,
     slidersFilled,
@@ -202,6 +221,7 @@ class $AssetsIconsGen {
     ticketOutline,
     trashFilled,
     trashOutline,
+    voucher,
     whatsapp,
     whatsapp1,
     whatsappLogo,
