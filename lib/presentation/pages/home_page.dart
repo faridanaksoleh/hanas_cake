@@ -313,8 +313,10 @@ class _HomePageState extends State<HomePage> {
   // 3. PREORDER BANNER
   // ─────────────────────────────────────────────────────────
   Widget _buildPreorderBanner() {
-    return Container(
-      height: 120, 
+    return GestureDetector(
+      onTap: () => GoRouter.of(context).push('/pre-order'),
+      child: Container(
+        height: 120, 
       width: double.infinity,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -366,7 +368,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ─────────────────────────────────────────────────────────
