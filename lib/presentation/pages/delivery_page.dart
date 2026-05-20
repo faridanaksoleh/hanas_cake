@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 
 class DeliveryPage extends StatefulWidget {
   const DeliveryPage({super.key});
@@ -10,6 +11,8 @@ class DeliveryPage extends StatefulWidget {
 }
 
 class _DeliveryPageState extends State<DeliveryPage> {
+  BranchItem? selectedBranch;
+
   // Key untuk target scroll fitur filter "Semua"
   final GlobalKey _semuaSectionKey = GlobalKey();
 
@@ -187,9 +190,18 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   ),
                   const SizedBox(height: 24),
                   
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final selected = await context.push<BranchItem>('/branch-list');
+                      if (selected != null) {
+                        setState(() {
+                          selectedBranch = selected;
+                        });
+                      }
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -204,13 +216,13 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Alamat Cabang terdekat',
-                              style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
+                            Text(
+                              selectedBranch?.name ?? 'Alamat Cabang terdekat',
+                              style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
                             ),
-                            const Text(
-                              '-dari lokasimu',
-                              style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                            Text(
+                              selectedBranch?.distanceKm != null ? '${selectedBranch!.distanceKm} km dari lokasimu' : '-dari lokasimu',
+                              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 18),
                             const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
@@ -230,6 +242,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         ),
                       ),
                     ],
+                  ),
                   ),
                 ],
               ),
