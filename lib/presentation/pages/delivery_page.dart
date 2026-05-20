@@ -41,6 +41,135 @@ class _DeliveryPageState extends State<DeliveryPage> {
     }
   }
 
+  // 🔥 FUNGSI SAKTI POP-UP BOTTOM SHEET
+  void _showOrderMethodBottomSheet(BuildContext context) {
+    String selectedMethod = 'Delivery'; // Default pilihan
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        // StatefulBuilder agar Radio Button bisa diklik dan update UI pop-up
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Handle atas (garis abu-abu)
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF9CA3AF),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Judul Pop Up
+                  const Text(
+                    'Pilih Metode Pemesanan',
+                    style: TextStyle(
+                      color: Color(0xFF5A3A31),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ──────── OPTION: PICK UP ────────
+                  _buildMethodOption(
+                    title: 'Pick Up',
+                    subtitle: 'Ambil di Store tanpa antri',
+                    imagePath: 'assets/images/home_pickup.png',
+                    value: 'Pick Up',
+                    groupValue: selectedMethod,
+                    onChanged: (val) {
+                      setModalState(() => selectedMethod = val!);
+                    },
+                  ),
+                  
+                  const SizedBox(height: 16),
+
+                  // ──────── OPTION: DELIVERY ────────
+                  _buildMethodOption(
+                    title: 'Delivery',
+                    subtitle: 'Garansi tepat waktu, dijamin!',
+                    imagePath: 'assets/images/home_delivery.png',
+                    value: 'Delivery',
+                    groupValue: selectedMethod,
+                    onChanged: (val) {
+                      setModalState(() => selectedMethod = val!);
+                    },
+                  ),
+                  
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // HELPER WIDGET UNTUK ISI POP UP
+  Widget _buildMethodOption({
+    required String title,
+    required String subtitle,
+    required String imagePath,
+    required String value,
+    required String groupValue,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return GestureDetector(
+      onTap: () => onChanged(value),
+      child: Container(
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            Image.asset(imagePath, width: 48, height: 60, fit: BoxFit.contain),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Color(0xFF1F2937),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Color(0xFF9CA3AF),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Radio<String>(
+              value: value,
+              groupValue: groupValue,
+              activeColor: const Color(0xFF5A3A31),
+              onChanged: onChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,9 +178,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─────────────────────────────────────────────────────────
-            // 1. HEADLINE AREA (Delivery Banner)
-            // ─────────────────────────────────────────────────────────
+            // HEADLINE AREA
             Container(
               width: double.infinity,
               color: const Color(0xFFEDD8D0),
@@ -135,24 +262,27 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                     ),
                                   ],
                                 ),
-                                Container(
-                                  width: 82,
-                                  height: 41,
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0xFFF4EDE9),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(width: 1, color: Color(0xFF5A3A31)),
-                                      borderRadius: BorderRadius.circular(50),
+                                GestureDetector(
+                                  onTap: () => _showOrderMethodBottomSheet(context),
+                                  child: Container(
+                                    width: 82,
+                                    height: 41,
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: ShapeDecoration(
+                                      color: const Color(0xFFF4EDE9),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(width: 1, color: Color(0xFF5A3A31)),
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Center(
-                                    child: Text(
-                                      'Ubah',
-                                      style: TextStyle(
-                                        color: Color(0xFF5A3A31),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
+                                    child: const Center(
+                                      child: Text(
+                                        'Ubah',
+                                        style: TextStyle(
+                                          color: Color(0xFF5A3A31),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -168,9 +298,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
 
-            // ─────────────────────────────────────────────────────────
-            // 2. PEMILIHAN ALAMAT (BLOK PUTIH 1) - FIX ALIGNMENT
-            // ─────────────────────────────────────────────────────────
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -192,74 +319,72 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   ),
                   const SizedBox(height: 24),
                   
+                  // 🔥 BRANCH SELECTION - SUDAH AKTIF
                   GestureDetector(
                     onTap: () async {
                       final selected = await context.push<BranchItem>('/branch-list');
                       if (selected != null) {
-                        setState(() {
-                          selectedBranch = selected;
-                        });
+                        setState(() => selectedBranch = selected);
                       }
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SvgPicture.asset('assets/icons/branch.svg', width: 42),
-                          _buildVerticalDashedLine(),
-                          SvgPicture.asset('assets/icons/address.svg', width: 42),
-                        ],
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
-                              selectedBranch?.name ?? 'Alamat Cabang terdekat',
-                              style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
-                            Text(
-                              selectedBranch?.distanceKm != null ? '${selectedBranch!.distanceKm} km dari lokasimu' : '-dari lokasimu',
-                              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(height: 18),
-                            const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
-                            const SizedBox(height: 18),
-                            GestureDetector(
-                              onTap: () async {
-                                final selected = await context.push<DeliveryLocation>('/location-picker');
-                                if (selected != null) {
-                                  setState(() {
-                                    selectedLocation = selected;
-                                  });
-                                }
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      selectedLocation?.label ?? 'Pilih alamatmu terlebih dahulu',
-                                      style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
-                                ],
-                              ),
-                            ),
+                            SvgPicture.asset('assets/icons/branch.svg', width: 42),
+                            _buildVerticalDashedLine(),
+                            SvgPicture.asset('assets/icons/address.svg', width: 42),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                selectedBranch?.name ?? 'Alamat Cabang terdekat',
+                                style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                selectedBranch != null ? selectedBranch!.address : '-dari lokasimu',
+                                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: 18),
+                              const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
+                              const SizedBox(height: 18),
+                              
+                              GestureDetector(
+                                onTap: () async {
+                                  final selected = await context.push<DeliveryLocation>('/location-picker');
+                                  if (selected != null) {
+                                    setState(() => selectedLocation = selected);
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        selectedLocation?.address ?? 'Pilih alamatmu terlebih dahulu',
+                                        style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -267,9 +392,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
             
             const SizedBox(height: 12),
 
-            // ─────────────────────────────────────────────────────────
-            // 3. FAVORITE & MUST TRY
-            // ─────────────────────────────────────────────────────────
+            // FAVORITE & MUST TRY
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -410,9 +533,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
             const SizedBox(height: 12),
 
-            // ─────────────────────────────────────────────────────────
-            // 4. SEMUA MENU - FIX SPACING
-            // ─────────────────────────────────────────────────────────
+            // SEMUA MENU
             Container(
               key: _semuaSectionKey, 
               width: double.infinity,
@@ -448,6 +569,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
     );
   }
 
+  // HELPER WIDGETS
   Widget _buildVerticalDashedLine() {
     return Column(
       children: List.generate(
@@ -683,4 +805,15 @@ class _DeliveryPageState extends State<DeliveryPage> {
       ],
     );
   }
+}
+
+class BranchItem {
+  final String name;
+  final String address;
+  BranchItem({required this.name, required this.address});
+}
+
+class DeliveryLocation {
+  final String address;
+  DeliveryLocation({required this.address});
 }

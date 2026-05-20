@@ -1,60 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODEL
-// ─────────────────────────────────────────────────────────────────────────────
-
-class DeliveryLocation {
-  final String id;
-  final String label;        // e.g. "Lokasimu Saat Ini" / nama alamat tersimpan
-  final String fullAddress;
-  final double distanceKm;
-  final bool isSaved;        // true = masuk tab "Tersimpan"
-
-  const DeliveryLocation({
-    required this.id,
-    required this.label,
-    required this.fullAddress,
-    required this.distanceKm,
-    this.isSaved = false,
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DUMMY DATA  (ganti dengan data dari API / GPS nanti)
-// ─────────────────────────────────────────────────────────────────────────────
-
-final List<DeliveryLocation> _recentLocations = [
-  const DeliveryLocation(
-    id: 'loc_1',
-    label: 'Lokasimu Saat Ini',
-    fullAddress:
-        'Jl. Raya Jonggol-Dayeuh, Sukanegara, Kec. Jonggol, Kabupaten Bogor, Jawa Barat 16830, Indonesia',
-    distanceKm: 19.3,
-  ),
-  const DeliveryLocation(
-    id: 'loc_2',
-    label: 'Lokasimu Saat Ini',
-    fullAddress:
-        'Jl. Raya Jonggol-Dayeuh, Sukanegara, Kec. Jonggol, Kabupaten Bogor, Jawa Barat 16830, Indonesia',
-    distanceKm: 19.3,
-  ),
-];
-
-final List<DeliveryLocation> _savedLocations = [
-  const DeliveryLocation(
-    id: 'loc_saved_1',
-    label: 'Rumah',
-    fullAddress: 'Jl. Merdeka No. 10, Jakarta Pusat, DKI Jakarta 10110',
-    distanceKm: 5.2,
-    isSaved: true,
-  ),
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PAGE
-// ─────────────────────────────────────────────────────────────────────────────
+import 'package:hanas_cake/core/core.dart';
 
 class LocationPickerPage extends StatefulWidget {
   const LocationPickerPage({super.key});
@@ -63,378 +10,310 @@ class LocationPickerPage extends StatefulWidget {
   State<LocationPickerPage> createState() => _LocationPickerPageState();
 }
 
-class _LocationPickerPageState extends State<LocationPickerPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+class _LocationPickerPageState extends State<LocationPickerPage> {
+  // State untuk mengontrol tab mana yang sedang aktif
+  bool isTerakhirActive = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _searchController.addListener(() {
-      setState(() => _searchQuery = _searchController.text.trim().toLowerCase());
+  // State List Alamat Dinamis agar bisa berinteraksi
+  List<Map<String, dynamic>> addresses = [
+    {
+      'id': '1',
+      'title': 'Lokasimu Saat Ini',
+      'address': 'Jl. Raya Jonggol-Dayeuh, Sukanegara, Kec. Jonggol, Kabupaten Bogor, Jawa Barat 16830, Indonesia',
+      'distance': '19.3km dari store',
+      'isSaved': false,
+    },
+    {
+      'id': '2',
+      'title': 'Rumah Jonggol',
+      'address': 'Jl. Raya Jonggol-Dayeuh, Sukanegara, Kec. Jonggol, Kabupaten Bogor, Jawa Barat 16830, Indonesia',
+      'distance': '19.3km dari store',
+      'isSaved': false,
+    },
+    {
+      'id': '3',
+      'title': 'Jonggol',
+      'address': 'Jl. Raya Jonggol-Dayeuh, Sukanegara, Kec. Jonggol, Kabupaten Bogor, Jawa Barat 16830, Indonesia',
+      'distance': '19.3km dari store',
+      'isSaved': true,
+    }
+  ];
+
+  // 🔥 Fungsi Ajaib: Toggle Save & Otomatis Pindah Tab
+  void toggleBookmark(String id) {
+    setState(() {
+      final index = addresses.indexWhere((addr) => addr['id'] == id);
+      if (index != -1) {
+        bool currentlySaved = addresses[index]['isSaved'];
+        
+        // Ubah status save
+        addresses[index]['isSaved'] = !currentlySaved;
+
+        // Jika baru saja di-save (dari false ke true), langsung lempar ke tab "Tersimpan"
+        if (!currentlySaved) {
+          isTerakhirActive = false;
+        }
+      }
     });
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  List<DeliveryLocation> get _filteredRecent => _searchQuery.isEmpty
-      ? _recentLocations
-      : _recentLocations
-          .where((l) =>
-              l.label.toLowerCase().contains(_searchQuery) ||
-              l.fullAddress.toLowerCase().contains(_searchQuery))
-          .toList();
-
-  List<DeliveryLocation> get _filteredSaved => _searchQuery.isEmpty
-      ? _savedLocations
-      : _savedLocations
-          .where((l) =>
-              l.label.toLowerCase().contains(_searchQuery) ||
-              l.fullAddress.toLowerCase().contains(_searchQuery))
-          .toList();
-
-  void _selectLocation(DeliveryLocation loc) {
-    // TODO: simpan ke provider / state management
-    // Contoh: context.read<DeliveryProvider>().setDeliveryLocation(loc);
-
-    if (GoRouter.of(context).canPop()) {
-      GoRouter.of(context).pop(loc);
-    }
-  }
-
-  void _addNewAddress() {
-    // TODO: navigasi ke halaman tambah alamat (maps picker, dsb.)
-    // Contoh: context.push('/add-address');
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      body: Column(
-        children: [
-          _buildTopSection(),
+    // Filter list berdasarkan tab yang aktif
+    // Jika 'Terakhir', tampilkan semua (history). Jika 'Tersimpan', tampilkan yang isSaved == true
+    final displayedAddresses = isTerakhirActive 
+        ? addresses 
+        : addresses.where((addr) => addr['isSaved'] == true).toList();
 
-          // ── List area ──────────────────────────────────────────
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        // 🔥 FIX: Headline dipastikan di tengah
+        centerTitle: true, 
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              GoRouter.of(context).pop();
+            } else {
+              GoRouter.of(context).go('/delivery');
+            }
+          },
+        ),
+        title: Text(
+          'Pilih Lokasi Pengiriman',
+          style: AppTextStyles.h1.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ─────────────────────────────────────────────────────────
+          // 1. SEARCH BAR
+          // ─────────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari Lokasi',
+                hintStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary, size: 24),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
+              ),
+            ),
+          ),
+
+          const SpaceHeight(8),
+
+          // ─────────────────────────────────────────────────────────
+          // 2. TABS (Terakhir / Tersimpan)
+          // ─────────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
               children: [
-                _buildLocationList(_filteredRecent),
-                _buildLocationList(_filteredSaved),
+                _buildTabButton(
+                  title: 'Terakhir',
+                  isActive: isTerakhirActive,
+                  onTap: () {
+                    setState(() {
+                      isTerakhirActive = true;
+                    });
+                  },
+                ),
+                const SpaceWidth(12),
+                _buildTabButton(
+                  title: 'Tersimpan',
+                  isActive: !isTerakhirActive,
+                  onTap: () {
+                    setState(() {
+                      isTerakhirActive = false;
+                    });
+                  },
+                ),
               ],
             ),
           ),
 
-          // ── Tombol Tambah Alamat ───────────────────────────────
-          _buildAddButton(),
+          const SpaceHeight(16),
+          const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)), 
+          
+          // ─────────────────────────────────────────────────────────
+          // 3. LOCATION LIST (Dinamis & Interaktif)
+          // ─────────────────────────────────────────────────────────
+          Expanded(
+            child: displayedAddresses.isEmpty 
+              ? Center(
+                  child: Text(
+                    'Belum ada alamat tersimpan',
+                    style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.only(top: 16, bottom: 24),
+                  itemCount: displayedAddresses.length,
+                  separatorBuilder: (context, index) => const Divider(height: 32, thickness: 1, color: Color(0xFFE5E7EB)),
+                  itemBuilder: (context, index) {
+                    final item = displayedAddresses[index];
+                    return _buildLocationItem(
+                      id: item['id'],
+                      title: item['title'],
+                      address: item['address'],
+                      distance: item['distance'],
+                      isSaved: item['isSaved'],
+                    );
+                  },
+              ),
+          ),
         ],
       ),
-    );
-  }
-
-  // ── Top section (AppBar + search + tab) ────────────────────────────────────
-
-  Widget _buildTopSection() {
-    return Container(
-      color: Colors.white,
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // AppBar row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      color: Color(0xFF1F2937),
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      if (GoRouter.of(context).canPop()) {
-                        GoRouter.of(context).pop();
-                      } else {
-                        GoRouter.of(context).go('/home');
-                      }
-                    },
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Pilih Lokasi Pengiriman',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF1F2937),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  // spacer supaya judul tetap center
-                  const SizedBox(width: 48),
-                ],
+      
+      // ─────────────────────────────────────────────────────────
+      // 4. BOTTOM BUTTON (Tambah Alamat)
+      // ─────────────────────────────────────────────────────────
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  GoRouter.of(context).pop();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary, 
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
               ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 44,
-                decoration: ShapeDecoration(
+              child: Text(
+                'Tambah Alamat',
+                style: AppTextStyles.body.copyWith(
                   color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    const Icon(Icons.search, color: Color(0xFF9CA3AF), size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        style: const TextStyle(
-                          color: Color(0xFF1F2937),
-                          fontSize: 14,
-                        ),
-                        decoration: const InputDecoration(
-                          hintText: 'Cari Lokasi',
-                          hintStyle: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 14,
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    if (_searchQuery.isNotEmpty)
-                      GestureDetector(
-                        onTap: () => _searchController.clear(),
-                        child: const Padding(
-                          padding: EdgeInsets.only(right: 12),
-                          child: Icon(Icons.close, color: Color(0xFF9CA3AF), size: 18),
-                        ),
-                      ),
-                  ],
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-
-            const SizedBox(height: 12),
-
-            // Tab bar  (Terakhir | Tersimpan)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 40,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: const Color(0xFF5A3A31),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: const Color(0xFF6B7280),
-                  labelStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  tabs: const [
-                    Tab(text: 'Terakhir'),
-                    Tab(text: 'Tersimpan'),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── List builder ─────────────────────────────────────────────────────────
-
-  Widget _buildLocationList(List<DeliveryLocation> locations) {
-    if (locations.isEmpty) {
-      return const Center(
-        child: Text(
-          'Tidak ada lokasi ditemukan.',
-          style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.only(top: 4, bottom: 16),
-      itemCount: locations.length,
-      separatorBuilder: (_, __) => const Divider(
-        height: 1,
-        thickness: 1,
-        color: Color(0xFFE5E7EB),
-        indent: 16,
-        endIndent: 16,
-      ),
-      itemBuilder: (context, index) {
-        final loc = locations[index];
-        return _LocationTile(
-          location: loc,
-          onTap: () => _selectLocation(loc),
-          onSave: () {
-            // TODO: simpan/hapus bookmark
-          },
-        );
-      },
-    );
-  }
-
-  // ── Tombol bawah ────────────────────────────────────────────────────────────
-
-  Widget _buildAddButton() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton(
-          onPressed: _addNewAddress,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF5A3A31),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
-            ),
-          ),
-          child: const Text(
-            'Tambah Alamat',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
         ),
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TILE WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────
+  // HELPER WIDGETS
+  // ─────────────────────────────────────────────────────────
 
-class _LocationTile extends StatelessWidget {
-  final DeliveryLocation location;
-  final VoidCallback onTap;
-  final VoidCallback onSave;
-
-  const _LocationTile({
-    required this.location,
-    required this.onTap,
-    required this.onSave,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
+  Widget _buildTabButton({
+    required String title,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Ikon lokasi ───────────────────────────────────────
-            const Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(
-                Icons.my_location_outlined,
-                size: 20,
-                color: Color(0xFF7A5248),
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // ── Teks ─────────────────────────────────────────────
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    location.label,
-                    style: const TextStyle(
-                      color: Color(0xFF1F2937),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    location.fullAddress,
-                    style: const TextStyle(
-                      color: Color(0xFF6B7280),
-                      fontSize: 12,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${location.distanceKm.toStringAsFixed(1)}km dari store',
-                    style: const TextStyle(
-                      color: Color(0xFF9CA3AF),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // ── Bookmark icon ─────────────────────────────────────
-            GestureDetector(
-              onTap: onSave,
-              child: const Padding(
-                padding: EdgeInsets.only(top: 2),
-                child: Icon(
-                  Icons.bookmark_border,
-                  size: 22,
-                  color: Color(0xFF9CA3AF),
-                ),
-              ),
-            ),
-          ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFEDD8D0).withOpacity(0.5) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive ? AppColors.primary : Colors.grey.shade300,
+            width: 1,
+          ),
         ),
+        child: Text(
+          title,
+          style: AppTextStyles.caption.copyWith(
+            color: isActive ? AppColors.primary : Colors.grey.shade400,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationItem({
+    required String id,
+    required String title,
+    required String address,
+    required String distance,
+    required bool isSaved,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2.0),
+            child: SvgPicture.asset(
+              'assets/icons/target_reticle.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+            ),
+          ),
+          const SpaceWidth(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SpaceHeight(4),
+                Text(
+                  address,
+                  style: AppTextStyles.micro.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SpaceHeight(8),
+                Text(
+                  distance,
+                  style: AppTextStyles.micro.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SpaceWidth(12),
+          // 🔥 Ikon Bookmark Interaktif
+          GestureDetector(
+            onTap: () => toggleBookmark(id),
+            child: Icon(
+              isSaved ? Icons.bookmark : Icons.bookmark_border,
+              color: AppColors.primary,
+              size: 28,
+            ),
+          ),
+        ],
       ),
     );
   }
