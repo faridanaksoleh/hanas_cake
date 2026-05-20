@@ -14,6 +14,9 @@ import 'package:flutter/widgets.dart';
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/address.svg
+  String get address => 'assets/icons/address.svg';
+
   /// File path: assets/icons/apple_inc.png
   AssetGenImage get appleInc =>
       const AssetGenImage('assets/icons/apple_inc.png');
@@ -26,6 +29,12 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/bell_outline.svg
   String get bellOutline => 'assets/icons/bell_outline.svg';
+
+  /// File path: assets/icons/best_seller.svg
+  String get bestSeller => 'assets/icons/best_seller.svg';
+
+  /// File path: assets/icons/branch.svg
+  String get branch => 'assets/icons/branch.svg';
 
   /// File path: assets/icons/caret_circle_left_filled.svg
   String get caretCircleLeftFilled =>
@@ -119,6 +128,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/mappin_outline.svg
   String get mappinOutline => 'assets/icons/mappin_outline.svg';
 
+  /// File path: assets/icons/most_popular.svg
+  String get mostPopular => 'assets/icons/most_popular.svg';
+
   /// File path: assets/icons/order.svg
   String get order => 'assets/icons/order.svg';
 
@@ -146,6 +158,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/ticket_outline.svg
   String get ticketOutline => 'assets/icons/ticket_outline.svg';
+
+  /// File path: assets/icons/top_ordered.svg
+  String get topOrdered => 'assets/icons/top_ordered.svg';
 
   /// File path: assets/icons/trash_filled.svg
   String get trashFilled => 'assets/icons/trash_filled.svg';
@@ -177,10 +192,13 @@ class $AssetsIconsGen {
 
   /// List of all assets
   List<dynamic> get values => [
+    address,
     appleInc,
     bell,
     bellFilled,
     bellOutline,
+    bestSeller,
+    branch,
     caretCircleLeftFilled,
     caretCircleLeftOutline,
     caretLeft,
@@ -210,6 +228,7 @@ class $AssetsIconsGen {
     magnifyingglassOutline,
     mappinFilled,
     mappinOutline,
+    mostPopular,
     order,
     phone,
     profile,
@@ -219,6 +238,7 @@ class $AssetsIconsGen {
     slidersOutline,
     ticketFilled,
     ticketOutline,
+    topOrdered,
     trashFilled,
     trashOutline,
     voucher,
@@ -241,9 +261,33 @@ class $AssetsImagesGen {
   AssetGenImage get bgLanding =>
       const AssetGenImage('assets/images/bg_landing.png');
 
+  /// File path: assets/images/bg_preorder.png
+  AssetGenImage get bgPreorder =>
+      const AssetGenImage('assets/images/bg_preorder.png');
+
+  /// File path: assets/images/butter_pastry.png
+  AssetGenImage get butterPastry =>
+      const AssetGenImage('assets/images/butter_pastry.png');
+
   /// File path: assets/images/croissant.png
   AssetGenImage get croissant =>
       const AssetGenImage('assets/images/croissant.png');
+
+  /// File path: assets/images/croissant_mentega.png
+  AssetGenImage get croissantMentega =>
+      const AssetGenImage('assets/images/croissant_mentega.png');
+
+  /// File path: assets/images/croissant_tr.png
+  AssetGenImage get croissantTr =>
+      const AssetGenImage('assets/images/croissant_tr.png');
+
+  /// File path: assets/images/donut_matcha_cih.png
+  AssetGenImage get donutMatchaCih =>
+      const AssetGenImage('assets/images/donut_matcha_cih.png');
+
+  /// File path: assets/images/half_deliv.png
+  AssetGenImage get halfDeliv =>
+      const AssetGenImage('assets/images/half_deliv.png');
 
   /// File path: assets/images/home.png
   AssetGenImage get home => const AssetGenImage('assets/images/home.png');
@@ -260,8 +304,20 @@ class $AssetsImagesGen {
   AssetGenImage get homePreorder =>
       const AssetGenImage('assets/images/home_preorder.png');
 
+  /// File path: assets/images/molen_bandung.png
+  AssetGenImage get molenBandung =>
+      const AssetGenImage('assets/images/molen_bandung.png');
+
+  /// File path: assets/images/pre-order.png
+  AssetGenImage get preOrder =>
+      const AssetGenImage('assets/images/pre-order.png');
+
   /// File path: assets/images/promo.png
   AssetGenImage get promo => const AssetGenImage('assets/images/promo.png');
+
+  /// File path: assets/images/red_velvet_parfait.png
+  AssetGenImage get redVelvetParfait =>
+      const AssetGenImage('assets/images/red_velvet_parfait.png');
 
   /// File path: assets/images/young_man_walking_with_coffee.png
   AssetGenImage get youngManWalkingWithCoffee =>
@@ -271,12 +327,21 @@ class $AssetsImagesGen {
   List<AssetGenImage> get values => [
     address,
     bgLanding,
+    bgPreorder,
+    butterPastry,
     croissant,
+    croissantMentega,
+    croissantTr,
+    donutMatchaCih,
+    halfDeliv,
     home,
     homeDelivery,
     homePickup,
     homePreorder,
+    molenBandung,
+    preOrder,
     promo,
+    redVelvetParfait,
     youngManWalkingWithCoffee,
   ];
 }

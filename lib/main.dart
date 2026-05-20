@@ -32,6 +32,7 @@ import 'package:hanas_cake/presentation/pages/order_page.dart';
 import 'package:hanas_cake/presentation/pages/order_filter_page.dart';
 import 'package:hanas_cake/presentation/pages/order_detail_page.dart';
 import 'package:hanas_cake/presentation/pages/pre_order_page.dart';
+import 'package:hanas_cake/presentation/pages/delivery_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -83,6 +84,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/pre-order',
           builder: (context, state) => const PreOrderPage(),
+        ),
+        GoRoute(
+          path: '/delivery',
+          builder: (context, state) => const DeliveryPage(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {

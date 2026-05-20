@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildPickUpCard() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => GoRouter.of(context).push('/pickup'),
       child: Container(
         height: 140, 
         clipBehavior: Clip.hardEdge,
@@ -261,8 +261,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildDeliveryCard() {
-    return Container(
-      height: 140,
+    return GestureDetector(
+      onTap: () => GoRouter.of(context).push('/delivery'),
+      child: Container(
+        height: 140,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: AppColors.primaryMid,
@@ -306,7 +308,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ─────────────────────────────────────────────────────────
