@@ -277,18 +277,21 @@ class _DeliveryPageState extends State<DeliveryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'My Favorite',
                           style: TextStyle(color: Color(0xFF1F2937), fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: -0.36),
                         ),
-                        Text(
-                          'Lihat Semua',
-                          style: TextStyle(color: Color(0xFF3454D1), fontSize: 13, fontWeight: FontWeight.w400),
+                        GestureDetector(
+                          onTap: () => context.push('/my-favorite'),
+                          child: const Text(
+                            'Lihat Semua',
+                            style: TextStyle(color: Color(0xFF3454D1), fontSize: 13, fontWeight: FontWeight.w400),
+                          ),
                         ),
                       ],
                     ),

@@ -35,6 +35,7 @@ import 'package:hanas_cake/presentation/pages/pre_order_page.dart';
 import 'package:hanas_cake/presentation/pages/delivery_page.dart';
 import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 import 'package:hanas_cake/presentation/pages/location_picker_page.dart';
+import 'package:hanas_cake/presentation/pages/my_favorite_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -98,6 +99,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/location-picker',
           builder: (context, state) => const LocationPickerPage(),
+        ),
+        GoRoute(
+          path: '/my-favorite',
+          builder: (context, state) => const MyFavoritePage(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
