@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
+import 'package:hanas_cake/presentation/pages/location_picker_page.dart';
 
 class DeliveryPage extends StatefulWidget {
   const DeliveryPage({super.key});
@@ -12,6 +13,7 @@ class DeliveryPage extends StatefulWidget {
 
 class _DeliveryPageState extends State<DeliveryPage> {
   BranchItem? selectedBranch;
+  DeliveryLocation? selectedLocation;
 
   // Key untuk target scroll fitur filter "Semua"
   final GlobalKey _semuaSectionKey = GlobalKey();
@@ -227,16 +229,31 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             const SizedBox(height: 18),
                             const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
                             const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Pilih alamatmu terlebih dahulu',
-                                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
-                                ),
-                                const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
-                              ],
+                            GestureDetector(
+                              onTap: () async {
+                                final selected = await context.push<DeliveryLocation>('/location-picker');
+                                if (selected != null) {
+                                  setState(() {
+                                    selectedLocation = selected;
+                                  });
+                                }
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      selectedLocation?.label ?? 'Pilih alamatmu terlebih dahulu',
+                                      style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
+                                ],
+                              ),
                             ),
                           ],
                         ),
