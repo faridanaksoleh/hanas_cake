@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:hanas_cake/presentation/pages/delivery_page.dart';
 
 class LocationPickerPage extends StatefulWidget {
   const LocationPickerPage({super.key});
@@ -256,8 +257,13 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
     required String distance,
     required bool isSaved,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        GoRouter.of(context).pop(DeliveryLocation(address: address));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -313,6 +319,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
           ),
         ],
       ),
+    ),
     );
   }
 }

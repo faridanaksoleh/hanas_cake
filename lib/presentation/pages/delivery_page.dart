@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 
 class DeliveryPage extends StatefulWidget {
-  // 🔥 Menerima state parameter keranjang aktif
+  // Menerima state parameter keranjang aktif
   final bool isFromCart;
   const DeliveryPage({super.key, this.isFromCart = false});
 
@@ -21,7 +22,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
   // State untuk menyimpan item yang di-favorit-kan berdasarkan ID Unik
   Set<String> favoriteItems = {};
   
-  // 🔥 STATE UNTUK UX VALIDASI ALAMAT
+  // STATE UNTUK UX VALIDASI ALAMAT
   bool isAddressSelected = false;
 
   void toggleFavorite(String id) {
@@ -44,7 +45,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
     }
   }
 
-  // 🔥 FUNGSI VALIDASI KLIK PRODUK 
+  // FUNGSI VALIDASI KLIK PRODUK 
   void _onProductTapped() {
     if (!isAddressSelected) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,13 +56,13 @@ class _DeliveryPageState extends State<DeliveryPage> {
         ),
       );
     } else {
-      context.push('/product-detail'); // Arahkan ke halaman detail yang baru kita buat
+      context.push('/product-detail'); // Arahkan ke halaman detail
     }
   }
 
-  // FUNGSI SAKTI POP-UP BOTTOM SHEET
+  // 🔥 FUNGSI SAKTI POP-UP BOTTOM SHEET (DENGAN SMOOTH TRANSITION)
   void _showOrderMethodBottomSheet(BuildContext context) {
-    String selectedMethod = 'Delivery'; // Default pilihan
+    String selectedMethod = 'Delivery'; // Karena kita di page Delivery, defaultnya ini
 
     showModalBottomSheet(
       context: context,
@@ -69,8 +70,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        // StatefulBuilder agar Radio Button bisa diklik dan update UI pop-up
+      builder: (bottomSheetContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
@@ -109,6 +109,11 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     groupValue: selectedMethod,
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
+                      // 🔥 Beri jeda animasi sedikit, lalu pindah halaman!
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.pop(bottomSheetContext); // Tutup pop up
+                        context.pushReplacement('/pickup'); // Pindah smooth ke PickUp
+                      });
                     },
                   ),
                   
@@ -123,6 +128,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     groupValue: selectedMethod,
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
+                      // 🔥 Jika sudah Delivery, cukup tutup saja pop-up nya
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.pop(bottomSheetContext); 
+                      });
                     },
                   ),
                   
@@ -210,10 +219,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       leading: IconButton(
                         icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF7A5248), size: 20),
                         onPressed: () {
-                          if (GoRouter.of(context).canPop()) {
-                            GoRouter.of(context).pop();
+                          if (context.canPop()) {
+                            context.pop();
                           } else {
-                            GoRouter.of(context).go('/home');
+                            context.go('/home');
                           }
                         },
                       ),
@@ -337,93 +346,102 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   ),
                   const SizedBox(height: 24),
                   
-                  // 🔥 BLOCK ALAMAT (Interaktif Dummy)
-                  GestureDetector(
-                    onTap: () async {
-                      // Ini contoh agar UX-nya bisa langsung kamu test (simulate alamat dipilih)
-                      setState(() {
-                        isAddressSelected = true;
-                      });
-                      
-                      // LOGIC ASLI BISA DI-UNCOMMENT NANTI:
-                      // final selected = await context.push<BranchItem>('/branch-list');
-                      // if (selected != null) {
-                      //   setState(() { selectedBranch = selected; isAddressSelected = true; });
-                      // }
-                    },
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
+                  // 🔥 BLOCK ALAMAT (SUDAH BUKA PAGE & NUNGGU KEMBALIAN DATA)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset('assets/icons/branch.svg', width: 42),
+                          // Garis putus memanjang kalau state aktif
+                          _buildVerticalDashedLine(height: isAddressSelected ? 6 : 3),
+                          SvgPicture.asset('assets/icons/address.svg', width: 42),
+                        ],
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            SvgPicture.asset('assets/icons/branch.svg', width: 42),
-                            // Garis putus memanjang kalau state aktif
-                            _buildVerticalDashedLine(height: isAddressSelected ? 6 : 3),
-                            SvgPicture.asset('assets/icons/address.svg', width: 42),
+                            // 👉 1. KLIK BRANCH (CABANG)
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                final result = await GoRouter.of(context).push('/branch-list');
+                                if (result != null && result is BranchItem) {
+                                  setState(() {
+                                    selectedBranch = result;
+                                  });
+                                }
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selectedBranch?.name ?? 'Alamat Cabang terdekat',
+                                    style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    isAddressSelected ? '0.59km dari lokasimu' : '-dari lokasimu',
+                                    style: TextStyle(
+                                      color: isAddressSelected ? const Color(0xFF166534) : const Color(0xFF6B7280), 
+                                      fontSize: 13, 
+                                      fontWeight: FontWeight.w500
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 18),
+                            const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
+                            const SizedBox(height: 18),
+                            
+                            // 👉 2. KLIK LOKASI PENGIRIMAN
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () async {
+                                final result = await GoRouter.of(context).push('/location-picker');
+                                if (result != null && result is DeliveryLocation) {
+                                  setState(() {
+                                    selectedLocation = result;
+                                    isAddressSelected = true;
+                                  });
+                                }
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      isAddressSelected ? (selectedLocation?.address ?? 'jonggol') : 'Pilih alamatmu terlebih dahulu',
+                                      style: TextStyle(
+                                        color: isAddressSelected ? Colors.black : const Color(0xFF6B7280), 
+                                        fontSize: 14, 
+                                        fontWeight: FontWeight.w500
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                selectedBranch?.name ?? 'Alamat Cabang terdekat',
-                                style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                isAddressSelected ? '0.59km dari lokasimu' : '-dari lokasimu',
-                                style: TextStyle(
-                                  color: isAddressSelected ? const Color(0xFF166534) : const Color(0xFF6B7280), // Hijau jika aktif
-                                  fontSize: 13, 
-                                  fontWeight: FontWeight.w500
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
-                              const SizedBox(height: 18),
-                              
-                              GestureDetector(
-                                onTap: () async {
-                                  // final selected = await context.push<DeliveryLocation>('/location-picker');
-                                  // if (selected != null) setState(() { selectedLocation = selected; isAddressSelected = true; });
-                                  
-                                  setState(() => isAddressSelected = true);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        isAddressSelected ? 'jonggol' : 'Pilih alamatmu terlebih dahulu',
-                                        style: TextStyle(
-                                          color: isAddressSelected ? Colors.black : const Color(0xFF6B7280), 
-                                          fontSize: 14, 
-                                          fontWeight: FontWeight.w500
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
 
                   // 🔥 MUNCUL JIKA ALAMAT SUDAH DIPILIH
                   if (isAddressSelected) ...[
                     const SizedBox(height: 24),
-                    // Form Tambah Catatan (Menggunakan note.svg sesuai instruksi)
+                    // Form Tambah Catatan
                     Row(
                       children: [
                         Container(
@@ -453,7 +471,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       child: const Text('Pastikan alamat pengiriman sudah benar', style: TextStyle(color: Color(0xFF9F1239), fontSize: 12, fontWeight: FontWeight.w500)),
                     ),
                     const SizedBox(height: 8),
-                    // Banner Waktu (Menggunakan jam_otw.svg sesuai instruksi barumu)
+                    // Banner Waktu
                     Container(
                       width: double.infinity, padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)),
@@ -642,31 +660,26 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
             
-            // 🔥 Spasi dinamis agar konten terbawah tidak ketutup Sticky Cart
+            // Jarak aman agar tidak tertutup sticky cart
             SizedBox(height: widget.isFromCart ? 100 : 32),
           ],
         ),
       ),
 
-      // 🔥 STICKY CART BOTTOM BAR (Muncul jika isFromCart bernilai true)
+      // STICKY CART BOTTOM BAR
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: widget.isFromCart ? Padding(
         padding: const EdgeInsets.all(16.0),
         child: InkWell(
           onTap: () {
-            // Kembali ke halaman detail tadi
-            if(context.canPop()) {
-              context.pop();
-            } else {
-              context.push('/product-detail');
-            }
+            context.push('/checkout'); 
           },
           child: Container(
             width: double.infinity,
             height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             decoration: BoxDecoration(
-              color: const Color(0xFF5A3A31),
+              color: const Color(0xFF5A3A31), // AppColors.primary
               borderRadius: BorderRadius.circular(12),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
             ),
@@ -938,12 +951,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
       ),
     );
   }
-}
-
-class BranchItem {
-  final String name;
-  final String address;
-  BranchItem({required this.name, required this.address});
 }
 
 class DeliveryLocation {

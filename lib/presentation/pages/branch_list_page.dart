@@ -1,471 +1,427 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MODEL
-// ─────────────────────────────────────────────────────────────────────────────
-
-enum BranchStatus { open, closed }
-
-enum OrderMethod { pickUp, delivery, both }
-
+// Model Data Cabang
 class BranchItem {
-  final String id;
   final String name;
   final String address;
-  final double distanceKm;
-  final bool isNearest;
-  final BranchStatus status;
-  final String openHours; // e.g. "09:30 - 22:00"
-  final OrderMethod orderMethod;
+  final String distanceKm;
+  final bool isTop;
 
-  const BranchItem({
-    required this.id,
+  BranchItem({
     required this.name,
     required this.address,
     required this.distanceKm,
-    this.isNearest = false,
-    required this.status,
-    required this.openHours,
-    required this.orderMethod,
+    required this.isTop,
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DUMMY DATA  (ganti dengan data dari API / provider-mu nanti)
-// ─────────────────────────────────────────────────────────────────────────────
-
-final List<BranchItem> _dummyBranches = [
-  BranchItem(
-    id: 'branch_1',
-    name: 'Jonggol Dayeuh (store terdekat dari user)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 19.4,
-    isNearest: true,
-    status: BranchStatus.open,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-  BranchItem(
-    id: 'branch_2',
-    name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 20.7,
-    status: BranchStatus.open,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-  BranchItem(
-    id: 'branch_3',
-    name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 20.7,
-    status: BranchStatus.closed,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-  BranchItem(
-    id: 'branch_4',
-    name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 20.7,
-    status: BranchStatus.closed,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-  BranchItem(
-    id: 'branch_5',
-    name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 20.7,
-    status: BranchStatus.closed,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-  BranchItem(
-    id: 'branch_6',
-    name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
-    address: "Hana's Bakery Jonggol (alamat lengkap store)",
-    distanceKm: 20.7,
-    status: BranchStatus.closed,
-    openHours: '09:30 - 22:00',
-    orderMethod: OrderMethod.both,
-  ),
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PAGE
-// ─────────────────────────────────────────────────────────────────────────────
-
 class BranchListPage extends StatefulWidget {
-  /// [isPickUpMode] → true  = dibuka dari tombol "Ubah ke Pick Up"
-  ///                   false = dibuka dari tombol "Ganti Store" / alamat cabang
-  final bool isPickUpMode;
-
-  const BranchListPage({super.key, this.isPickUpMode = false});
+  const BranchListPage({super.key});
 
   @override
   State<BranchListPage> createState() => _BranchListPageState();
 }
 
 class _BranchListPageState extends State<BranchListPage> {
-  // ID cabang yang sedang aktif / dipilih (bisa dari state global nanti)
-  String? _selectedBranchId = 'branch_1';
+  // Data Dummy Cabang sesuai Figma
+  final List<BranchItem> branches = [
+    BranchItem(
+      name: 'Jonggol Dayeuh (store terdekat dari user)',
+      address: "Hana's Bakery Jonggol (alamat lengkap store)",
+      distanceKm: '19.4',
+      isTop: true,
+    ),
+    BranchItem(
+      name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
+      address: "Hana's Bakery Jonggol (alamat lengkap store)",
+      distanceKm: '20.7',
+      isTop: false,
+    ),
+    BranchItem(
+      name: 'Jonggol Dayeuh (store cabang tersedia lainnya)',
+      address: "Hana's Bakery Jonggol (alamat lengkap store)",
+      distanceKm: '20.7',
+      isTop: false,
+    ),
+  ];
 
-  void _selectBranch(BranchItem branch) {
-    setState(() => _selectedBranchId = branch.id);
+  void _showOrderMethodBottomSheet(BuildContext context) {
+    String selectedMethod = 'Delivery'; 
 
-    // TODO: simpan ke provider / state management
-    // Contoh: context.read<DeliveryProvider>().setSelectedBranch(branch);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF9CA3AF), borderRadius: BorderRadius.circular(2))),
+                  const SizedBox(height: 24),
+                  const Text('Pilih Metode Pemesanan', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 24),
+                  
+                  _buildMethodOption(
+                    title: 'Pick Up',
+                    subtitle: 'Ambil di Store tanpa antri',
+                    imagePath: 'assets/images/home_pickup.png',
+                    isSelected: selectedMethod == 'Pick Up',
+                    onTap: () {
+                      setModalState(() => selectedMethod = 'Pick Up');
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.pop(bottomSheetContext);
+                        context.pushReplacement('/pickup'); 
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  _buildMethodOption(
+                    title: 'Delivery',
+                    subtitle: 'Garansi tepat waktu, dijamin!',
+                    imagePath: 'assets/images/home_delivery.png',
+                    isSelected: selectedMethod == 'Delivery',
+                    onTap: () {
+                      setModalState(() => selectedMethod = 'Delivery');
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Navigator.pop(bottomSheetContext); 
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
 
-    // Kembali ke halaman sebelumnya & kirim data branch yang dipilih
-    if (GoRouter.of(context).canPop()) {
-      GoRouter.of(context).pop(branch);
-    }
+  Widget _buildMethodOption({required String title, required String subtitle, required String imagePath, required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            Image.asset(imagePath, width: 48, height: 60, fit: BoxFit.contain),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12)),
+                ],
+              ),
+            ),
+            Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? const Color(0xFF3454D1) : Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 🔥 FUNGSI POPUP WAKTU OPERASIONAL (SEKARANG INTERAKTIF)
+  void _showOperatingHoursBottomSheet() {
+    // Default aktif di tab Delivery
+    bool isDeliveryActive = true; 
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, 
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (bottomSheetContext) {
+        // 🔥 Tambahkan StatefulBuilder agar bisa di-klik dan ganti state
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, 
+                  children: [
+                    Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF9CA3AF), borderRadius: BorderRadius.circular(2))),
+                    const SizedBox(height: 24),
+                    const Text('Waktu Operasional', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5A3A31))),
+                    const SizedBox(height: 24),
+                    
+                    // Toggle Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Tab Pick Up
+                        GestureDetector(
+                          onTap: () => setModalState(() => isDeliveryActive = false),
+                          child: _buildHourToggle('Pick Up', !isDeliveryActive),
+                        ),
+                        const SizedBox(width: 16),
+                        // Tab Delivery
+                        GestureDetector(
+                          onTap: () => setModalState(() => isDeliveryActive = true),
+                          child: _buildHourToggle('Delivery', isDeliveryActive),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    // 🔥 Jadwal berubah otomatis tergantung tab yang diklik!
+                    if (isDeliveryActive) ...[
+                      _buildHourRow('Senin', '09:30 - 21:00'),
+                      _buildHourRow('Selasa', '09:30 - 21:00'),
+                      _buildHourRow('Rabu', '09:30 - 21:00'),
+                      _buildHourRow('Kamis', '09:30 - 21:00'),
+                      _buildHourRow('Jumat', '09:30 - 21:00'),
+                      _buildHourRow('Sabtu', '08:00 - 21:00'),
+                      _buildHourRow('Minggu', '08:00 - 21:00'),
+                    ] else ...[
+                      _buildHourRow('Senin', '09:30 - 22:00'),
+                      _buildHourRow('Selasa', '09:30 - 22:00'),
+                      _buildHourRow('Rabu', '09:30 - 22:00'),
+                      _buildHourRow('Kamis', '09:30 - 22:00'),
+                      _buildHourRow('Jumat', '09:30 - 22:00'),
+                      _buildHourRow('Sabtu', '08:00 - 22:00'),
+                      _buildHourRow('Minggu', '08:00 - 22:00'),
+                    ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
+
+  // 🔥 Padding digedein biar tombolnya gemuk
+  Widget _buildHourToggle(String label, bool active) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+      decoration: BoxDecoration(
+        color: active ? const Color(0xFFEFE8E5) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: active ? const Color(0xFF5A3A31) : Colors.grey.shade300),
+      ),
+      child: Text(label, style: TextStyle(color: active ? const Color(0xFF5A3A31) : const Color(0xFF9CA3AF), fontSize: 13, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildHourRow(String day, String time) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          SizedBox(width: 60, child: Text(day, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13))),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Flex(
+                  direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(
+                    (constraints.constrainWidth() / 6).floor(),
+                    (index) => Container(width: 3, height: 1, color: Colors.grey.shade300),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(width: 100, child: Text(time, textAlign: TextAlign.right, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 13, fontWeight: FontWeight.w500))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHorizontalDashedLine() {
+    return Row(
+      children: List.generate(
+        60,
+        (index) => Expanded(
+          child: Container(
+            height: 1,
+            color: index % 2 == 0 ? const Color(0xFFD1D5DB) : Colors.transparent,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF5A3A31), size: 20),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text("Hana's Bakery", style: TextStyle(color: Color(0xFF5A3A31), fontSize: 16, fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(icon: const Icon(Icons.search, color: Color(0xFF5A3A31)), onPressed: () {}),
+        ],
+      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTopBar(context),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 56, height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey.shade200),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/delivery_rounded.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Text(
+                  'Delivery',
+                  style: TextStyle(color: Color(0xFF5A3A31), fontSize: 24, fontWeight: FontWeight.w500),
+                ),
+                const Spacer(),
+                OutlinedButton(
+                  onPressed: () => _showOrderMethodBottomSheet(context),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF5A3A31)),
+                    backgroundColor: const Color(0xFFF4EDE9),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    elevation: 0,
+                  ),
+                  child: const Text('Ubah ke Pick Up', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text('${branches.length} Store', style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500)),
+          ),
+          
+          Container(color: Colors.white, child: _buildHorizontalDashedLine()),
+
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.only(top: 8, bottom: 32),
-              itemCount: _dummyBranches.length,
-              separatorBuilder: (_, __) => const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFE5E7EB),
-                indent: 16,
-                endIndent: 16,
-              ),
+              itemCount: branches.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 8), 
               itemBuilder: (context, index) {
-                final branch = _dummyBranches[index];
-                return _BranchTile(
-                  branch: branch,
-                  isSelected: _selectedBranchId == branch.id,
-                  onTap: () => _selectBranch(branch),
+                final item = branches[index];
+                return InkWell(
+                  onTap: () => context.pop(item),
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.name, 
+                                style: const TextStyle(color: Color(0xFF1F2937), fontWeight: FontWeight.w600, fontSize: 16, height: 1.3),
+                              ),
+                            ),
+                            if (item.isTop) 
+                              const Padding(
+                                padding: EdgeInsets.only(left: 12.0),
+                                child: Icon(Icons.check_circle, color: Color(0xFF5A3A31), size: 22),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // 🔥 Teks Alamat Diperbesar
+                        Text(
+                          item.address, 
+                          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13, height: 1.4)
+                        ),
+                        const SizedBox(height: 8),
+                        
+                        // 🔥 Teks Jarak Diperbesar
+                        RichText(
+                          text: TextSpan(
+                            text: '${item.distanceKm} km dari lokasimu',
+                            style: const TextStyle(color: Color(0xFF1F2937), fontSize: 13, fontWeight: FontWeight.w600),
+                            children: [
+                              if (item.isTop)
+                                const TextSpan(
+                                  text: ' • Terdekat',
+                                  style: TextStyle(color: Color(0xFF166534)),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/tote_simple.svg', 
+                              width: 16, 
+                              colorFilter: const ColorFilter.mode(Color(0xFF5A3A31), BlendMode.srcIn),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text('Pick Up', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                            
+                            const SizedBox(width: 16),
+
+                            SvgPicture.asset(
+                              'assets/icons/moped.svg', 
+                              width: 18, 
+                            ),
+                            const SizedBox(width: 6),
+                            const Text('Delivery', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        _buildHorizontalDashedLine(),
+                        const SizedBox(height: 16),
+                        
+                        InkWell(
+                          onTap: _showOperatingHoursBottomSheet,
+                          child: Row(
+                            children: const [
+                              Text('Buka', style: TextStyle(color: Color(0xFF3454D1), fontSize: 13, fontWeight: FontWeight.w600)), 
+                              SizedBox(width: 8),
+                              Text('09:30 - 22:00', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                              Spacer(),
+                              Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF6B7280)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
           ),
         ],
       ),
-    );
-  }
-
-  // ── Top Bar ──────────────────────────────────────────────────────────────
-
-  Widget _buildTopBar(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // Nav row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      color: Color(0xFF1F2937),
-                      size: 20,
-                    ),
-                    onPressed: () {
-                      if (GoRouter.of(context).canPop()) {
-                        GoRouter.of(context).pop();
-                      } else {
-                        GoRouter.of(context).go('/home');
-                      }
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      "Hana's Bakery",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Color(0xFF1F2937),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF1F2937),
-                      size: 24,
-                    ),
-                    onPressed: () {
-                      // TODO: buka search
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // Sub-header row  (ikon delivery + jumlah store + tombol switch mode)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Row(
-                children: [
-                  // Delivery icon kecil (gunakan icon bawaan jika tidak ada asset)
-                  const Icon(
-                    Icons.delivery_dining,
-                    color: Color(0xFF7A5248),
-                    size: 22,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Delivery',
-                    style: TextStyle(
-                      color: Color(0xFF1F2937),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  // Tombol switch mode (Pick Up / Delivery)
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: navigasi / switch ke mode pick-up
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFFF4EDE9),
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            width: 1,
-                            color: Color(0xFF5A3A31),
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                      ),
-                      child: Text(
-                        widget.isPickUpMode ? 'Ubah ke Delivery' : 'Ubah ke Pick Up',
-                        style: const TextStyle(
-                          color: Color(0xFF5A3A31),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Store count label
-            Container(
-              width: double.infinity,
-              color: const Color(0xFFF9FAFB),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Text(
-                '${_dummyBranches.length} Store',
-                style: const TextStyle(
-                  color: Color(0xFF6B7280),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TILE WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _BranchTile extends StatelessWidget {
-  final BranchItem branch;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _BranchTile({
-    required this.branch,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isOpen = branch.status == BranchStatus.open;
-
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Nama cabang + checkmark ───────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    branch.name,
-                    style: const TextStyle(
-                      color: Color(0xFF1F2937),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-                if (isSelected) ...[
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.check_circle,
-                    color: Color(0xFF5A3A31),
-                    size: 22,
-                  ),
-                ],
-              ],
-            ),
-
-            const SizedBox(height: 2),
-
-            // ── Alamat ───────────────────────────────────────────
-            Text(
-              branch.address,
-              style: const TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            // ── Jarak + label Terdekat ────────────────────────────
-            Row(
-              children: [
-                Text(
-                  '${branch.distanceKm.toStringAsFixed(1)}km dari lokasimu',
-                  style: const TextStyle(
-                    color: Color(0xFF6B7280),
-                    fontSize: 12,
-                  ),
-                ),
-                if (branch.isNearest) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFDCFCE7),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: const Text(
-                      'Terdekat',
-                      style: TextStyle(
-                        color: Color(0xFF16A34A),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            // ── Metode Order ──────────────────────────────────────
-            Row(
-              children: [
-                if (branch.orderMethod == OrderMethod.pickUp ||
-                    branch.orderMethod == OrderMethod.both)
-                  _buildMethodChip(
-                    icon: Icons.shopping_bag_outlined,
-                    label: 'Pick Up',
-                    color: const Color(0xFF6B7280),
-                  ),
-                if (branch.orderMethod == OrderMethod.both)
-                  const SizedBox(width: 10),
-                if (branch.orderMethod == OrderMethod.delivery ||
-                    branch.orderMethod == OrderMethod.both)
-                  _buildMethodChip(
-                    icon: Icons.delivery_dining,
-                    label: 'Delivery',
-                    color: const Color(0xFF3454D1),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            // ── Status buka/tutup + jam ───────────────────────────
-            Row(
-              children: [
-                Text(
-                  isOpen ? 'Buka' : 'Tutup',
-                  style: TextStyle(
-                    color: isOpen
-                        ? const Color(0xFF16A34A)
-                        : const Color(0xFFDC2626),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  branch.openHours,
-                  style: const TextStyle(
-                    color: Color(0xFF6B7280),
-                    fontSize: 13,
-                  ),
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Color(0xFF9CA3AF),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMethodChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }
