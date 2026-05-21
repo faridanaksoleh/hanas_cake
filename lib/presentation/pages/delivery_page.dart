@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
-import 'package:hanas_cake/presentation/pages/location_picker_page.dart';
 
 class DeliveryPage extends StatefulWidget {
   const DeliveryPage({super.key});

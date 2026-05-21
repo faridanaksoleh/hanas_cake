@@ -106,7 +106,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
             height: 22,
           ),
           onPressed: () {
-            if (GoRouter.of(context).canPop()) GoRouter.of(context).pop();
+            if (GoRouter.of(context).canPop()) {
+              GoRouter.of(context).pop();
+            }
           },
         ),
       ),
@@ -150,7 +152,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
   }
 
   // ──────────────────────────────────────────────────────────
-  // SECTION HEADER
+  // SECTION HEADER - DIPERBESAR UKURAN FONT NYA
   // ──────────────────────────────────────────────────────────
   Widget _buildSectionHeader(String title) {
     return Text(
@@ -158,6 +160,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
       style: AppTextStyles.h3.copyWith(
         color: AppColors.textPrimary,
         fontWeight: FontWeight.bold,
+        fontSize: 18, // Menambahkan fontSize 18 untuk memperbesar teks
       ),
     );
   }
@@ -172,7 +175,9 @@ class _AddAddressPageState extends State<AddAddressPage> {
         text: 'Simpan',
         onPressed: () {
           // TODO: implement save logic
-          if (GoRouter.of(context).canPop()) GoRouter.of(context).pop();
+          if (GoRouter.of(context).canPop()) {
+            GoRouter.of(context).pop();
+          }
         },
       ),
     );

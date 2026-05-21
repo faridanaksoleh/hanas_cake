@@ -194,9 +194,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
             height: 52,
             child: ElevatedButton(
               onPressed: () {
-                if (GoRouter.of(context).canPop()) {
-                  GoRouter.of(context).pop();
-                }
+                GoRouter.of(context).push('/add-address');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary, 
