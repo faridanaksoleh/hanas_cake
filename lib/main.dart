@@ -36,6 +36,7 @@ import 'package:hanas_cake/presentation/pages/delivery_page.dart';
 import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 import 'package:hanas_cake/presentation/pages/location_picker_page.dart';
 import 'package:hanas_cake/presentation/pages/my_favorite_page.dart';
+import 'package:hanas_cake/presentation/pages/product_detail_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -90,7 +91,19 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/delivery',
-          builder: (context, state) => const DeliveryPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isFromCart = extra?['isFromCart'] as bool? ?? false;
+            return DeliveryPage(isFromCart: isFromCart);
+          },
+        ),
+        GoRoute(
+          path: '/product-detail',
+          builder: (context, state) => const ProductDetailPage(),
+        ),
+        GoRoute(
+          path: '/checkout',
+          builder: (context, state) => const Scaffold(body: Center(child: Text('Checkout Page Dummy'))),
         ),
         GoRoute(
           path: '/branch-list',

@@ -3,7 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class DeliveryPage extends StatefulWidget {
-  const DeliveryPage({super.key});
+  // 🔥 Menerima state parameter keranjang aktif
+  final bool isFromCart;
+  const DeliveryPage({super.key, this.isFromCart = false});
 
   @override
   State<DeliveryPage> createState() => _DeliveryPageState();
@@ -18,6 +20,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
   // State untuk menyimpan item yang di-favorit-kan berdasarkan ID Unik
   Set<String> favoriteItems = {};
+  
+  // 🔥 STATE UNTUK UX VALIDASI ALAMAT
+  bool isAddressSelected = false;
 
   void toggleFavorite(String id) {
     setState(() {
@@ -39,7 +44,22 @@ class _DeliveryPageState extends State<DeliveryPage> {
     }
   }
 
-  // 🔥 FUNGSI SAKTI POP-UP BOTTOM SHEET
+  // 🔥 FUNGSI VALIDASI KLIK PRODUK 
+  void _onProductTapped() {
+    if (!isAddressSelected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pilih alamatmu terlebih dahulu ya!'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      context.push('/product-detail'); // Arahkan ke halaman detail yang baru kita buat
+    }
+  }
+
+  // FUNGSI SAKTI POP-UP BOTTOM SHEET
   void _showOrderMethodBottomSheet(BuildContext context) {
     String selectedMethod = 'Delivery'; // Default pilihan
 
@@ -317,13 +337,19 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   ),
                   const SizedBox(height: 24),
                   
-                  // 🔥 BRANCH SELECTION - SUDAH AKTIF
+                  // 🔥 BLOCK ALAMAT (Interaktif Dummy)
                   GestureDetector(
                     onTap: () async {
-                      final selected = await context.push<BranchItem>('/branch-list');
-                      if (selected != null) {
-                        setState(() => selectedBranch = selected);
-                      }
+                      // Ini contoh agar UX-nya bisa langsung kamu test (simulate alamat dipilih)
+                      setState(() {
+                        isAddressSelected = true;
+                      });
+                      
+                      // LOGIC ASLI BISA DI-UNCOMMENT NANTI:
+                      // final selected = await context.push<BranchItem>('/branch-list');
+                      // if (selected != null) {
+                      //   setState(() { selectedBranch = selected; isAddressSelected = true; });
+                      // }
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +358,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SvgPicture.asset('assets/icons/branch.svg', width: 42),
-                            _buildVerticalDashedLine(),
+                            // Garis putus memanjang kalau state aktif
+                            _buildVerticalDashedLine(height: isAddressSelected ? 6 : 3),
                             SvgPicture.asset('assets/icons/address.svg', width: 42),
                           ],
                         ),
@@ -347,8 +374,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                 style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                selectedBranch != null ? selectedBranch!.address : '-dari lokasimu',
-                                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                                isAddressSelected ? '0.59km dari lokasimu' : '-dari lokasimu',
+                                style: TextStyle(
+                                  color: isAddressSelected ? const Color(0xFF166534) : const Color(0xFF6B7280), // Hijau jika aktif
+                                  fontSize: 13, 
+                                  fontWeight: FontWeight.w500
+                                ),
                               ),
                               const SizedBox(height: 18),
                               const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
@@ -356,10 +387,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                               
                               GestureDetector(
                                 onTap: () async {
-                                  final selected = await context.push<DeliveryLocation>('/location-picker');
-                                  if (selected != null) {
-                                    setState(() => selectedLocation = selected);
-                                  }
+                                  // final selected = await context.push<DeliveryLocation>('/location-picker');
+                                  // if (selected != null) setState(() { selectedLocation = selected; isAddressSelected = true; });
+                                  
+                                  setState(() => isAddressSelected = true);
                                 },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -367,8 +398,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        selectedLocation?.address ?? 'Pilih alamatmu terlebih dahulu',
-                                        style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500),
+                                        isAddressSelected ? 'jonggol' : 'Pilih alamatmu terlebih dahulu',
+                                        style: TextStyle(
+                                          color: isAddressSelected ? Colors.black : const Color(0xFF6B7280), 
+                                          fontSize: 14, 
+                                          fontWeight: FontWeight.w500
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -384,6 +419,53 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       ],
                     ),
                   ),
+
+                  // 🔥 MUNCUL JIKA ALAMAT SUDAH DIPILIH
+                  if (isAddressSelected) ...[
+                    const SizedBox(height: 24),
+                    // Form Tambah Catatan (Menggunakan note.svg sesuai instruksi)
+                    Row(
+                      children: [
+                        Container(
+                          width: 42, height: 42,
+                          decoration: const ShapeDecoration(color: Color(0xFFF3F4F6), shape: OvalBorder()),
+                          child: Center(child: SvgPicture.asset('assets/icons/note.svg', width: 20)),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Tambahkan detail lokasi',
+                              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: Color(0xFFD1D5DB))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: Color(0xFF5A3A31))),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Banners Warning
+                    Container(
+                      width: double.infinity, padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: const Color(0xFFFFE4E6), borderRadius: BorderRadius.circular(8)),
+                      child: const Text('Pastikan alamat pengiriman sudah benar', style: TextStyle(color: Color(0xFF9F1239), fontSize: 12, fontWeight: FontWeight.w500)),
+                    ),
+                    const SizedBox(height: 8),
+                    // Banner Waktu (Menggunakan jam_otw.svg sesuai instruksi barumu)
+                    Container(
+                      width: double.infinity, padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset('assets/icons/jam_otw.svg', width: 16, height: 16, colorFilter: const ColorFilter.mode(Color(0xFF166534), BlendMode.srcIn)),
+                          const SizedBox(width: 8),
+                          const Text('Sampai dalam 23 menit', style: TextStyle(color: Color(0xFF166534), fontSize: 12, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -560,18 +642,62 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
             
-            const SizedBox(height: 32),
+            // 🔥 Spasi dinamis agar konten terbawah tidak ketutup Sticky Cart
+            SizedBox(height: widget.isFromCart ? 100 : 32),
           ],
         ),
       ),
+
+      // 🔥 STICKY CART BOTTOM BAR (Muncul jika isFromCart bernilai true)
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: widget.isFromCart ? Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: InkWell(
+          onTap: () {
+            // Kembali ke halaman detail tadi
+            if(context.canPop()) {
+              context.pop();
+            } else {
+              context.push('/product-detail');
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF5A3A31),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Cek Keranjang (2 Produk)', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    const Text('Rp 30.000', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      child: const Icon(Icons.check, color: Color(0xFF5A3A31), size: 16),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ) : null,
     );
   }
 
   // HELPER WIDGETS
-  Widget _buildVerticalDashedLine() {
+  Widget _buildVerticalDashedLine({int height = 6}) {
     return Column(
       children: List.generate(
-        6,
+        height,
         (index) => Container(
           width: 1.5,
           height: 3,
@@ -609,131 +735,137 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
   Widget _buildFavoriteCard(String id, String name, String subtitle, String price, String imagePath) {
     final isFav = favoriteItems.contains(id);
-    return Container(
-      width: 358,
-      margin: const EdgeInsets.only(right: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      child: Container(
+        width: 358,
+        margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          shadows: const [BoxShadow(color: Color(0x0A000000), blurRadius: 8)],
         ),
-        shadows: const [BoxShadow(color: Color(0x0A000000), blurRadius: 8)],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 88, height: 88,
-            decoration: ShapeDecoration(
-              color: const Color(0xFFEDD8D0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
+        child: Row(
+          children: [
+            Container(
+              width: 88, height: 88,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFEDD8D0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
+              ),
             ),
-          ),
-          const SizedBox(width: 24),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.w600), maxLines: 1),
-                          Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1),
-                        ],
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.w600), maxLines: 1),
+                            Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1),
+                          ],
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () => toggleFavorite(id),
-                      child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFFD1D5DB), size: 24),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 18, fontWeight: FontWeight.w600)),
-                    Container(
-                      width: 29, height: 28,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFF5A3A31),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                      GestureDetector(
+                        onTap: () => toggleFavorite(id),
+                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFFD1D5DB), size: 24),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 18, fontWeight: FontWeight.w600)),
+                      Container(
+                        width: 29, height: 28,
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFF5A3A31),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildGridCard(String id, String badgeAsset, String category, String name, String price, String imagePath) {
-    return Container(
-      width: 171, 
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                width: 171, height: 132,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  image: DecorationImage(
-                    image: AssetImage(imagePath),
-                    fit: BoxFit.cover, 
-                  ),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-                  ),
-                ),
-              ),
-              Positioned(top: 11, left: 8, child: SvgPicture.asset(badgeAsset, height: 24)),
-            ],
+    return GestureDetector(
+      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      child: Container(
+        width: 171, 
+        decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
+            borderRadius: BorderRadius.circular(10),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(category, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11)),
-                Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 14, fontWeight: FontWeight.w600)),
-                    Container(
-                      width: 29, height: 28,
-                      decoration: ShapeDecoration(
-                        color: const Color(0xFF5A3A31),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                      ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 18),
+                Container(
+                  width: 171, height: 132,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    image: DecorationImage(
+                      image: AssetImage(imagePath),
+                      fit: BoxFit.cover, 
                     ),
-                  ],
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                    ),
+                  ),
                 ),
+                Positioned(top: 11, left: 8, child: SvgPicture.asset(badgeAsset, height: 24)),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(category, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11)),
+                  Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 14, fontWeight: FontWeight.w600)),
+                      Container(
+                        width: 29, height: 28,
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFF5A3A31),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 18),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -741,66 +873,69 @@ class _DeliveryPageState extends State<DeliveryPage> {
   Widget _buildSemuaListCard(String id, String badgeAsset, String name, String subtitle, String priceString, String imagePath) {
     final isFav = favoriteItems.contains(id);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Stack(
-          children: [
-            Container(
-              width: 100, height: 100,
-              decoration: ShapeDecoration(
-                color: const Color(0xFFEDD8D0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
-              ),
-            ),
-            Positioned(top: 6, left: 6, child: SvgPicture.asset(badgeAsset, height: 20)),
-          ],
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => toggleFavorite(id),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFF6B7280), size: 24),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 100, height: 100,
+                decoration: ShapeDecoration(
+                  color: const Color(0xFFEDD8D0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
+                ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(priceString, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 16, fontWeight: FontWeight.bold)),
-                  Container(
-                    width: 32, height: 32,
-                    decoration: const ShapeDecoration(color: Color(0xFF5A3A31), shape: OvalBorder()),
-                    child: const Icon(Icons.add, color: Colors.white, size: 20),
-                  ),
-                ],
-              ),
+              Positioned(top: 6, left: 6, child: SvgPicture.asset(badgeAsset, height: 20)),
             ],
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => toggleFavorite(id),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFF6B7280), size: 24),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(priceString, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 16, fontWeight: FontWeight.bold)),
+                    Container(
+                      width: 32, height: 32,
+                      decoration: const ShapeDecoration(color: Color(0xFF5A3A31), shape: OvalBorder()),
+                      child: const Icon(Icons.add, color: Colors.white, size: 20),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
