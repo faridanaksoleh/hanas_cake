@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool hasActiveOrder;
+  const HomePage({super.key, this.hasActiveOrder = false});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,22 +17,65 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTopBar(),
-              const SpaceHeight(24),
-              _buildPromoBanner(),
-              const SpaceHeight(24),
-              _buildOrderOptions(),
-              const SpaceHeight(16),
-              _buildPreorderBanner(),
-              const SpaceHeight(32),
-              _buildCustomerService(),
-            ],
-          ),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTopBar(),
+                  const SpaceHeight(24),
+                  _buildPromoBanner(),
+                  const SpaceHeight(24),
+                  _buildOrderOptions(),
+                  const SpaceHeight(16),
+                  _buildPreorderBanner(),
+                  const SpaceHeight(32),
+                  _buildCustomerService(),
+                  // Extra spacing jika ada banner aktif
+                  if (widget.hasActiveOrder) const SpaceHeight(80),
+                ],
+              ),
+            ),
+            // 🔥 FLOATING ACTIVE ORDER BANNER
+            if (widget.hasActiveOrder)
+              Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: GestureDetector(
+                  onTap: () => GoRouter.of(context).push('/order/detail'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF5A3A31),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.access_time_rounded, color: Colors.white, size: 22),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Pesananmu akan siap dalam 00:19:33 lagi',
+                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
