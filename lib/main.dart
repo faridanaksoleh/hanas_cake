@@ -37,6 +37,7 @@ import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 import 'package:hanas_cake/presentation/pages/location_picker_page.dart';
 import 'package:hanas_cake/presentation/pages/my_favorite_page.dart';
 import 'package:hanas_cake/presentation/pages/product_detail_page.dart';
+import 'package:hanas_cake/presentation/pages/checkout_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -103,7 +104,14 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/checkout',
-          builder: (context, state) => const Scaffold(body: Center(child: Text('Checkout Page Dummy'))),
+          builder: (context, state) => const CheckoutPage(),
+        ),
+        GoRoute(
+          path: '/payment-success',
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(title: const Text('Payment Success Dummy')),
+            body: const Center(child: Text('Halaman sukses pembayaran')),
+          ),
         ),
         GoRoute(
           path: '/branch-list',
