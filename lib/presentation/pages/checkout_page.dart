@@ -115,11 +115,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
             }
           },
         ),
+        // 🔥 FIX DEWA: Headline disamakan persis dengan order_page (menggunakan h1)
         title: Text(
           'Checkout',
-          style: AppTextStyles.h2.copyWith(
+          style: AppTextStyles.h1.copyWith(
             color: AppColors.primary,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),

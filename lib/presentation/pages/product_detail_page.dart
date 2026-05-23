@@ -30,7 +30,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Drag Handle
                 Center(
                   child: Container(
                     width: 48,
@@ -42,8 +41,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
                 const SpaceHeight(24),
-                
-                // Title
                 Center(
                   child: Text(
                     'Lengkapi Belanjamu',
@@ -54,8 +51,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
                 const SpaceHeight(24),
-                
-                // Kartu Berhasil Masuk Keranjang
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: ShapeDecoration(
@@ -97,7 +92,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ],
                   ),
                 ),
-
                 const SpaceHeight(24),
                 Center(
                   child: Text(
@@ -106,8 +100,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
                 const SpaceHeight(16),
-
-                // Opsi Kategori Rekomendasi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -118,10 +110,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     _buildSuggestionChip('Kue', bottomSheetContext),
                   ],
                 ),
-
                 const SpaceHeight(32),
-
-                // Tombol Cek Keranjang
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -139,8 +128,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
                 const SpaceHeight(12),
-                
-                // Tombol Lanjut Belanja
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -188,15 +175,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       backgroundColor: AppColors.white,
       body: Column(
         children: [
-          // ─────────────────────────────────────────────────────────
-          // KONTEN UTAMA
-          // ─────────────────────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // HEADER IMAGE & BACK BUTTON
                   Container(
                     width: double.infinity,
                     height: 340,
@@ -205,7 +188,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       bottom: false,
                       child: Stack(
                         children: [
-                          // Gambar Produk
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 20.0),
@@ -218,7 +200,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
                             ),
                           ),
-                          // Tombol Back
                           Positioned(
                             top: 10,
                             left: 8,
@@ -237,8 +218,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                     ),
                   ),
-                  
-                  // DESKRIPSI & HARGA
                   Padding(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
@@ -281,10 +260,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ],
                     ),
                   ),
-                  
                   const Divider(height: 1, thickness: 4, color: AppColors.surface),
-                  
-                  // OPSI UKURAN
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                     child: Column(
@@ -304,10 +280,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ],
                     ),
                   ),
-
                   const Divider(height: 1, thickness: 4, color: AppColors.surface),
-
-                  // OPSI SWEETNESS
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
                     child: Column(
@@ -327,18 +300,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ],
                     ),
                   ),
-                  
-                  const SpaceHeight(40), 
+                  const SpaceHeight(40),
                 ],
               ),
             ),
           ),
         ],
       ),
-      
-      // ─────────────────────────────────────────────────────────
-      // BOTTOM BAR CHECKOUT
-      // ─────────────────────────────────────────────────────────
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -348,7 +316,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
           child: Row(
             children: [
-              // Quantity Control
+              // 🔥 Quantity Control - SAMA PERSIS DENGAN CHECKOUT_PAGE
               Container(
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -380,7 +348,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
               ),
               const SpaceWidth(16),
-              // Bayar Sekarang Button
               Expanded(
                 child: SizedBox(
                   height: 48,
@@ -402,7 +369,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  // Komponen Radio Button
   Widget _buildRadioOption(String title, String trailing, String groupValue, ValueChanged<String?> onChanged) {
     bool isSelected = title == groupValue;
     return GestureDetector(
