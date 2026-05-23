@@ -60,18 +60,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     shadows: [
-                      BoxShadow(color: AppColors.textPrimary.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+                      BoxShadow(
+                        color: AppColors.textPrimary.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
                     ],
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 60, height: 60,
+                        width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
                           color: AppColors.primaryMid,
                           borderRadius: BorderRadius.circular(8),
                           image: const DecorationImage(
-                            image: AssetImage('assets/images/croissant_mentega_zoom.png'),
+                            image: AssetImage(
+                              'assets/images/croissant_mentega_zoom.png',
+                            ),
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -81,11 +88,27 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Croissant Mentega', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Croissant Mentega',
+                              style: AppTextStyles.body.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SpaceHeight(2),
-                            Text('Large', style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary)),
+                            Text(
+                              'Large',
+                              style: AppTextStyles.micro.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                             const SpaceHeight(6),
-                            Text('Berhasil masuk keranjang', style: AppTextStyles.caption.copyWith(color: AppColors.successText, fontWeight: FontWeight.w600)),
+                            Text(
+                              'Berhasil masuk keranjang',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.successText,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -96,7 +119,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Center(
                   child: Text(
                     'Ssst...tambah ini jadi lebih enak',
-                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SpaceHeight(16),
@@ -121,10 +146,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 0,
                     ),
-                    child: Text('Cek Keranjang', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Cek Keranjang',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SpaceHeight(12),
@@ -134,13 +167,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.pop(bottomSheetContext);
-                      GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
+                      GoRouter.of(
+                        context,
+                      ).push('/delivery', extra: {'isFromCart': true});
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: Text('Lanjut Belanja', style: AppTextStyles.body.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Lanjut Belanja',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SpaceHeight(16),
@@ -155,7 +198,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildSuggestionChip(String label, BuildContext bottomSheetContext) {
     return GestureDetector(
       onTap: () {
-        Navigator.pop(bottomSheetContext); 
+        Navigator.pop(bottomSheetContext);
         GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
       },
       child: Container(
@@ -164,7 +207,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(24),
         ),
-        child: Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+        child: Text(
+          label,
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
       ),
     );
   }
@@ -194,7 +240,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               child: Transform.scale(
                                 scale: 1,
                                 child: Image.asset(
-                                  'assets/images/croissant_mentega_zoom.png', 
+                                  'assets/images/croissant_mentega_zoom.png',
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -204,7 +250,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             top: 10,
                             left: 8,
                             child: IconButton(
-                              icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
+                              icon: const Icon(
+                                Icons.arrow_back_ios,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
                               onPressed: () {
                                 if (GoRouter.of(context).canPop()) {
                                   GoRouter.of(context).pop();
@@ -224,7 +274,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Croissant mentega', 
+                          'Croissant mentega',
                           style: AppTextStyles.h1.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
@@ -241,17 +291,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Rp15.000', 
+                              'Rp15.000',
                               style: AppTextStyles.h1.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => setState(() => isFavorite = !isFavorite),
+                              onTap: () =>
+                                  setState(() => isFavorite = !isFavorite),
                               child: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border, 
-                                color: isFavorite ? AppColors.dangerText : AppColors.textSecondary, 
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isFavorite
+                                    ? AppColors.dangerText
+                                    : AppColors.textSecondary,
                                 size: 28,
                               ),
                             ),
@@ -260,43 +315,87 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ],
                     ),
                   ),
-                  const Divider(height: 1, thickness: 4, color: AppColors.surface),
+                  const Divider(
+                    height: 1,
+                    thickness: 4,
+                    color: AppColors.surface,
+                  ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 20.0,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Ukuran', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Ukuran',
+                              style: AppTextStyles.h3.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text('Wajib, Pilih 1', style: AppTextStyles.micro),
                           ],
                         ),
                         const SpaceHeight(12),
-                        _buildRadioOption('Small', '', selectedSize, (val) => setState(() => selectedSize = val!)),
+                        _buildRadioOption(
+                          'Small',
+                          '',
+                          selectedSize,
+                          (val) => setState(() => selectedSize = val!),
+                        ),
                         const SpaceHeight(8),
-                        _buildRadioOption('Large', '+ Rp 3.000', selectedSize, (val) => setState(() => selectedSize = val!)),
+                        _buildRadioOption(
+                          'Large',
+                          '+ Rp 3.000',
+                          selectedSize,
+                          (val) => setState(() => selectedSize = val!),
+                        ),
                       ],
                     ),
                   ),
-                  const Divider(height: 1, thickness: 4, color: AppColors.surface),
+                  const Divider(
+                    height: 1,
+                    thickness: 4,
+                    color: AppColors.surface,
+                  ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 20.0,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Swetness', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Swetness',
+                              style: AppTextStyles.h3.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text('Wajib, Pilih 1', style: AppTextStyles.micro),
                           ],
                         ),
                         const SpaceHeight(12),
-                        _buildRadioOption('Normal sweet', '', selectedSweetness, (val) => setState(() => selectedSweetness = val!)),
+                        _buildRadioOption(
+                          'Normal sweet',
+                          '',
+                          selectedSweetness,
+                          (val) => setState(() => selectedSweetness = val!),
+                        ),
                         const SpaceHeight(8),
-                        _buildRadioOption('Less Sweet', '', selectedSweetness, (val) => setState(() => selectedSweetness = val!)),
+                        _buildRadioOption(
+                          'Less Sweet',
+                          '',
+                          selectedSweetness,
+                          (val) => setState(() => selectedSweetness = val!),
+                        ),
                       ],
                     ),
                   ),
@@ -316,38 +415,57 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
           child: Row(
             children: [
-              // 🔥 Quantity Control - SAMA PERSIS DENGAN CHECKOUT_PAGE
-              Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(50),
-                  color: AppColors.white,
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove, size: 20, color: quantity > 1 ? AppColors.textPrimary : AppColors.textSecondary),
-                      onPressed: () { if(quantity > 1) setState(() => quantity--); },
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SpaceWidth(12),
-                    Text('$quantity', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600)),
-                    const SpaceWidth(12),
-                    GestureDetector(
-                      onTap: () => setState(() => quantity++),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                        child: const Icon(Icons.add, size: 16, color: AppColors.white),
+              // 🔥 Quantity Control - SAMA PERSIS DENGAN CHECKOUT PAGE
+              Row(
+                children: [
+                  // Tombol MINUS (lingkaran dengan border)
+                  GestureDetector(
+                    onTap: () {
+                      if (quantity > 1) setState(() => quantity--);
+                    },
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: const Icon(
+                        Icons.remove,
+                        size: 16,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SpaceWidth(12),
+                  Text(
+                    '$quantity',
+                    style: AppTextStyles.h3.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SpaceWidth(12),
+                  // Tombol PLUS (lingkaran dengan background primary)
+                  GestureDetector(
+                    onTap: () => setState(() => quantity++),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        size: 16,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SpaceWidth(16),
+              // Tombol Bayar Sekarang
               Expanded(
                 child: SizedBox(
                   height: 48,
@@ -355,10 +473,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     onPressed: () => _showAddToCartBottomSheet(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       elevation: 0,
                     ),
-                    child: Text('Bayar Sekarang', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Bayar Sekarang',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -369,24 +495,41 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildRadioOption(String title, String trailing, String groupValue, ValueChanged<String?> onChanged) {
+  Widget _buildRadioOption(
+    String title,
+    String trailing,
+    String groupValue,
+    ValueChanged<String?> onChanged,
+  ) {
     bool isSelected = title == groupValue;
     return GestureDetector(
       onTap: () => onChanged(title),
       child: Container(
-        color: Colors.transparent, 
+        color: Colors.transparent,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: AppTextStyles.body.copyWith(color: AppColors.textSecondary)),
+            Text(
+              title,
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
             Row(
               children: [
                 if (trailing.isNotEmpty) ...[
-                  Text(trailing, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                  Text(
+                    trailing,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   const SpaceWidth(16),
                 ],
                 Icon(
-                  isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
                   color: isSelected ? AppColors.secondary : AppColors.border,
                   size: 22,
                 ),
