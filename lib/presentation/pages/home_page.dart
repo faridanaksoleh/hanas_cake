@@ -49,11 +49,11 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5A3A31),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: AppColors.textPrimary.withValues(alpha: 0.15),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -61,15 +61,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.access_time_rounded, color: Colors.white, size: 22),
-                        const SizedBox(width: 12),
-                        const Expanded(
+                        const Icon(Icons.access_time_rounded, color: AppColors.white, size: 22),
+                        const SpaceWidth(12),
+                        Expanded(
                           child: Text(
                             'Pesananmu akan siap dalam 00:19:33 lagi',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                        const Icon(Icons.arrow_forward_ios, color: AppColors.white, size: 16),
                       ],
                     ),
                   ),
@@ -180,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.w400, 
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SpaceHeight(4),
                 Text(
                   'Diskon 20%\nuntuk semua pastri',
                   style: AppTextStyles.h2.copyWith(
@@ -189,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                     height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SpaceHeight(6),
                 Text(
                   'Berlaku Sampai Pukul 17.00 WIB',
                   style: AppTextStyles.caption.copyWith(
@@ -287,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SpaceHeight(4),
                   Text(
                     'Ambil di Store\ntanpa antri',
                     style: AppTextStyles.caption.copyWith( 
@@ -330,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SpaceHeight(4),
                 Text(
                   'Garansi tepat\nwaktu. dijamin!',
                   style: AppTextStyles.caption.copyWith( 
@@ -472,7 +475,7 @@ class _HomePageState extends State<HomePage> {
                       maxLines: 1, 
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SpaceHeight(2),
                     Text(
                       '081-2222-3333',
                       style: AppTextStyles.caption.copyWith(
@@ -592,7 +595,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   // 🔥 FIX: Custom Hex Color #7A5248 dengan opacity 30% sesuai Figma
-                  color: const Color(0xFF7A5248).withValues(alpha: 0.30),
+                  color: AppColors.primaryLight.withValues(alpha: 0.30),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.primary, width: 1),
                 ),

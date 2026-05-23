@@ -108,7 +108,7 @@ class _OrderFilterPageState extends State<OrderFilterPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1B5E20), 
+                backgroundColor: AppColors.successText, 
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero, 
                 ),

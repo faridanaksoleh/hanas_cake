@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/core/core.dart';
 
 // Model Data Cabang
 class BranchItem {
@@ -52,7 +53,7 @@ class _BranchListPageState extends State<BranchListPage> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (bottomSheetContext) {
         return StatefulBuilder(
@@ -62,10 +63,10 @@ class _BranchListPageState extends State<BranchListPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF9CA3AF), borderRadius: BorderRadius.circular(2))),
-                  const SizedBox(height: 24),
-                  const Text('Pilih Metode Pemesanan', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 24),
+                  Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+                  const SpaceHeight(24),
+                  Text('Pilih Metode Pemesanan', style: AppTextStyles.h2.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  const SpaceHeight(24),
                   
                   _buildMethodOption(
                     title: 'Pick Up',
@@ -76,11 +77,11 @@ class _BranchListPageState extends State<BranchListPage> {
                       setModalState(() => selectedMethod = 'Pick Up');
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(bottomSheetContext);
-                        context.pushReplacement('/pickup'); 
+                        GoRouter.of(context).pushReplacement('/pickup'); 
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
                   
                   _buildMethodOption(
                     title: 'Delivery',
@@ -94,7 +95,7 @@ class _BranchListPageState extends State<BranchListPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SpaceHeight(32),
                 ],
               ),
             );
@@ -112,36 +113,34 @@ class _BranchListPageState extends State<BranchListPage> {
         child: Row(
           children: [
             Image.asset(imagePath, width: 48, height: 60, fit: BoxFit.contain),
-            const SizedBox(width: 16),
+            const SpaceWidth(16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12)),
+                  Text(title, style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                  const SpaceHeight(4),
+                  Text(subtitle, style: AppTextStyles.caption),
                 ],
               ),
             ),
-            Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? const Color(0xFF3454D1) : Colors.grey),
+            Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? AppColors.secondary : AppColors.border),
           ],
         ),
       ),
     );
   }
 
-  // 🔥 FUNGSI POPUP WAKTU OPERASIONAL (SEKARANG INTERAKTIF)
+  // 🔥 FUNGSI POPUP WAKTU OPERASIONAL
   void _showOperatingHoursBottomSheet() {
-    // Default aktif di tab Delivery
     bool isDeliveryActive = true; 
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, 
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (bottomSheetContext) {
-        // 🔥 Tambahkan StatefulBuilder agar bisa di-klik dan ganti state
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return SafeArea(
@@ -150,31 +149,28 @@ class _BranchListPageState extends State<BranchListPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min, 
                   children: [
-                    Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF9CA3AF), borderRadius: BorderRadius.circular(2))),
-                    const SizedBox(height: 24),
-                    const Text('Waktu Operasional', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF5A3A31))),
-                    const SizedBox(height: 24),
+                    Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+                    const SpaceHeight(24),
+                    Text('Waktu Operasional', style: AppTextStyles.h2.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    const SpaceHeight(24),
                     
                     // Toggle Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Tab Pick Up
                         GestureDetector(
                           onTap: () => setModalState(() => isDeliveryActive = false),
                           child: _buildHourToggle('Pick Up', !isDeliveryActive),
                         ),
-                        const SizedBox(width: 16),
-                        // Tab Delivery
+                        const SpaceWidth(16),
                         GestureDetector(
                           onTap: () => setModalState(() => isDeliveryActive = true),
                           child: _buildHourToggle('Delivery', isDeliveryActive),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SpaceHeight(32),
                     
-                    // 🔥 Jadwal berubah otomatis tergantung tab yang diklik!
                     if (isDeliveryActive) ...[
                       _buildHourRow('Senin', '09:30 - 21:00'),
                       _buildHourRow('Selasa', '09:30 - 21:00'),
@@ -192,7 +188,7 @@ class _BranchListPageState extends State<BranchListPage> {
                       _buildHourRow('Sabtu', '08:00 - 22:00'),
                       _buildHourRow('Minggu', '08:00 - 22:00'),
                     ],
-                    const SizedBox(height: 16),
+                    const SpaceHeight(16),
                   ],
                 ),
               ),
@@ -203,16 +199,15 @@ class _BranchListPageState extends State<BranchListPage> {
     );
   }
 
-  // 🔥 Padding digedein biar tombolnya gemuk
   Widget _buildHourToggle(String label, bool active) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
       decoration: BoxDecoration(
-        color: active ? const Color(0xFFEFE8E5) : Colors.white,
+        color: active ? AppColors.primaryXLight : AppColors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: active ? const Color(0xFF5A3A31) : Colors.grey.shade300),
+        border: Border.all(color: active ? AppColors.primary : AppColors.border),
       ),
-      child: Text(label, style: TextStyle(color: active ? const Color(0xFF5A3A31) : const Color(0xFF9CA3AF), fontSize: 13, fontWeight: FontWeight.bold)),
+      child: Text(label, style: AppTextStyles.bodySmall.copyWith(color: active ? AppColors.primary : AppColors.textSecondary, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -221,7 +216,7 @@ class _BranchListPageState extends State<BranchListPage> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          SizedBox(width: 60, child: Text(day, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13))),
+          SizedBox(width: 60, child: Text(day, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary))),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -230,13 +225,13 @@ class _BranchListPageState extends State<BranchListPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(
                     (constraints.constrainWidth() / 6).floor(),
-                    (index) => Container(width: 3, height: 1, color: Colors.grey.shade300),
+                    (index) => Container(width: 3, height: 1, color: AppColors.border),
                   ),
                 );
               },
             ),
           ),
-          SizedBox(width: 100, child: Text(time, textAlign: TextAlign.right, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 13, fontWeight: FontWeight.w500))),
+          SizedBox(width: 100, child: Text(time, textAlign: TextAlign.right, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w500))),
         ],
       ),
     );
@@ -249,7 +244,7 @@ class _BranchListPageState extends State<BranchListPage> {
         (index) => Expanded(
           child: Container(
             height: 1,
-            color: index % 2 == 0 ? const Color(0xFFD1D5DB) : Colors.transparent,
+            color: index % 2 == 0 ? AppColors.border : Colors.transparent,
           ),
         ),
       ),
@@ -259,25 +254,25 @@ class _BranchListPageState extends State<BranchListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF5A3A31), size: 20),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
+          onPressed: () => GoRouter.of(context).pop(),
         ),
-        title: const Text("Hana's Bakery", style: TextStyle(color: Color(0xFF5A3A31), fontSize: 16, fontWeight: FontWeight.bold)),
+        title: Text("Hana's Bakery", style: AppTextStyles.h3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: Color(0xFF5A3A31)), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search, color: AppColors.primary), onPressed: () {}),
         ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            color: Colors.white,
+            color: AppColors.white,
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -286,52 +281,52 @@ class _BranchListPageState extends State<BranchListPage> {
                   width: 56, height: 56,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: AppColors.border),
                     image: const DecorationImage(
                       image: AssetImage('assets/images/delivery_rounded.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
-                const Text(
+                const SpaceWidth(16),
+                Text(
                   'Delivery',
-                  style: TextStyle(color: Color(0xFF5A3A31), fontSize: 24, fontWeight: FontWeight.w500),
+                  style: AppTextStyles.h1.copyWith(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.w500),
                 ),
                 const Spacer(),
                 OutlinedButton(
                   onPressed: () => _showOrderMethodBottomSheet(context),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF5A3A31)),
-                    backgroundColor: const Color(0xFFF4EDE9),
+                    side: const BorderSide(color: AppColors.primary),
+                    backgroundColor: AppColors.primaryXLight,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     elevation: 0,
                   ),
-                  child: const Text('Ubah ke Pick Up', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text('Ubah ke Pick Up', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
           ),
 
           Container(
-            color: Colors.white,
+            color: AppColors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text('${branches.length} Store', style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13, fontWeight: FontWeight.w500)),
+            child: Text('${branches.length} Store', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
           ),
           
-          Container(color: Colors.white, child: _buildHorizontalDashedLine()),
+          Container(color: AppColors.white, child: _buildHorizontalDashedLine()),
 
           Expanded(
             child: ListView.separated(
               itemCount: branches.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8), 
+              separatorBuilder: (context, index) => const SpaceHeight(8), 
               itemBuilder: (context, index) {
                 final item = branches[index];
                 return InkWell(
-                  onTap: () => context.pop(item),
+                  onTap: () => GoRouter.of(context).pop(item),
                   child: Container(
-                    color: Colors.white,
+                    color: AppColors.white,
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,74 +337,72 @@ class _BranchListPageState extends State<BranchListPage> {
                             Expanded(
                               child: Text(
                                 item.name, 
-                                style: const TextStyle(color: Color(0xFF1F2937), fontWeight: FontWeight.w600, fontSize: 16, height: 1.3),
+                                style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600, height: 1.3),
                               ),
                             ),
                             if (item.isTop) 
                               const Padding(
                                 padding: EdgeInsets.only(left: 12.0),
-                                child: Icon(Icons.check_circle, color: Color(0xFF5A3A31), size: 22),
+                                child: Icon(Icons.check_circle, color: AppColors.primary, size: 22),
                               ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        // 🔥 Teks Alamat Diperbesar
+                        const SpaceHeight(4),
                         Text(
                           item.address, 
-                          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13, height: 1.4)
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.4),
                         ),
-                        const SizedBox(height: 8),
+                        const SpaceHeight(8),
                         
-                        // 🔥 Teks Jarak Diperbesar
                         RichText(
                           text: TextSpan(
                             text: '${item.distanceKm} km dari lokasimu',
-                            style: const TextStyle(color: Color(0xFF1F2937), fontSize: 13, fontWeight: FontWeight.w600),
+                            style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600),
                             children: [
                               if (item.isTop)
-                                const TextSpan(
+                                TextSpan(
                                   text: ' • Terdekat',
-                                  style: TextStyle(color: Color(0xFF166534)),
+                                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.successText),
                                 ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SpaceHeight(16),
                         
                         Row(
                           children: [
                             SvgPicture.asset(
                               'assets/icons/tote_simple.svg', 
                               width: 16, 
-                              colorFilter: const ColorFilter.mode(Color(0xFF5A3A31), BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
                             ),
-                            const SizedBox(width: 6),
-                            const Text('Pick Up', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                            const SpaceWidth(6),
+                            Text('Pick Up', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                             
-                            const SizedBox(width: 16),
+                            const SpaceWidth(16),
 
                             SvgPicture.asset(
                               'assets/icons/moped.svg', 
                               width: 18, 
                             ),
-                            const SizedBox(width: 6),
-                            const Text('Delivery', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                            const SpaceWidth(6),
+                            Text('Delivery', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                           ],
                         ),
                         
-                        const SizedBox(height: 16),
+                        const SpaceHeight(16),
                         _buildHorizontalDashedLine(),
-                        const SizedBox(height: 16),
+                        const SpaceHeight(16),
                         
                         InkWell(
                           onTap: _showOperatingHoursBottomSheet,
                           child: Row(
-                            children: const [
-                              Text('Buka', style: TextStyle(color: Color(0xFF3454D1), fontSize: 13, fontWeight: FontWeight.w600)), 
-                              SizedBox(width: 8),
-                              Text('09:30 - 22:00', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
-                              Spacer(),
-                              Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF6B7280)),
+                            children: [
+                              Text('Buka', style: AppTextStyles.bodySmall.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w600)), 
+                              const SpaceWidth(8),
+                              Text('09:30 - 22:00', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                              const Spacer(),
+                              const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
                             ],
                           ),
                         ),

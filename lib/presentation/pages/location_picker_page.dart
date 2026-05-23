@@ -152,7 +152,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
           ),
 
           const SpaceHeight(16),
-          const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)), 
+          const Divider(height: 1, thickness: 4, color: AppColors.surface), 
           
           // ─────────────────────────────────────────────────────────
           // 3. LOCATION LIST (Dinamis & Interaktif)
@@ -168,7 +168,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               : ListView.separated(
                   padding: const EdgeInsets.only(top: 16, bottom: 24),
                   itemCount: displayedAddresses.length,
-                  separatorBuilder: (context, index) => const Divider(height: 32, thickness: 1, color: Color(0xFFE5E7EB)),
+                  separatorBuilder: (context, index) => const Divider(height: 32, thickness: 1, color: AppColors.border),
                   itemBuilder: (context, index) {
                     final item = displayedAddresses[index];
                     return _buildLocationItem(
@@ -232,7 +232,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFEDD8D0).withOpacity(0.5) : Colors.white,
+          color: isActive ? AppColors.primaryMid.withValues(alpha: 0.5) : AppColors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isActive ? AppColors.primary : Colors.grey.shade300,

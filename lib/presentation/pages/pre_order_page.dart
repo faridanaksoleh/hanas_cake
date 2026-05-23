@@ -13,13 +13,12 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   late PageController _pageController;
   late AnimationController _animController;
   int _currentIndex = 0;
-  final int _storyCount = 2; // Kita punya 2 halaman (intro & harga)
+  final int _storyCount = 2; 
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
-    // Waktu tiap story: 5 detik
     _animController = AnimationController(vsync: this, duration: const Duration(seconds: 5));
     
     _animController.addStatusListener((status) {
@@ -28,7 +27,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
       }
     });
     
-    _animController.forward(); // Langsung jalanin animasinya
+    _animController.forward(); 
   }
 
   @override
@@ -38,7 +37,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     super.dispose();
   }
 
-  // 🔥 FIX: Logika next page untuk auto-play dan onTap
   void _nextPage() {
     if (_currentIndex < _storyCount - 1) {
       _pageController.nextPage(
@@ -46,7 +44,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
         curve: Curves.easeInOut,
       );
     } else {
-      // Kalau udah habis, tutup halamannya
       _animController.stop();
       if (GoRouter.of(context).canPop()) {
         GoRouter.of(context).pop();
@@ -62,21 +59,14 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
       backgroundColor: AppColors.primary, 
       body: Stack(
         children: [
-          // ─────────────────────────────────────────────────────────
-          // 1. KONTEN PAGE VIEW (Bisa digeser & di-tap)
-          // ─────────────────────────────────────────────────────────
           GestureDetector(
-            // 🔥 FIX: Tap di manapun langsung nge-skip (Next Page)
             onTap: () => _nextPage(), 
-            // 🔥 FIX: Tahan layar untuk Pause, Lepas untuk Play
             onLongPressStart: (_) => _animController.stop(),
             onLongPressEnd: (_) {
               if (!_animController.isAnimating) _animController.forward();
             },
             child: PageView(
               controller: _pageController,
-              // Matikan swipe manual jika ingin strict seperti IG Story
-              // physics: const NeverScrollableScrollPhysics(), 
               onPageChanged: (index) {
                 setState(() {
                   _currentIndex = index;
@@ -91,9 +81,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
             ),
           ),
 
-          // ─────────────────────────────────────────────────────────
-          // 2. KONTROL ATAS (Progress Bar, Play/Pause, Close)
-          // ─────────────────────────────────────────────────────────
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -173,18 +160,14 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // STORY 1: INTRO CROISSANT BANYAK (GRADASI ASLI KODE)
-  // ─────────────────────────────────────────────────────────
   Widget _buildStoryPage1() {
     return Stack(
       children: [
-        // 🔥 FIX DEWA: Background dibelah dua! Atas krem, bawah gradasi cokelat halus
         Column(
           children: [
             Expanded(
               flex: 4,
-              child: Container(color: AppColors.primaryXLight), // Krem Solid
+              child: Container(color: AppColors.primaryXLight), 
             ),
             Expanded(
               flex: 5,
@@ -194,8 +177,8 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.primary,        // Cokelat standar
-                      Color(0xFF26140A),        // Cokelat super gelap untuk efek gradasi Figma
+                      AppColors.primary,        
+                      AppColors.primary, // 🔥 FIX: Diganti dari primaryDark ke primary biar aman       
                     ],
                   ),
                 ),
@@ -204,7 +187,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
           ],
         ),
         
-        // KONTEN TEKS & GAMBAR UTAMA
         SafeArea(
           child: Column(
             children: [
@@ -219,7 +201,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                 ),
               ),
               const Spacer(),
-              // Croissant menimpa garis potong krem & cokelat
               Image.asset(
                 'assets/images/pre-order.png',
                 width: double.infinity,
@@ -265,19 +246,15 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // STORY 2: DAFTAR HARGA (GRADASI ASLI KODE)
-  // ─────────────────────────────────────────────────────────
   Widget _buildStoryPage2() {
     return Container(
-      // 🔥 FIX: Story 2 full layar pakai gradasi programmatic
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
             AppColors.primary,
-            Color(0xFF26140A), // Cokelat gelap
+            AppColors.primary, // 🔥 FIX: Diganti dari primaryDark ke primary biar aman 
           ],
         ),
       ),
@@ -338,7 +315,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
       ],
     );
 
-    // 🔥 FIX: Ukuran Croissant diperbesar jadi 160
     Widget imageContent = Image.asset('assets/images/croissant_tr.png', width: 160);
 
     return Expanded(

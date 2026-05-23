@@ -27,7 +27,6 @@ class _NotificationPageState extends State<NotificationPage> {
           style: AppTextStyles.display.copyWith(
             fontSize: 22,
             color: AppColors.primary,
-            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [

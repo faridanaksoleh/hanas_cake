@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/core/core.dart';
 import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
 
 class DeliveryPage extends StatefulWidget {
-  // Menerima state parameter keranjang aktif
   final bool isFromCart;
   const DeliveryPage({super.key, this.isFromCart = false});
 
@@ -15,14 +15,8 @@ class DeliveryPage extends StatefulWidget {
 class _DeliveryPageState extends State<DeliveryPage> {
   BranchItem? selectedBranch;
   DeliveryLocation? selectedLocation;
-
-  // Key untuk target scroll fitur filter "Semua"
   final GlobalKey _semuaSectionKey = GlobalKey();
-
-  // State untuk menyimpan item yang di-favorit-kan berdasarkan ID Unik
   Set<String> favoriteItems = {};
-  
-  // STATE UNTUK UX VALIDASI ALAMAT
   bool isAddressSelected = false;
 
   void toggleFavorite(String id) {
@@ -45,7 +39,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
     }
   }
 
-  // FUNGSI VALIDASI KLIK PRODUK 
   void _onProductTapped() {
     if (!isAddressSelected) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,17 +49,17 @@ class _DeliveryPageState extends State<DeliveryPage> {
         ),
       );
     } else {
-      context.push('/product-detail'); // Arahkan ke halaman detail
+      // 🔥 FIX: Pakai GoRouter.of(context) biar IDE-nya nggak bingung
+      GoRouter.of(context).push('/product-detail'); 
     }
   }
 
-  // 🔥 FUNGSI SAKTI POP-UP BOTTOM SHEET (DENGAN SMOOTH TRANSITION)
   void _showOrderMethodBottomSheet(BuildContext context) {
-    String selectedMethod = 'Delivery'; // Karena kita di page Delivery, defaultnya ini
+    String selectedMethod = 'Delivery'; 
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -78,29 +71,23 @@ class _DeliveryPageState extends State<DeliveryPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Handle atas (garis abu-abu)
                   Container(
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9CA3AF),
+                      color: AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  
-                  // Judul Pop Up
-                  const Text(
+                  const SpaceHeight(24),
+                  Text(
                     'Pilih Metode Pemesanan',
-                    style: TextStyle(
-                      color: Color(0xFF5A3A31),
-                      fontSize: 18,
+                    style: AppTextStyles.h2.copyWith(
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // ──────── OPTION: PICK UP ────────
+                  const SpaceHeight(24),
                   _buildMethodOption(
                     title: 'Pick Up',
                     subtitle: 'Ambil di Store tanpa antri',
@@ -109,17 +96,13 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     groupValue: selectedMethod,
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
-                      // 🔥 Beri jeda animasi sedikit, lalu pindah halaman!
                       Future.delayed(const Duration(milliseconds: 300), () {
-                        Navigator.pop(bottomSheetContext); // Tutup pop up
-                        context.pushReplacement('/pickup'); // Pindah smooth ke PickUp
+                        Navigator.pop(bottomSheetContext); 
+                        GoRouter.of(context).pushReplacement('/pickup'); 
                       });
                     },
                   ),
-                  
-                  const SizedBox(height: 16),
-
-                  // ──────── OPTION: DELIVERY ────────
+                  const SpaceHeight(16),
                   _buildMethodOption(
                     title: 'Delivery',
                     subtitle: 'Garansi tepat waktu, dijamin!',
@@ -128,14 +111,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     groupValue: selectedMethod,
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
-                      // 🔥 Jika sudah Delivery, cukup tutup saja pop-up nya
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(bottomSheetContext); 
                       });
                     },
                   ),
-                  
-                  const SizedBox(height: 32),
+                  const SpaceHeight(32),
                 ],
               ),
             );
@@ -145,7 +126,6 @@ class _DeliveryPageState extends State<DeliveryPage> {
     );
   }
 
-  // HELPER WIDGET UNTUK ISI POP UP
   Widget _buildMethodOption({
     required String title,
     required String subtitle,
@@ -161,25 +141,22 @@ class _DeliveryPageState extends State<DeliveryPage> {
         child: Row(
           children: [
             Image.asset(imagePath, width: 48, height: 60, fit: BoxFit.contain),
-            const SizedBox(width: 16),
+            const SpaceWidth(16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Color(0xFF1F2937),
-                      fontSize: 16,
+                    style: AppTextStyles.h3.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SpaceHeight(4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF9CA3AF),
-                      fontSize: 12,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -188,7 +165,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
             Radio<String>(
               value: value,
               groupValue: groupValue,
-              activeColor: const Color(0xFF5A3A31),
+              activeColor: AppColors.primary,
               onChanged: onChanged,
             ),
           ],
@@ -200,15 +177,14 @@ class _DeliveryPageState extends State<DeliveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.surface,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADLINE AREA
             Container(
               width: double.infinity,
-              color: const Color(0xFFEDD8D0),
+              color: AppColors.primaryMid,
               child: SafeArea(
                 bottom: false,
                 child: Column(
@@ -217,30 +193,29 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                       leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF7A5248), size: 20),
+                        icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryLight, size: 20),
                         onPressed: () {
-                          if (context.canPop()) {
-                            context.pop();
+                          if (GoRouter.of(context).canPop()) {
+                            GoRouter.of(context).pop();
                           } else {
-                            context.go('/home');
+                            GoRouter.of(context).go('/home');
                           }
                         },
                       ),
                       actions: [
                         IconButton(
-                          icon: const Icon(Icons.search, color: Color(0xFF7A5248), size: 28),
+                          icon: const Icon(Icons.search, color: AppColors.primaryLight, size: 28),
                           onPressed: () {},
                         ),
-                        const SizedBox(width: 16),
+                        const SpaceWidth(16),
                       ],
                     ),
-                    
                     Container(
                       width: double.infinity,
                       height: 147,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(color: Color(0xFFEDD8D0)),
+                      decoration: const BoxDecoration(color: AppColors.primaryMid),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -264,25 +239,23 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Delivery',
-                                      style: TextStyle(
-                                        color: Color(0xFF7A5248),
+                                      style: AppTextStyles.h1.copyWith(
+                                        color: AppColors.primaryLight,
                                         fontSize: 22,
                                         fontWeight: FontWeight.w500,
                                         height: 1.20,
                                         letterSpacing: -0.66,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SpaceHeight(4),
                                     SizedBox(
                                       width: 116.16,
-                                      child: const Text(
+                                      child: Text(
                                         'Garansi tepat waktu, dijamin!',
-                                        style: TextStyle(
-                                          color: Color(0xFF7A5248),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w400,
+                                        style: AppTextStyles.micro.copyWith(
+                                          color: AppColors.primaryLight,
                                           height: 1.30,
                                         ),
                                       ),
@@ -296,18 +269,17 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                     height: 41,
                                     padding: const EdgeInsets.all(10),
                                     decoration: ShapeDecoration(
-                                      color: const Color(0xFFF4EDE9),
+                                      color: AppColors.primaryXLight,
                                       shape: RoundedRectangleBorder(
-                                        side: const BorderSide(width: 1, color: Color(0xFF5A3A31)),
+                                        side: const BorderSide(width: 1, color: AppColors.primary),
                                         borderRadius: BorderRadius.circular(50),
                                       ),
                                     ),
-                                    child: const Center(
+                                    child: Center(
                                       child: Text(
                                         'Ubah',
-                                        style: TextStyle(
-                                          color: Color(0xFF5A3A31),
-                                          fontSize: 11,
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.primary,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -332,21 +304,18 @@ class _DeliveryPageState extends State<DeliveryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     width: double.infinity,
                     child: Text(
                       'Pesananmu dikirim dari',
-                      style: TextStyle(
-                        color: Color(0xFF1F2937),
-                        fontSize: 18,
+                      style: AppTextStyles.h2.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.36,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SpaceHeight(24),
                   
-                  // 🔥 BLOCK ALAMAT (SUDAH BUKA PAGE & NUNGGU KEMBALIAN DATA)
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -354,18 +323,16 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           SvgPicture.asset('assets/icons/branch.svg', width: 42),
-                          // Garis putus memanjang kalau state aktif
                           _buildVerticalDashedLine(height: isAddressSelected ? 6 : 3),
                           SvgPicture.asset('assets/icons/address.svg', width: 42),
                         ],
                       ),
-                      const SizedBox(width: 16),
+                      const SpaceWidth(16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            // 👉 1. KLIK BRANCH (CABANG)
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
@@ -381,13 +348,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                 children: [
                                   Text(
                                     selectedBranch?.name ?? 'Alamat Cabang terdekat',
-                                    style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
+                                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   Text(
                                     isAddressSelected ? '0.59km dari lokasimu' : '-dari lokasimu',
-                                    style: TextStyle(
-                                      color: isAddressSelected ? const Color(0xFF166534) : const Color(0xFF6B7280), 
-                                      fontSize: 13, 
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: isAddressSelected ? AppColors.successText : AppColors.textSecondary, 
                                       fontWeight: FontWeight.w500
                                     ),
                                   ),
@@ -395,11 +361,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                               ),
                             ),
                             
-                            const SizedBox(height: 18),
-                            const Divider(height: 1, thickness: 1, color: Color(0xFFD1D5DB)),
-                            const SizedBox(height: 18),
+                            const SpaceHeight(18),
+                            const Divider(height: 1, thickness: 1, color: AppColors.border),
+                            const SpaceHeight(18),
                             
-                            // 👉 2. KLIK LOKASI PENGIRIMAN
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
@@ -418,17 +383,16 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                   Expanded(
                                     child: Text(
                                       isAddressSelected ? (selectedLocation?.address ?? 'jonggol') : 'Pilih alamatmu terlebih dahulu',
-                                      style: TextStyle(
-                                        color: isAddressSelected ? Colors.black : const Color(0xFF6B7280), 
-                                        fontSize: 14, 
+                                      style: AppTextStyles.body.copyWith(
+                                        color: isAddressSelected ? AppColors.textPrimary : AppColors.textSecondary, 
                                         fontWeight: FontWeight.w500
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
+                                  const SpaceWidth(8),
+                                  const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
                                 ],
                               ),
                             ),
@@ -438,48 +402,44 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ],
                   ),
 
-                  // 🔥 MUNCUL JIKA ALAMAT SUDAH DIPILIH
                   if (isAddressSelected) ...[
-                    const SizedBox(height: 24),
-                    // Form Tambah Catatan
+                    const SpaceHeight(24),
                     Row(
                       children: [
                         Container(
                           width: 42, height: 42,
-                          decoration: const ShapeDecoration(color: Color(0xFFF3F4F6), shape: OvalBorder()),
+                          decoration: const ShapeDecoration(color: AppColors.surface, shape: OvalBorder()),
                           child: Center(child: SvgPicture.asset('assets/icons/note.svg', width: 20)),
                         ),
-                        const SizedBox(width: 16),
+                        const SpaceWidth(16),
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'Tambahkan detail lokasi',
-                              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+                              hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: Color(0xFFD1D5DB))),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: Color(0xFF5A3A31))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: AppColors.border)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: AppColors.primary)),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    // Banners Warning
+                    const SpaceHeight(24),
                     Container(
                       width: double.infinity, padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: const Color(0xFFFFE4E6), borderRadius: BorderRadius.circular(8)),
-                      child: const Text('Pastikan alamat pengiriman sudah benar', style: TextStyle(color: Color(0xFF9F1239), fontSize: 12, fontWeight: FontWeight.w500)),
+                      decoration: BoxDecoration(color: AppColors.dangerBg, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Pastikan alamat pengiriman sudah benar', style: AppTextStyles.caption.copyWith(color: AppColors.dangerText, fontWeight: FontWeight.w500)),
                     ),
-                    const SizedBox(height: 8),
-                    // Banner Waktu
+                    const SpaceHeight(8),
                     Container(
                       width: double.infinity, padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: AppColors.successBg, borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          SvgPicture.asset('assets/icons/jam_otw.svg', width: 16, height: 16, colorFilter: const ColorFilter.mode(Color(0xFF166534), BlendMode.srcIn)),
-                          const SizedBox(width: 8),
-                          const Text('Sampai dalam 23 menit', style: TextStyle(color: Color(0xFF166534), fontSize: 12, fontWeight: FontWeight.w500)),
+                          SvgPicture.asset('assets/icons/jam_otw.svg', width: 16, height: 16, colorFilter: const ColorFilter.mode(AppColors.successText, BlendMode.srcIn)),
+                          const SpaceWidth(8),
+                          Text('Sampai dalam 23 menit', style: AppTextStyles.caption.copyWith(color: AppColors.successText, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
@@ -488,9 +448,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
             
-            const SizedBox(height: 12),
+            const SpaceHeight(12),
 
-            // FAVORITE & MUST TRY
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -503,23 +462,23 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'My Favorite',
-                          style: TextStyle(color: Color(0xFF1F2937), fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: -0.36),
+                          style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.36),
                         ),
                         GestureDetector(
-                          onTap: () => context.push('/my-favorite'),
-                          child: const Text(
+                          onTap: () => GoRouter.of(context).push('/my-favorite'),
+                          child: Text(
                             'Lihat Semua',
-                            style: TextStyle(color: Color(0xFF3454D1), fontSize: 13, fontWeight: FontWeight.w400),
+                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.secondary),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SpaceHeight(12),
                   Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildHorizontalDashedLine()),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
 
                   SizedBox(
                     height: 116,
@@ -533,7 +492,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SpaceHeight(24),
 
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -544,72 +503,72 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           width: 48,
                           padding: const EdgeInsets.all(8),
                           decoration: ShapeDecoration(
-                            color: const Color(0xFF5A3A31),
+                            color: AppColors.primary,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
-                          child: const Center(
-                            child: Text('⭐', style: TextStyle(color: Colors.white, fontSize: 12)),
+                          child: Center(
+                            child: Text('⭐', style: AppTextStyles.caption.copyWith(color: AppColors.white)),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SpaceWidth(12),
                         GestureDetector(
                           onTap: scrollToSemua,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: ShapeDecoration(
                               shape: RoundedRectangleBorder(
-                                side: const BorderSide(width: 1, color: Color(0xFF6B7280)),
+                                side: const BorderSide(width: 1, color: AppColors.textSecondary),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Text('Semua', style: TextStyle(color: Color(0xFF6B7280), fontSize: 11, fontWeight: FontWeight.w500)),
+                            child: Text('Semua', style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SpaceWidth(12),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: ShapeDecoration(
-                            color: const Color(0xFFEEF2FF),
+                            color: AppColors.secondaryXLight,
                             shape: RoundedRectangleBorder(
-                              side: const BorderSide(width: 1, color: Color(0xFF3454D1)),
+                              side: const BorderSide(width: 1, color: AppColors.secondary),
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Text('Roti', style: TextStyle(color: Color(0xFF3454D1), fontSize: 11, fontWeight: FontWeight.w500)),
+                          child: Text('Roti', style: AppTextStyles.micro.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w500)),
                         ),
-                        const SizedBox(width: 12),
+                        const SpaceWidth(12),
                         _buildInactiveFilter('Pastri'),
-                        const SizedBox(width: 12),
+                        const SpaceWidth(12),
                         _buildInactiveFilter('Kue'),
-                        const SizedBox(width: 12),
+                        const SpaceWidth(12),
                         _buildInactiveFilter('Minuman'),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SpaceHeight(24),
 
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Text('⭐ ', style: TextStyle(fontSize: 20)),
+                            const Text('⭐ ', style: TextStyle(fontSize: 20)),
                             Text(
                               'Must Try!',
-                              style: TextStyle(color: Color(0xFF1F2937), fontSize: 18, fontWeight: FontWeight.w600, letterSpacing: -0.36),
+                              style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.36),
                             ),
                           ],
                         ),
-                        Text('6 item', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                        Text('6 item', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SpaceHeight(8),
                   Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildHorizontalDashedLine()),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -629,72 +588,70 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SpaceHeight(12),
 
-            // SEMUA MENU
             Container(
               key: _semuaSectionKey, 
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              decoration: const BoxDecoration(color: Colors.white),
+              decoration: const BoxDecoration(color: AppColors.white),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Semua', style: TextStyle(color: Color(0xFF1F2937), fontSize: 18, fontWeight: FontWeight.w600)),
-                      Text('3 item', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                      Text('Semua', style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600)),
+                      Text('3 item', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SpaceHeight(12),
                   _buildHorizontalDashedLine(),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
                   
                   _buildSemuaListCard('semua_1', 'assets/icons/most_popular.svg', 'Croissant mentega', 'Croissant mentega premium dengan lapisan...', 'Rp15.000', 'assets/images/croissant_mentega.png'),
-                  const SizedBox(height: 24),
+                  const SpaceHeight(24),
                   _buildSemuaListCard('semua_2', 'assets/icons/most_popular.svg', 'Donut Matcha cih', 'Donut Matcha premium dengan lapisan...', 'Rp15.000', 'assets/images/donut_matcha_cih.png'),
-                  const SizedBox(height: 24),
+                  const SpaceHeight(24),
                   _buildSemuaListCard('semua_3', 'assets/icons/most_popular.svg', 'Red Velvet Parfait', 'Red Velvet Parfait premium dengan lapisan...', 'Rp15.000', 'assets/images/red_velvet_parfait.png'),
                 ],
               ),
             ),
             
-            // Jarak aman agar tidak tertutup sticky cart
-            SizedBox(height: widget.isFromCart ? 100 : 32),
+            SpaceHeight(widget.isFromCart ? 100 : 32),
           ],
         ),
       ),
 
-      // STICKY CART BOTTOM BAR
+      // 🔥 FIX: Tombol Keranjang yang tadinya glitch hancur
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: widget.isFromCart ? Padding(
         padding: const EdgeInsets.all(16.0),
         child: InkWell(
           onTap: () {
-            context.push('/checkout'); 
+            GoRouter.of(context).push('/checkout');
           },
           child: Container(
             width: double.infinity,
             height: 60,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             decoration: BoxDecoration(
-              color: const Color(0xFF5A3A31), // AppColors.primary
+              color: AppColors.primary, 
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+              boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Cek Keranjang (2 Produk)', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                Text('Cek Keranjang (2 Produk)', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
                 Row(
                   children: [
-                    const Text('Rp 30.000', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 12),
+                    Text('Rp 30.000', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
+                    const SpaceWidth(12),
                     Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                      child: const Icon(Icons.check, color: Color(0xFF5A3A31), size: 16),
+                      decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+                      child: const Icon(Icons.check, color: AppColors.primary, size: 16),
                     ),
                   ],
                 ),
@@ -715,7 +672,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
           width: 1.5,
           height: 3,
           margin: const EdgeInsets.symmetric(vertical: 2),
-          color: const Color(0xFF9CA3AF),
+          color: AppColors.textSecondary,
         ),
       ),
     );
@@ -728,7 +685,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
         (index) => Expanded(
           child: Container(
             height: 1,
-            color: index % 2 == 0 ? const Color(0xFFD1D5DB) : Colors.transparent,
+            color: index % 2 == 0 ? AppColors.border : Colors.transparent,
           ),
         ),
       ),
@@ -739,40 +696,40 @@ class _DeliveryPageState extends State<DeliveryPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: ShapeDecoration(
-        color: const Color(0xFFD1D5DB),
+        color: AppColors.border,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      child: Text(label, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11, fontWeight: FontWeight.w500)),
+      child: Text(label, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
     );
   }
 
   Widget _buildFavoriteCard(String id, String name, String subtitle, String price, String imagePath) {
     final isFav = favoriteItems.contains(id);
     return GestureDetector(
-      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      onTap: _onProductTapped, 
       child: Container(
         width: 358,
         margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: ShapeDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
+            side: const BorderSide(width: 1, color: AppColors.surface),
             borderRadius: BorderRadius.circular(10),
           ),
-          shadows: const [BoxShadow(color: Color(0x0A000000), blurRadius: 8)],
+          shadows: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.04), blurRadius: 8)],
         ),
         child: Row(
           children: [
             Container(
               width: 88, height: 88,
               decoration: ShapeDecoration(
-                color: const Color(0xFFEDD8D0),
+                color: AppColors.primaryMid,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
               ),
             ),
-            const SizedBox(width: 24),
+            const SpaceWidth(24),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -785,28 +742,28 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.w600), maxLines: 1),
-                            Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1),
+                            Text(name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600), maxLines: 1),
+                            Text(subtitle, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary), maxLines: 1),
                           ],
                         ),
                       ),
                       GestureDetector(
                         onTap: () => toggleFavorite(id),
-                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFFD1D5DB), size: 24),
+                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : AppColors.border, size: 24),
                       ),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 18, fontWeight: FontWeight.w600)),
+                      Text(price, style: AppTextStyles.h3.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.w600)),
                       Container(
                         width: 29, height: 28,
                         decoration: ShapeDecoration(
-                          color: const Color(0xFF5A3A31),
+                          color: AppColors.primary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 18),
+                        child: const Icon(Icons.add, color: AppColors.white, size: 18),
                       ),
                     ],
                   ),
@@ -821,13 +778,13 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
   Widget _buildGridCard(String id, String badgeAsset, String category, String name, String price, String imagePath) {
     return GestureDetector(
-      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      onTap: _onProductTapped,
       child: Container(
         width: 171, 
         decoration: ShapeDecoration(
-          color: Colors.white,
+          color: AppColors.white,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
+            side: const BorderSide(width: 1, color: AppColors.surface),
             borderRadius: BorderRadius.circular(10),
           ),
         ),
@@ -839,7 +796,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 Container(
                   width: 171, height: 132,
                   decoration: ShapeDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: AppColors.surface,
                     image: DecorationImage(
                       image: AssetImage(imagePath),
                       fit: BoxFit.cover, 
@@ -857,20 +814,20 @@ class _DeliveryPageState extends State<DeliveryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11)),
-                  Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 8),
+                  Text(category, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary)),
+                  Text(name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SpaceHeight(8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(price, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 14, fontWeight: FontWeight.w600)),
+                      Text(price, style: AppTextStyles.body.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.w600)),
                       Container(
                         width: 29, height: 28,
                         decoration: ShapeDecoration(
-                          color: const Color(0xFF5A3A31),
+                          color: AppColors.primary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 18),
+                        child: const Icon(Icons.add, color: AppColors.white, size: 18),
                       ),
                     ],
                   ),
@@ -887,7 +844,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
     final isFav = favoriteItems.contains(id);
 
     return GestureDetector(
-      onTap: _onProductTapped, // 🔥 Proteksi Klik
+      onTap: _onProductTapped, 
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -896,7 +853,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
               Container(
                 width: 100, height: 100,
                 decoration: ShapeDecoration(
-                  color: const Color(0xFFEDD8D0),
+                  color: AppColors.primaryMid,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
                 ),
@@ -904,7 +861,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
               Positioned(top: 6, left: 6, child: SvgPicture.asset(badgeAsset, height: 20)),
             ],
           ),
-          const SizedBox(width: 16),
+          const SpaceWidth(16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -917,9 +874,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 4),
-                          Text(subtitle, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(name, style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                          const SpaceHeight(4),
+                          Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),
@@ -927,20 +884,20 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       onTap: () => toggleFavorite(id),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : const Color(0xFF6B7280), size: 24),
+                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : AppColors.textSecondary, size: 24),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SpaceHeight(12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(priceString, style: const TextStyle(color: Color(0xFF7A5248), fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(priceString, style: AppTextStyles.h3.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.bold)),
                     Container(
                       width: 32, height: 32,
-                      decoration: const ShapeDecoration(color: Color(0xFF5A3A31), shape: OvalBorder()),
-                      child: const Icon(Icons.add, color: Colors.white, size: 20),
+                      decoration: const ShapeDecoration(color: AppColors.primary, shape: OvalBorder()),
+                      child: const Icon(Icons.add, color: AppColors.white, size: 20),
                     ),
                   ],
                 ),
@@ -950,7 +907,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
         ],
       ),
     );
-  }
+  } 
 }
 
 class DeliveryLocation {

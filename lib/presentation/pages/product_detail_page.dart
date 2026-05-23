@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/core/core.dart';
 
 class ProductDetailPage extends StatefulWidget {
   const ProductDetailPage({super.key});
@@ -18,7 +19,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -35,33 +36,36 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     width: 48,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF9CA3AF),
+                      color: AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SpaceHeight(24),
                 
                 // Title
-                const Center(
+                Center(
                   child: Text(
                     'Lengkapi Belanjamu',
-                    style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.bold),
+                    style: AppTextStyles.h2.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SpaceHeight(24),
                 
                 // Kartu Berhasil Masuk Keranjang
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: ShapeDecoration(
-                    color: Colors.white,
+                    color: AppColors.white,
                     shape: RoundedRectangleBorder(
-                      side: const BorderSide(width: 1, color: Color(0xFFE5E7EB)),
+                      side: const BorderSide(width: 1, color: AppColors.border),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     shadows: [
-                      BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
+                      BoxShadow(color: AppColors.textPrimary.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
                     ],
                   ),
                   child: Row(
@@ -69,24 +73,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       Container(
                         width: 60, height: 60,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEDD8D0), // Background krem kotak
+                          color: AppColors.primaryMid,
                           borderRadius: BorderRadius.circular(8),
                           image: const DecorationImage(
-                            image: AssetImage('assets/images/croissant_mentega_zoom.png'), // Tetap gambar asli
+                            image: AssetImage('assets/images/croissant_mentega_zoom.png'),
                             fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SpaceWidth(16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Croissant Mentega', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 2),
-                            Text('Large', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
-                            SizedBox(height: 6),
-                            Text('Berhasil masuk keranjang', style: TextStyle(color: Color(0xFF166534), fontSize: 12, fontWeight: FontWeight.w600)),
+                          children: [
+                            Text('Croissant Mentega', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                            const SpaceHeight(2),
+                            Text('Large', style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary)),
+                            const SpaceHeight(6),
+                            Text('Berhasil masuk keranjang', style: AppTextStyles.caption.copyWith(color: AppColors.successText, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -94,28 +98,28 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
-                const Center(
+                const SpaceHeight(24),
+                Center(
                   child: Text(
                     'Ssst...tambah ini jadi lebih enak',
-                    style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SpaceHeight(16),
 
                 // Opsi Kategori Rekomendasi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildSuggestionChip('Roti', bottomSheetContext),
-                    const SizedBox(width: 12),
+                    const SpaceWidth(12),
                     _buildSuggestionChip('Pastri', bottomSheetContext),
-                    const SizedBox(width: 12),
+                    const SpaceWidth(12),
                     _buildSuggestionChip('Kue', bottomSheetContext),
                   ],
                 ),
 
-                const SizedBox(height: 32),
+                const SpaceHeight(32),
 
                 // Tombol Cek Keranjang
                 SizedBox(
@@ -124,17 +128,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(bottomSheetContext);
-                      context.push('/checkout');
+                      GoRouter.of(context).push('/checkout');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5A3A31),
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
-                    child: const Text('Cek Keranjang', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text('Cek Keranjang', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SpaceHeight(12),
                 
                 // Tombol Lanjut Belanja
                 SizedBox(
@@ -143,16 +147,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: OutlinedButton(
                     onPressed: () {
                       Navigator.pop(bottomSheetContext);
-                      context.push('/delivery', extra: {'isFromCart': true});
+                      GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF5A3A31)),
+                      side: const BorderSide(color: AppColors.primary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Lanjut Belanja', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text('Lanjut Belanja', style: AppTextStyles.body.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SpaceHeight(16),
               ],
             ),
           ),
@@ -165,15 +169,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return GestureDetector(
       onTap: () {
         Navigator.pop(bottomSheetContext); 
-        context.push('/delivery', extra: {'isFromCart': true});
+        GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFD1D5DB)),
+          border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(24),
         ),
-        child: Text(label, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+        child: Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
       ),
     );
   }
@@ -181,11 +185,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Column(
         children: [
           // ─────────────────────────────────────────────────────────
-          // KONTEN UTAMA (Di dalam SingleChildScrollView agar scrollable bersamaan)
+          // KONTEN UTAMA
           // ─────────────────────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
@@ -195,18 +199,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   // HEADER IMAGE & BACK BUTTON
                   Container(
                     width: double.infinity,
-                    height: 340, // Ditinggikan agar gambarnya leluasa
-                    color: const Color(0xFFEDD8D0), // Background krem
+                    height: 340,
+                    color: AppColors.primaryMid,
                     child: SafeArea(
                       bottom: false,
                       child: Stack(
                         children: [
-                          // Gambar Produk (DIPERBESAR)
+                          // Gambar Produk
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 20.0),
                               child: Transform.scale(
-                                scale: 1, // Biar di tengah dan ga terlalu besar atau kecil
+                                scale: 1,
                                 child: Image.asset(
                                   'assets/images/croissant_mentega_zoom.png', 
                                   fit: BoxFit.contain,
@@ -214,17 +218,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
                             ),
                           ),
-                          // Hanya Tombol Back (Search dihapus)
+                          // Tombol Back
                           Positioned(
                             top: 10,
                             left: 8,
                             child: IconButton(
-                              icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF5A3A31), size: 20),
+                              icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
                               onPressed: () {
-                                if (context.canPop()) {
-                                  context.pop();
+                                if (GoRouter.of(context).canPop()) {
+                                  GoRouter.of(context).pop();
                                 } else {
-                                  context.go('/delivery');
+                                  GoRouter.of(context).go('/delivery');
                                 }
                               },
                             ),
@@ -240,28 +244,35 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Croissant mentega', 
-                          style: TextStyle(color: Color(0xFF1F2937), fontWeight: FontWeight.bold, fontSize: 24, letterSpacing: -0.5),
+                          style: AppTextStyles.h1.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
+                        const SpaceHeight(8),
+                        Text(
                           'Croissant mentega premium dengan lapisan super flaky dan aroma butter yang langsung menggoda sejak gigitan pertama.',
-                          style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, height: 1.5),
+                          style: AppTextStyles.bodySmall.copyWith(height: 1.5),
                         ),
-                        const SizedBox(height: 16),
+                        const SpaceHeight(16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Rp15.000', 
-                              style: TextStyle(color: Color(0xFF5A3A31), fontWeight: FontWeight.w700, fontSize: 22),
+                              style: AppTextStyles.h1.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             GestureDetector(
                               onTap: () => setState(() => isFavorite = !isFavorite),
                               child: Icon(
                                 isFavorite ? Icons.favorite : Icons.favorite_border, 
-                                color: isFavorite ? Colors.red : const Color(0xFF6B7280), 
+                                color: isFavorite ? AppColors.dangerText : AppColors.textSecondary, 
                                 size: 28,
                               ),
                             ),
@@ -271,7 +282,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ),
                   
-                  const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+                  const Divider(height: 1, thickness: 4, color: AppColors.surface),
                   
                   // OPSI UKURAN
                   Padding(
@@ -281,20 +292,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text('Ukuran', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text('Wajib, Pilih 1', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                          children: [
+                            Text('Ukuran', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                            Text('Wajib, Pilih 1', style: AppTextStyles.micro),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SpaceHeight(12),
                         _buildRadioOption('Small', '', selectedSize, (val) => setState(() => selectedSize = val!)),
-                        const SizedBox(height: 8),
+                        const SpaceHeight(8),
                         _buildRadioOption('Large', '+ Rp 3.000', selectedSize, (val) => setState(() => selectedSize = val!)),
                       ],
                     ),
                   ),
 
-                  const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+                  const Divider(height: 1, thickness: 4, color: AppColors.surface),
 
                   // OPSI SWEETNESS
                   Padding(
@@ -304,20 +315,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text('Swetness', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text('Wajib, Pilih 1', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                          children: [
+                            Text('Swetness', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                            Text('Wajib, Pilih 1', style: AppTextStyles.micro),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SpaceHeight(12),
                         _buildRadioOption('Normal sweet', '', selectedSweetness, (val) => setState(() => selectedSweetness = val!)),
-                        const SizedBox(height: 8),
+                        const SpaceHeight(8),
                         _buildRadioOption('Less Sweet', '', selectedSweetness, (val) => setState(() => selectedSweetness = val!)),
                       ],
                     ),
                   ),
                   
-                  const SizedBox(height: 40), 
+                  const SpaceHeight(40), 
                 ],
               ),
             ),
@@ -326,14 +337,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
       
       // ─────────────────────────────────────────────────────────
-      // BOTTOM BAR CHECKOUT (FIXED DI BAWAH LAYAR)
+      // BOTTOM BAR CHECKOUT
       // ─────────────────────────────────────────────────────────
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey.shade200)),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Row(
             children: [
@@ -342,33 +353,33 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFD1D5DB)),
+                  border: Border.all(color: AppColors.border),
                   borderRadius: BorderRadius.circular(50),
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.remove, size: 20, color: quantity > 1 ? const Color(0xFF1F2937) : const Color(0xFF9CA3AF)),
+                      icon: Icon(Icons.remove, size: 20, color: quantity > 1 ? AppColors.textPrimary : AppColors.textSecondary),
                       onPressed: () { if(quantity > 1) setState(() => quantity--); },
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
-                    const SizedBox(width: 12),
-                    Text('$quantity', style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.w600)),
-                    const SizedBox(width: 12),
+                    const SpaceWidth(12),
+                    Text('$quantity', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600)),
+                    const SpaceWidth(12),
                     GestureDetector(
                       onTap: () => setState(() => quantity++),
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: Color(0xFF5A3A31), shape: BoxShape.circle),
-                        child: const Icon(Icons.add, size: 16, color: Colors.white),
+                        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                        child: const Icon(Icons.add, size: 16, color: AppColors.white),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SpaceWidth(16),
               // Bayar Sekarang Button
               Expanded(
                 child: SizedBox(
@@ -376,11 +387,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: ElevatedButton(
                     onPressed: () => _showAddToCartBottomSheet(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5A3A31),
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       elevation: 0,
                     ),
-                    child: const Text('Bayar Sekarang', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text('Bayar Sekarang', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -401,16 +412,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(color: Color(0xFF4B5563), fontSize: 14)),
+            Text(title, style: AppTextStyles.body.copyWith(color: AppColors.textSecondary)),
             Row(
               children: [
                 if (trailing.isNotEmpty) ...[
-                  Text(trailing, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
-                  const SizedBox(width: 16),
+                  Text(trailing, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                  const SpaceWidth(16),
                 ],
                 Icon(
                   isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                  color: isSelected ? const Color(0xFF3454D1) : const Color(0xFFD1D5DB),
+                  color: isSelected ? AppColors.secondary : AppColors.border,
                   size: 22,
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/core/core.dart';
 
 class PaymentSuccessPage extends StatelessWidget {
   const PaymentSuccessPage({super.key});
@@ -7,7 +8,7 @@ class PaymentSuccessPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -25,36 +26,32 @@ class PaymentSuccessPage extends StatelessWidget {
                     height: 240,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 32),
+                  const SpaceHeight(32),
                   
                   // Headline
-                  const Text(
+                  Text(
                     'Payment Success',
-                    style: TextStyle(
-                      color: Color(0xFF5A3A31), // Cokelat utama
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                    style: AppTextStyles.display.copyWith(
+                      color: AppColors.primary,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SpaceHeight(12),
                   
                   // Subtitle
-                  const Text(
+                  Text(
                     'Thanks for your order',
-                    style: TextStyle(
-                      color: Color(0xFF6B7280),
-                      fontSize: 14,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SpaceHeight(8),
                   
                   // Order ID
-                  const Text(
+                  Text(
                     'Order-ID :abc123',
-                    style: TextStyle(
-                      color: Color(0xFF5A3A31),
-                      fontSize: 14,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -76,23 +73,25 @@ class PaymentSuccessPage extends StatelessWidget {
                     height: 52,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Mengarah ke Order Detail Page (Pastikan route-nya '/order/detail')
-                        context.push('/order/detail');
+                        GoRouter.of(context).push('/order/detail');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5A3A31),
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
+                      child: Text(
                         'Track Order',
-                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
                   
                   // Tombol Back to Home
                   SizedBox(
@@ -100,18 +99,20 @@ class PaymentSuccessPage extends StatelessWidget {
                     height: 52,
                     child: OutlinedButton(
                       onPressed: () {
-                        // Kembali ke home dengan membawa flag extra 'hasActiveOrder'
-                        context.go('/home', extra: {'hasActiveOrder': true});
+                        GoRouter.of(context).go('/home', extra: {'hasActiveOrder': true});
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF5A3A31)),
+                        side: const BorderSide(color: AppColors.primary),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Back to Home',
-                        style: TextStyle(color: Color(0xFF5A3A31), fontSize: 15, fontWeight: FontWeight.bold),
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

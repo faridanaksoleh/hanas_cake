@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hanas_cake/core/core.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -18,7 +19,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (bottomSheetContext) {
         return StatefulBuilder(
@@ -28,10 +29,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF9CA3AF), borderRadius: BorderRadius.circular(2))),
-                  const SizedBox(height: 24),
-                  const Text('Pilih Metode Pemesanan', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 24),
+                  Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+                  const SpaceHeight(24),
+                  Text('Pilih Metode Pemesanan', style: AppTextStyles.h2.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  const SpaceHeight(24),
                   
                   _buildMethodOption(
                     title: 'Pick Up',
@@ -42,11 +43,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       setModalState(() => selectedMethod = 'Pick Up');
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(bottomSheetContext);
-                        context.pushReplacement('/pickup'); 
+                        GoRouter.of(context).pushReplacement('/pickup'); 
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
                   
                   _buildMethodOption(
                     title: 'Delivery',
@@ -60,7 +61,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SpaceHeight(32),
                 ],
               ),
             );
@@ -78,18 +79,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Row(
           children: [
             Image.asset(imagePath, width: 48, height: 60, fit: BoxFit.contain),
-            const SizedBox(width: 16),
+            const SpaceWidth(16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12)),
+                  Text(title, style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                  const SpaceHeight(4),
+                  Text(subtitle, style: AppTextStyles.caption),
                 ],
               ),
             ),
-            Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? const Color(0xFF3454D1) : Colors.grey),
+            Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? AppColors.secondary : AppColors.border),
           ],
         ),
       ),
@@ -99,25 +100,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF5A3A31), size: 20),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
           onPressed: () {
-            if (context.canPop()) {
-              context.pop();
+            if (GoRouter.of(context).canPop()) {
+              GoRouter.of(context).pop();
             } else {
-              context.go('/home');
+              GoRouter.of(context).go('/home');
             }
           },
         ),
-        title: const Text(
+        title: Text(
           'Checkout',
-          // 🔥 REVISI: Balik ke standar H1 (Semi-bold, ukuran 18) biar konsisten!
-          style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.w600),
+          style: AppTextStyles.h2.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -129,31 +132,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
             // ─────────────────────────────────────────────────────────
             Container(
               width: double.infinity,
-              color: const Color(0xFFEDD8D0), 
+              color: AppColors.primaryMid, 
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
                   Image.asset('assets/images/home_delivery.png', width: 60, height: 60, fit: BoxFit.contain),
-                  const SizedBox(width: 16),
+                  const SpaceWidth(16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Delivery', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 18, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4),
-                        Text('Garansi tepat waktu, dijamin!', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                      children: [
+                        Text('Delivery', style: AppTextStyles.h2.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                        const SpaceHeight(4),
+                        Text('Garansi tepat waktu, dijamin!', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
                   OutlinedButton(
                     onPressed: () => _showOrderMethodBottomSheet(context),
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5A3A31), 
+                      backgroundColor: AppColors.primary, 
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                       elevation: 0,
                     ),
-                    child: const Text('Ubah', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                    child: Text('Ubah', style: AppTextStyles.bodySmall.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -167,8 +170,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Detail Pesanan', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
+                  Text('Detail Pesanan', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                  const SpaceHeight(16),
                   
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,17 +179,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Croissant Mentega', style: TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.w600)),
-                            SizedBox(height: 4),
-                            Text('Large', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                          children: [
+                            Text('Croissant Mentega', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600)),
+                            const SpaceHeight(4),
+                            Text('Large', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                           ],
                         ),
                       ),
                       Container(
                         width: 60, height: 60,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEDD8D0), 
+                          color: AppColors.primaryMid, 
                           borderRadius: BorderRadius.circular(8),
                           image: const DecorationImage(
                             image: AssetImage('assets/images/croissant.png'), 
@@ -196,19 +199,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Rp 15.000', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text('Rp 15.000', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {}, 
-                            child: const Text('Ubah', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 14, fontWeight: FontWeight.w600)),
+                            child: Text('Ubah', style: AppTextStyles.body.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
                           ),
-                          const SizedBox(width: 16),
+                          const SpaceWidth(16),
                           
                           Row(
                             children: [
@@ -218,23 +221,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   width: 28, height: 28,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: const Color(0xFFD1D5DB)),
+                                    border: Border.all(color: AppColors.border),
                                   ),
-                                  child: const Icon(Icons.remove, size: 16, color: Color(0xFF1F2937)),
+                                  child: const Icon(Icons.remove, size: 16, color: AppColors.textPrimary),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Text('$quantity', style: const TextStyle(color: Color(0xFF1F2937), fontSize: 15, fontWeight: FontWeight.bold)),
-                              const SizedBox(width: 12),
+                              const SpaceWidth(12),
+                              Text('$quantity', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                              const SpaceWidth(12),
                               GestureDetector(
                                 onTap: () => setState(() => quantity++),
                                 child: Container(
                                   width: 28, height: 28,
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFF5A3A31),
+                                    color: AppColors.primary,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(Icons.add, size: 16, color: Colors.white),
+                                  child: const Icon(Icons.add, size: 16, color: AppColors.white),
                                 ),
                               ),
                             ],
@@ -247,7 +250,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             
-            const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+            const Divider(height: 1, thickness: 4, color: AppColors.surface),
 
             // ─────────────────────────────────────────────────────────
             // 3. TAMBAH MENU LAIN
@@ -259,29 +262,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Ada tambahan lagi?', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4),
-                        Text('Kamu masih bisa tambahin menu lain, ya.', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                      children: [
+                        Text('Ada tambahan lagi?', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                        const SpaceHeight(4),
+                        Text('Kamu masih bisa tambahin menu lain, ya.', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
                   OutlinedButton(
                     onPressed: () {
-                      context.push('/delivery', extra: {'isFromCart': true});
+                      GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF5A3A31)),
+                      side: const BorderSide(color: AppColors.primary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
-                    child: const Text('Tambah', style: TextStyle(color: Color(0xFF5A3A31), fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: Text('Tambah', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
             ),
 
-            const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+            const Divider(height: 1, thickness: 4, color: AppColors.surface),
 
             // ─────────────────────────────────────────────────────────
             // 4. TAS BELANJA
@@ -290,20 +293,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
               padding: const EdgeInsets.all(24.0),
               child: Row(
                 children: [
-                  // 🔥 REVISI: Container dihapus! Langsung panggil SVG-nya biar nggak kekecilan.
                   SvgPicture.asset(
                     'assets/icons/shop_bag.svg', 
                     width: 40, 
                     height: 40,
                   ),
-                  const SizedBox(width: 16),
+                  const SpaceWidth(16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Tas belanja', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 4),
-                        Text('Ditambahkan otomatis untuk pembelian delivery', style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                      children: [
+                        Text('Tas belanja', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                        const SpaceHeight(4),
+                        Text('Ditambahkan otomatis untuk pembelian delivery', style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                       ],
                     ),
                   ),
@@ -311,39 +313,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
 
-            const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+            const Divider(height: 1, thickness: 4, color: AppColors.surface),
 
             // ─────────────────────────────────────────────────────────
             // 5. METODE PEMBAYARAN
             // ─────────────────────────────────────────────────────────
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => context.push('/payment-method'),
+              onTap: () => GoRouter.of(context).push('/payment-method'),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Metode Pemabayaran', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
+                    Text('Metode Pemabayaran', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                    const SpaceHeight(16),
                     Row(
                       children: [
                         Container(
                           width: 32, height: 32,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFD1D5DB)),
+                            border: Border.all(color: AppColors.border),
                           ),
                           child: Center(
                             child: Image.asset('assets/icons/qris.png', width: 20, height: 20, fit: BoxFit.contain),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text('QRIS', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.w600)),
+                        const SpaceWidth(12),
+                        Expanded(
+                          child: Text('QRIS', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)),
                         ),
-                        const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF6B7280)),
+                        const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
                       ],
                     ),
                   ],
@@ -351,7 +353,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
 
-            const Divider(height: 1, thickness: 4, color: Color(0xFFF3F4F6)),
+            const Divider(height: 1, thickness: 4, color: AppColors.surface),
 
             // ─────────────────────────────────────────────────────────
             // 6. RINCIAN PEMBAYARAN & KEBIJAKAN
@@ -361,44 +363,44 @@ class _CheckoutPageState extends State<CheckoutPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rincian Pembayaran', style: TextStyle(color: Color(0xFF1F2937), fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
+                  Text('Rincian Pembayaran', style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                  const SpaceHeight(16),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Harga', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
-                      Text('Rp 30.000', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                    children: [
+                      Text('Harga', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                      Text('Rp 30.000', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SpaceHeight(12),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Tas belanja', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
-                      Text('Rp 3.000', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                    children: [
+                      Text('Tas belanja', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                      Text('Rp 3.000', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-                  const SizedBox(height: 16),
+                  const SpaceHeight(16),
+                  const Divider(height: 1, thickness: 1, color: AppColors.border),
+                  const SpaceHeight(16),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('Total Pembayaran', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.bold)),
-                      Text('Rp 33.000', style: TextStyle(color: Color(0xFF1F2937), fontSize: 14, fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('Total Pembayaran', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                      Text('Rp 33.000', style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
                     ],
                   ),
 
-                  const SizedBox(height: 32),
+                  const SpaceHeight(32),
 
-                  const Text('Kebijakan Pembatalan', style: TextStyle(color: Color(0xFF1F2937), fontSize: 13, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  const Text(
+                  Text('Kebijakan Pembatalan', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                  const SpaceHeight(8),
+                  Text(
                     'Kamu tidak dapat melakukan pembatalan atau perubahan apapun pada pesanan setelah melakukan pembayaran',
-                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, height: 1.5),
+                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary, height: 1.5),
                   ),
                 ],
               ),
@@ -413,23 +415,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey.shade200)),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: SizedBox(
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
               onPressed: () {
-                context.push('/payment-success'); 
+                GoRouter.of(context).push('/payment-success'); 
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5A3A31),
+                backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
-              child: const Text('Pesan Sekarang', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+              child: Text('Pesan Sekarang', style: AppTextStyles.h3.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
             ),
           ),
         ),
