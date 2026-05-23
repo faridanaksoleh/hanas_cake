@@ -13,7 +13,7 @@ class OrderDetailPage extends StatefulWidget {
 class _OrderDetailPageState extends State<OrderDetailPage> {
   // 🔥 BEST PRACTICE: State Management Sederhana untuk Tracker
   // 0 = Dibuat, 1 = Dimasak (Pot), 2 = Diantar (Motor), 3 = Tiba (Rumah)
-  final int currentStatus = 2;
+  final int currentStatus = 0;
 
   @override
   Widget build(BuildContext context) {

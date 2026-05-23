@@ -36,6 +36,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/branch.svg
   String get branch => 'assets/icons/branch.svg';
 
+  /// File path: assets/icons/branch2.svg
+  String get branch2 => 'assets/icons/branch2.svg';
+
   /// File path: assets/icons/caret_circle_left_filled.svg
   String get caretCircleLeftFilled =>
       'assets/icons/caret_circle_left_filled.svg';
@@ -61,6 +64,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/clockclockwise_outline.svg
   String get clockclockwiseOutline => 'assets/icons/clockclockwise_outline.svg';
+
+  /// File path: assets/icons/cooking_pot.svg
+  String get cookingPot => 'assets/icons/cooking_pot.svg';
 
   /// File path: assets/icons/dana.png
   AssetGenImage get dana => const AssetGenImage('assets/icons/dana.png');
@@ -111,9 +117,15 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home.svg
   String get home => 'assets/icons/home.svg';
 
+  /// File path: assets/icons/house.svg
+  String get house => 'assets/icons/house.svg';
+
   /// File path: assets/icons/instagram.png
   AssetGenImage get instagram =>
       const AssetGenImage('assets/icons/instagram.png');
+
+  /// File path: assets/icons/jam_otw.svg
+  String get jamOtw => 'assets/icons/jam_otw.svg';
 
   /// File path: assets/icons/magnifyingglass_filled.svg
   String get magnifyingglassFilled => 'assets/icons/magnifyingglass_filled.svg';
@@ -128,8 +140,17 @@ class $AssetsIconsGen {
   /// File path: assets/icons/mappin_outline.svg
   String get mappinOutline => 'assets/icons/mappin_outline.svg';
 
+  /// File path: assets/icons/moped.svg
+  String get moped => 'assets/icons/moped.svg';
+
   /// File path: assets/icons/most_popular.svg
   String get mostPopular => 'assets/icons/most_popular.svg';
+
+  /// File path: assets/icons/motorcycle.svg
+  String get motorcycle => 'assets/icons/motorcycle.svg';
+
+  /// File path: assets/icons/note.svg
+  String get note => 'assets/icons/note.svg';
 
   /// File path: assets/icons/order.svg
   String get order => 'assets/icons/order.svg';
@@ -143,6 +164,12 @@ class $AssetsIconsGen {
   /// File path: assets/icons/qris.png
   AssetGenImage get qris => const AssetGenImage('assets/icons/qris.png');
 
+  /// File path: assets/icons/receipt.svg
+  String get receipt => 'assets/icons/receipt.svg';
+
+  /// File path: assets/icons/shop_bag.svg
+  String get shopBag => 'assets/icons/shop_bag.svg';
+
   /// File path: assets/icons/shopeepay.png
   AssetGenImage get shopeepay =>
       const AssetGenImage('assets/icons/shopeepay.png');
@@ -153,6 +180,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/sliders_outline.svg
   String get slidersOutline => 'assets/icons/sliders_outline.svg';
 
+  /// File path: assets/icons/target_reticle.svg
+  String get targetReticle => 'assets/icons/target_reticle.svg';
+
   /// File path: assets/icons/ticket_filled.svg
   String get ticketFilled => 'assets/icons/ticket_filled.svg';
 
@@ -161,6 +191,9 @@ class $AssetsIconsGen {
 
   /// File path: assets/icons/top_ordered.svg
   String get topOrdered => 'assets/icons/top_ordered.svg';
+
+  /// File path: assets/icons/tote_simple.svg
+  String get toteSimple => 'assets/icons/tote_simple.svg';
 
   /// File path: assets/icons/trash_filled.svg
   String get trashFilled => 'assets/icons/trash_filled.svg';
@@ -199,6 +232,7 @@ class $AssetsIconsGen {
     bellOutline,
     bestSeller,
     branch,
+    branch2,
     caretCircleLeftFilled,
     caretCircleLeftOutline,
     caretLeft,
@@ -207,6 +241,7 @@ class $AssetsIconsGen {
     chatscircleOutline,
     clockclockwiseFilled,
     clockclockwiseOutline,
+    cookingPot,
     dana,
     dotsthreeFilled,
     dotsthreeOutline,
@@ -223,22 +258,31 @@ class $AssetsIconsGen {
     heartFilled,
     heartOutline,
     home,
+    house,
     instagram,
+    jamOtw,
     magnifyingglassFilled,
     magnifyingglassOutline,
     mappinFilled,
     mappinOutline,
+    moped,
     mostPopular,
+    motorcycle,
+    note,
     order,
     phone,
     profile,
     qris,
+    receipt,
+    shopBag,
     shopeepay,
     slidersFilled,
     slidersOutline,
+    targetReticle,
     ticketFilled,
     ticketOutline,
     topOrdered,
+    toteSimple,
     trashFilled,
     trashOutline,
     voucher,
@@ -277,9 +321,17 @@ class $AssetsImagesGen {
   AssetGenImage get croissantMentega =>
       const AssetGenImage('assets/images/croissant_mentega.png');
 
+  /// File path: assets/images/croissant_mentega_zoom.png
+  AssetGenImage get croissantMentegaZoom =>
+      const AssetGenImage('assets/images/croissant_mentega_zoom.png');
+
   /// File path: assets/images/croissant_tr.png
   AssetGenImage get croissantTr =>
       const AssetGenImage('assets/images/croissant_tr.png');
+
+  /// File path: assets/images/delivery_rounded.png
+  AssetGenImage get deliveryRounded =>
+      const AssetGenImage('assets/images/delivery_rounded.png');
 
   /// File path: assets/images/donut_matcha_cih.png
   AssetGenImage get donutMatchaCih =>
@@ -288,6 +340,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/half_deliv.png
   AssetGenImage get halfDeliv =>
       const AssetGenImage('assets/images/half_deliv.png');
+
+  /// File path: assets/images/half_pickup.png
+  AssetGenImage get halfPickup =>
+      const AssetGenImage('assets/images/half_pickup.png');
 
   /// File path: assets/images/home.png
   AssetGenImage get home => const AssetGenImage('assets/images/home.png');
@@ -308,6 +364,10 @@ class $AssetsImagesGen {
   AssetGenImage get molenBandung =>
       const AssetGenImage('assets/images/molen_bandung.png');
 
+  /// File path: assets/images/payment_success.png
+  AssetGenImage get paymentSuccess =>
+      const AssetGenImage('assets/images/payment_success.png');
+
   /// File path: assets/images/pre-order.png
   AssetGenImage get preOrder =>
       const AssetGenImage('assets/images/pre-order.png');
@@ -319,10 +379,6 @@ class $AssetsImagesGen {
   AssetGenImage get redVelvetParfait =>
       const AssetGenImage('assets/images/red_velvet_parfait.png');
 
-  /// File path: assets/images/young_man_walking_with_coffee.png
-  AssetGenImage get youngManWalkingWithCoffee =>
-      const AssetGenImage('assets/images/young_man_walking_with_coffee.png');
-
   /// List of all assets
   List<AssetGenImage> get values => [
     address,
@@ -331,18 +387,21 @@ class $AssetsImagesGen {
     butterPastry,
     croissant,
     croissantMentega,
+    croissantMentegaZoom,
     croissantTr,
+    deliveryRounded,
     donutMatchaCih,
     halfDeliv,
+    halfPickup,
     home,
     homeDelivery,
     homePickup,
     homePreorder,
     molenBandung,
+    paymentSuccess,
     preOrder,
     promo,
     redVelvetParfait,
-    youngManWalkingWithCoffee,
   ];
 }
 
