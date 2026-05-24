@@ -19,7 +19,10 @@ class BranchItem {
 }
 
 class BranchListPage extends StatefulWidget {
-  const BranchListPage({super.key});
+  // 🔥 BEST PRACTICE: Parameter dinamis untuk menentukan flow
+  final bool isPickUp;
+  
+  const BranchListPage({super.key, this.isPickUp = false});
 
   @override
   State<BranchListPage> createState() => _BranchListPageState();
@@ -49,7 +52,8 @@ class _BranchListPageState extends State<BranchListPage> {
   ];
 
   void _showOrderMethodBottomSheet(BuildContext context) {
-    String selectedMethod = 'Delivery'; 
+    // 🔥 Menyesuaikan default pilihan dengan parameter yang dikirim
+    String selectedMethod = widget.isPickUp ? 'Pick Up' : 'Delivery'; 
 
     showModalBottomSheet(
       context: context,
@@ -77,7 +81,8 @@ class _BranchListPageState extends State<BranchListPage> {
                       setModalState(() => selectedMethod = 'Pick Up');
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(bottomSheetContext);
-                        GoRouter.of(context).pushReplacement('/pickup'); 
+                        // 🔥 Logic navigasi pintar
+                        if (!widget.isPickUp) GoRouter.of(context).pushReplacement('/pickup'); 
                       });
                     },
                   ),
@@ -92,6 +97,8 @@ class _BranchListPageState extends State<BranchListPage> {
                       setModalState(() => selectedMethod = 'Delivery');
                       Future.delayed(const Duration(milliseconds: 300), () {
                         Navigator.pop(bottomSheetContext); 
+                        // 🔥 Logic navigasi pintar
+                        if (widget.isPickUp) GoRouter.of(context).pushReplacement('/delivery'); 
                       });
                     },
                   ),
@@ -131,9 +138,8 @@ class _BranchListPageState extends State<BranchListPage> {
     );
   }
 
-  // 🔥 FUNGSI POPUP WAKTU OPERASIONAL
   void _showOperatingHoursBottomSheet() {
-    bool isDeliveryActive = true; 
+    bool isDeliveryActive = !widget.isPickUp; // Default tab mengikuti mode saat ini
 
     showModalBottomSheet(
       context: context,
@@ -277,20 +283,22 @@ class _BranchListPageState extends State<BranchListPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // 🔥 KONTEN DINAMIS: Berubah sesuai flow
                 Container(
                   width: 56, height: 56,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.border),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/delivery_rounded.png'),
+                    image: DecorationImage(
+                      image: AssetImage(widget.isPickUp ? 'assets/images/pick_up_rounded.png' : 'assets/images/delivery_rounded.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 const SpaceWidth(16),
+                // 🔥 KONTEN DINAMIS
                 Text(
-                  'Delivery',
+                  widget.isPickUp ? 'Pick Up' : 'Delivery',
                   style: AppTextStyles.h1.copyWith(color: AppColors.primary, fontSize: 24, fontWeight: FontWeight.w500),
                 ),
                 const Spacer(),
@@ -298,12 +306,16 @@ class _BranchListPageState extends State<BranchListPage> {
                   onPressed: () => _showOrderMethodBottomSheet(context),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.primary),
-                    backgroundColor: AppColors.primaryXLight,
+                    backgroundColor: AppColors.white, // Sesuai Figma
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     elevation: 0,
                   ),
-                  child: Text('Ubah ke Pick Up', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  // 🔥 KONTEN DINAMIS
+                  child: Text(
+                    widget.isPickUp ? 'Ubah ke Delivery' : 'Ubah ke Pick Up', 
+                    style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)
+                  ),
                 ),
               ],
             ),

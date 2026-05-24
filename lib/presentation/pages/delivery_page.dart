@@ -336,7 +336,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
-                                final result = await GoRouter.of(context).push('/branch-list');
+                                final result = await GoRouter.of(context).push('/branch-list', extra: {'isPickUp': false});
                                 if (result != null && result is BranchItem) {
                                   setState(() {
                                     selectedBranch = result;

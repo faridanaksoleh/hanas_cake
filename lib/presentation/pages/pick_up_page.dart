@@ -279,7 +279,7 @@ class _PickUpPageState extends State<PickUpPage> {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () async {
-                final result = await GoRouter.of(context).push('/branch-list');
+                final result = await GoRouter.of(context).push('/branch-list', extra: {'isPickUp': true});
                 if (result != null && result is BranchItem) {
                   setState(() {
                     selectedBranch = result;

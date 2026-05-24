@@ -113,7 +113,11 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/branch-list',
-          builder: (context, state) => const BranchListPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isPickUp = extra?['isPickUp'] as bool? ?? false;
+            return BranchListPage(isPickUp: isPickUp);
+          },
         ),
         GoRoute(
           path: '/location-picker',
