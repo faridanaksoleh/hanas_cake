@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
@@ -249,8 +250,8 @@ class ProfilePage extends StatelessWidget {
             child: Row(
               children: [
                 // WhatsApp icon
-                Image.asset(
-                  'assets/icons/whatsapp.png',
+                SvgPicture.asset(
+                  'assets/icons/whatsapp1.svg',
                   width: 24,
                   height: 24,
                 ),

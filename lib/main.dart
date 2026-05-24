@@ -117,7 +117,11 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/payment-success',
-          builder: (context, state) => const PaymentSuccessPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isPickUp = extra?['isPickUp'] as bool? ?? false;
+            return PaymentSuccessPage(isPickUp: isPickUp);
+          },
         ),
         GoRoute(
           path: '/branch-list',

@@ -756,7 +756,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).push('/payment-success'),
+              onPressed: () => GoRouter.of(context).push('/payment-success', extra: {'isPickUp': _isPickUpLocal}),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(

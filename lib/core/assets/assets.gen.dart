@@ -368,6 +368,10 @@ class $AssetsImagesGen {
   AssetGenImage get paymentSuccess =>
       const AssetGenImage('assets/images/payment_success.png');
 
+  /// File path: assets/images/pick_up_rounded.png
+  AssetGenImage get pickUpRounded =>
+      const AssetGenImage('assets/images/pick_up_rounded.png');
+
   /// File path: assets/images/pre-order.png
   AssetGenImage get preOrder =>
       const AssetGenImage('assets/images/pre-order.png');
@@ -399,6 +403,7 @@ class $AssetsImagesGen {
     homePreorder,
     molenBandung,
     paymentSuccess,
+    pickUpRounded,
     preOrder,
     promo,
     redVelvetParfait,
