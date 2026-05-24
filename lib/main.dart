@@ -101,11 +101,19 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/product-detail',
-          builder: (context, state) => const ProductDetailPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isPickUp = extra?['isPickUp'] as bool? ?? false;
+            return ProductDetailPage(isPickUp: isPickUp);
+          },
         ),
         GoRoute(
           path: '/checkout',
-          builder: (context, state) => const CheckoutPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isPickUp = extra?['isPickUp'] as bool? ?? false;
+            return CheckoutPage(isPickUp: isPickUp);
+          },
         ),
         GoRoute(
           path: '/payment-success',
@@ -190,7 +198,11 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/pickup',
-          builder: (context, state) => const PickUpPage(),
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final isFromCart = extra?['isFromCart'] as bool? ?? false;
+            return PickUpPage(isFromCart: isFromCart);
+          },
         ),
         GoRoute(
           path: '/my-account',

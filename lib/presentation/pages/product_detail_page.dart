@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  const ProductDetailPage({super.key});
+  final bool isPickUp;
+  const ProductDetailPage({super.key, this.isPickUp = false});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -142,7 +143,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(bottomSheetContext);
-                      GoRouter.of(context).push('/checkout');
+                      GoRouter.of(context).push('/checkout', extra: {'isPickUp': widget.isPickUp});
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -166,10 +167,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   height: 48,
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.pop(bottomSheetContext);
-                      GoRouter.of(
-                        context,
-                      ).push('/delivery', extra: {'isFromCart': true});
+                      Navigator.pop(bottomSheetContext); 
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        GoRouter.of(context).pushReplacement(
+                          widget.isPickUp ? '/pickup' : '/delivery',
+                          extra: {
+                            'isFromCart': true,
+                          }
+                        );
+                      });
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
@@ -198,8 +204,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildSuggestionChip(String label, BuildContext bottomSheetContext) {
     return GestureDetector(
       onTap: () {
-        Navigator.pop(bottomSheetContext);
-        GoRouter.of(context).push('/delivery', extra: {'isFromCart': true});
+        Navigator.pop(bottomSheetContext); 
+        Future.delayed(const Duration(milliseconds: 100), () {
+          GoRouter.of(context).pushReplacement(
+            widget.isPickUp ? '/pickup' : '/delivery',
+            extra: {
+              'isFromCart': true,
+            }
+          );
+        });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

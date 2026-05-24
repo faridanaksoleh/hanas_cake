@@ -50,7 +50,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
       );
     } else {
       // 🔥 FIX: Pakai GoRouter.of(context) biar IDE-nya nggak bingung
-      GoRouter.of(context).push('/product-detail'); 
+      GoRouter.of(context).push('/product-detail', extra: {'isPickUp': false}); 
     }
   }
 
@@ -629,7 +629,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
         padding: const EdgeInsets.all(16.0),
         child: InkWell(
           onTap: () {
-            GoRouter.of(context).push('/checkout');
+            GoRouter.of(context).push('/checkout', extra: {'isPickUp': false});
           },
           child: Container(
             width: double.infinity,

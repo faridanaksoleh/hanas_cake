@@ -55,7 +55,7 @@ class _PickUpPageState extends State<PickUpPage> {
         ),
       );
     } else {
-      GoRouter.of(context).push('/product-detail'); 
+      GoRouter.of(context).push('/product-detail', extra: {'isPickUp': true}); 
     }
   }
 
@@ -490,7 +490,7 @@ class _PickUpPageState extends State<PickUpPage> {
         padding: const EdgeInsets.all(16.0),
         child: InkWell(
           onTap: () {
-            GoRouter.of(context).push('/checkout');
+            GoRouter.of(context).push('/checkout', extra: {'isPickUp': true});
           },
           child: Container(
             width: double.infinity,
