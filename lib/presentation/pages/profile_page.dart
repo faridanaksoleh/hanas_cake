@@ -35,7 +35,11 @@ class ProfilePage extends StatelessWidget {
                       title: 'Pembayaran',
                       onTap: () => GoRouter.of(context).push('/payment-method'),
                     ),
-                    _buildMenuItem(title: 'Pengaturan', isLast: true),
+                    _buildMenuItem(
+                      title: 'Pengaturan', 
+                      isLast: true,
+                      onTap: () => GoRouter.of(context).push('/settings'),
+                    ),
                   ]),
                   const SpaceHeight(16),
                   // Informasi & Sosial Media section

@@ -23,7 +23,6 @@ class CustomBottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.primaryMid, 
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: SafeArea(

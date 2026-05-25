@@ -39,6 +39,10 @@ import 'package:hanas_cake/presentation/pages/my_favorite_page.dart';
 import 'package:hanas_cake/presentation/pages/product_detail_page.dart';
 import 'package:hanas_cake/presentation/pages/checkout_page.dart';
 import 'package:hanas_cake/presentation/pages/payment_success_page.dart';
+import 'package:hanas_cake/presentation/pages/settings_page.dart';
+import 'package:hanas_cake/presentation/pages/setup_pin_page.dart';
+import 'package:hanas_cake/presentation/pages/notification_settings_page.dart';
+import 'package:hanas_cake/presentation/pages/language_settings_page.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -138,6 +142,22 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/my-favorite',
           builder: (context, state) => const MyFavoritePage(),
+        ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+        GoRoute(
+          path: '/settings/notifications',
+          builder: (context, state) => const NotificationSettingsPage(),
+        ),
+        GoRoute(
+          path: '/settings/language',
+          builder: (context, state) => const LanguageSettingsPage(),
+        ),
+        GoRoute(
+          path: '/setup-pin',
+          builder: (context, state) => const SetupPinPage(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
