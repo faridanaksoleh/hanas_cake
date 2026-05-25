@@ -13,11 +13,41 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+// 🔥 Tambahkan SingleTickerProviderStateMixin untuk animasi
+class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
+    
+    // 🔥 Setup Animasi Premium (Fade In & Scale Up)
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200), // Durasi transisi smooth
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeIn),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
+    );
+
+    // Langsung jalankan animasi begitu screen dirender
+    _animController.forward();
+
+    // Jalankan timer untuk cek Auth
     _checkAuth();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkAuth() async {
@@ -37,25 +67,48 @@ class _SplashPageState extends State<SplashPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.surface, // Background clean bawaan core
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.cake,
-                size: 100,
-                color: AppColors.primary,
-              ),
-              const SpaceHeight(24),
-              Text(
-                "Hana's Cake",
-                style: AppTextStyles.display.copyWith(
-                  color: AppColors.primary,
-                  letterSpacing: 1.5,
+          child: AnimatedBuilder(
+            animation: _animController,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeAnimation.value,
+                child: Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 🔥 FIX: Menggunakan asset gambar sesuai request
+                      Image.asset(
+                        'assets/images/home.png',
+                        width: 140, // Ukuran proporsional, nggak terlalu raksasa
+                        height: 140,
+                        fit: BoxFit.contain,
+                      ),
+                      const SpaceHeight(24),
+                      Text(
+                        "Hana's Cake",
+                        style: AppTextStyles.display.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0, // Spasi huruf dilebarkan agar elegan
+                        ),
+                      ),
+                      const SpaceHeight(8),
+                      // 🔥 Bonus: Tambahan tagline tipis biar manis
+                      Text(
+                        "Freshly Baked Everyday",
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
