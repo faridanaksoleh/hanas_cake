@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PreOrderPage extends StatefulWidget {
   const PreOrderPage({super.key});
@@ -14,6 +16,10 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   late AnimationController _animController;
   int _currentIndex = 0;
   final int _storyCount = 2; 
+
+  // 🔥 WARNA KHUSUS PRE-ORDER (Sesuai Izin Pak Ketua)
+  // Cokelat sangat gelap (hampir hitam) seperti di Figma
+  final Color darkChocolate = const Color(0xFF241511);
 
   @override
   void initState() {
@@ -53,10 +59,29 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     }
   }
 
+  Future<void> _launchWhatsApp(BuildContext context) async {
+    final Uri url = Uri.parse('https://wa.me/6285798203978');
+    
+    try {
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch WhatsApp');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Gagal membuka WhatsApp. Pastikan aplikasi terinstal.'),
+            backgroundColor: AppColors.dangerBg,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary, 
+      backgroundColor: darkChocolate, // Default bg gelap
       body: Stack(
         children: [
           GestureDetector(
@@ -160,6 +185,43 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     );
   }
 
+  Widget _buildWhatsAppButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: ElevatedButton(
+          onPressed: () => _launchWhatsApp(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.white, 
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 0,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/icons/whatsapp_logo.svg',
+                width: 24,
+                colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              ),
+              const SpaceWidth(12),
+              Text(
+                'Pesan Sekarang',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Plus Jakarta Sans', 
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStoryPage1() {
     return Stack(
       children: [
@@ -172,14 +234,16 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
             Expanded(
               flex: 5,
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
+                  // 🔥 FIX GRADASI: Dark chocolate dominan dari atas, lalu pudar ke primary di bawah
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.primary,        
-                      AppColors.primary, // 🔥 FIX: Diganti dari primaryDark ke primary biar aman       
+                      darkChocolate, // Cokelat gelap pekat     
+                      AppColors.primary, // Cokelat standar (terang)       
                     ],
+                    stops: const [0.5, 1.0], // 50% layar atas dipegang penuh oleh darkChocolate
                   ),
                 ),
               ),
@@ -198,6 +262,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                   color: AppColors.primary, 
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
+                  fontFamily: 'Plus Jakarta Sans', 
                 ),
               ),
               const Spacer(),
@@ -214,31 +279,11 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                   color: AppColors.white, 
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
+                  fontFamily: 'Plus Jakarta Sans', 
                 ),
               ),
               const Spacer(flex: 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryXLight, 
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Pesan Sekarang',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              _buildWhatsAppButton(), 
             ],
           ),
         ),
@@ -248,14 +293,16 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
 
   Widget _buildStoryPage2() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
+        // 🔥 FIX GRADASI: Dark chocolate sangat dominan untuk slide 2
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.primary,
-            AppColors.primary, // 🔥 FIX: Diganti dari primaryDark ke primary biar aman 
+            darkChocolate, 
+            AppColors.primary, 
           ],
+          stops: const [0.65, 1.0], // 65% layar ke atas dikuasai dark chocolate
         ),
       ),
       child: SafeArea(
@@ -271,28 +318,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryXLight,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'Pesan Sekarang',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            _buildWhatsAppButton(), 
           ],
         ),
       ),
@@ -306,11 +332,20 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
       children: [
         Text(
           title,
-          style: AppTextStyles.body.copyWith(color: AppColors.white, fontSize: 16),
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.white, 
+            fontSize: 16,
+            fontFamily: 'Plus Jakarta Sans', 
+          ),
         ),
         Text(
           price,
-          style: AppTextStyles.h1.copyWith(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 28),
+          style: AppTextStyles.h1.copyWith(
+            color: AppColors.white, 
+            fontWeight: FontWeight.bold, 
+            fontSize: 28,
+            fontFamily: 'Plus Jakarta Sans', 
+          ),
         ),
       ],
     );
