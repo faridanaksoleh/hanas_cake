@@ -10,7 +10,7 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Body akan diisi oleh halaman yang sedang aktif (Home, Voucher, dll)
+      // Body akan diisi oleh halaman yang sedang aktif (Home, Order, dll)
       body: navigationShell,
       // Navbar dipasang PERMANEN di sini
       bottomNavigationBar: CustomBottomNav(

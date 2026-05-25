@@ -16,7 +16,6 @@ class CustomBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, String>> tabs = [
       {'icon': 'assets/icons/home.svg', 'label': 'Home'},
-      {'icon': 'assets/icons/voucher.svg', 'label': 'Voucher'},
       {'icon': 'assets/icons/order.svg', 'label': 'Order'},
       {'icon': 'assets/icons/profile.svg', 'label': 'Profile'},
     ];

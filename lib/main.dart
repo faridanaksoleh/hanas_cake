@@ -157,17 +157,7 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-            // TAB 1: VOUCHER (DUMMY)
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/voucher',
-                  builder: (context, state) => const Scaffold(
-                    body: Center(child: Text('Halaman Voucher (Dummy)')),
-                  ),
-                ),
-              ],
-            ),
+
             // TAB 2: ORDER
             StatefulShellBranch(
               routes: [
