@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart'; 
+import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 
 class OrderPage extends StatefulWidget {
@@ -12,19 +12,22 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   // 🔥 Ubah jadi true untuk tes tampilan "Belum Ada Riwayat Pesanan"
-  bool isEmpty = false; 
+  bool isEmpty = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface, // Background body tetap surface
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        // 🔥 FIX: Background AppBar diubah jadi putih solid
-        backgroundColor: AppColors.white, 
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.primary,
+            size: 20,
+          ),
           onPressed: () {
             if (GoRouter.of(context).canPop()) {
               GoRouter.of(context).pop();
@@ -35,9 +38,7 @@ class _OrderPageState extends State<OrderPage> {
         ),
         title: Text(
           'Riwayat Pesanan',
-          style: AppTextStyles.h1.copyWith(
-            color: AppColors.primary, 
-          ),
+          style: AppTextStyles.h1.copyWith(color: AppColors.primary),
         ),
         actions: [
           IconButton(
@@ -45,7 +46,10 @@ class _OrderPageState extends State<OrderPage> {
             icon: SvgPicture.asset(
               'assets/icons/sliders_outline.svg',
               width: 24,
-              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
             ),
           ),
           const SpaceWidth(8),
@@ -60,7 +64,7 @@ class _OrderPageState extends State<OrderPage> {
       child: Text(
         'Belum Ada Riwayat Pesanan',
         style: AppTextStyles.body.copyWith(
-          color: AppColors.textSecondary, 
+          color: AppColors.textSecondary,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -68,19 +72,30 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget _buildOrderList() {
+    // 🔥 DATA DUMMY UNTUK TES UI BERDASARKAN FIGMA
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: 2,
-      separatorBuilder: (context, index) => const SpaceHeight(16), 
+      itemCount: 3,
+      separatorBuilder: (context, index) => const SpaceHeight(16),
       itemBuilder: (context, index) {
-        return _buildOrderCard(index == 1); 
+        if (index == 0) {
+          return _buildOrderCard(status: 'Sedang disiapkan', isPickUp: false);
+        } else if (index == 1) {
+          return _buildOrderCard(status: 'Selesai', isPickUp: true);
+        } else {
+          return _buildOrderCard(status: 'Selesai', isPickUp: false);
+        }
       },
     );
   }
 
-  Widget _buildOrderCard(bool showRating) {
+  // 🔥 FUNGSI BUILDER KARTU DINAMIS
+  Widget _buildOrderCard({required String status, required bool isPickUp}) {
     return GestureDetector(
-      onTap: () => GoRouter.of(context).push('/order/detail'),
+      // 🔥 FIX: Arahkan ke Detail Pesanan dengan membawa state yang benar
+      onTap: () => GoRouter.of(
+        context,
+      ).push('/order/detail', extra: {'isPickUp': isPickUp}),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -97,16 +112,24 @@ class _OrderPageState extends State<OrderPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Croissant Mentega...', 
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                  'Croissant Mentega...',
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.textSecondary),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
                     const SpaceWidth(8),
                     Text(
-                      '21 Apr 2026', 
-                      style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary),
+                      '21 Apr 2026',
+                      style: AppTextStyles.micro.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -117,11 +140,11 @@ class _OrderPageState extends State<OrderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(2.28), 
+                  borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
-                    'assets/images/croissant.png', 
-                    width: 65, 
-                    height: 65, 
+                    'assets/images/croissant.png',
+                    width: 65,
+                    height: 65,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -130,68 +153,86 @@ class _OrderPageState extends State<OrderPage> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Rp 15.000', 
-                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                      'Rp 15.000',
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SpaceHeight(2),
                     Text(
-                      '1 menu', 
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                      '1 menu',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
             const SpaceHeight(12),
-            const Divider(height: 1, thickness: 1, color: AppColors.border), 
+            const Divider(height: 1, thickness: 1, color: AppColors.border),
             const SpaceHeight(12),
+
+            // 🔥 BOTTOM ROW (STATUS, METODE, TOMBOL)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Status Pesanan (Sedang disiapkan / Selesai)
                 Text(
-                  'Selesai', 
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                  status,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
+
+                // Indikator Metode & Tombol
                 Row(
                   children: [
-                    if (showRating) ...[
-                      const Icon(Icons.star, color: Colors.orange, size: 18),
-                      const SpaceWidth(4),
-                      Text(
-                        '4.5', 
-                        style: AppTextStyles.bodySmall.copyWith(
-                          fontWeight: FontWeight.bold, 
-                          color: AppColors.textPrimary, 
-                        ),
+                    // 🔥 ICON & TEKS ADAPTIF (Moped vs Tote)
+                    SvgPicture.asset(
+                      isPickUp
+                          ? 'assets/icons/tote_simple.svg'
+                          : 'assets/icons/moped.svg',
+                      width: 16,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.primary,
+                        BlendMode.srcIn,
                       ),
-                      const SpaceWidth(12),
-                    ] else ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.border),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Belum ada penilaian', 
-                          style: AppTextStyles.micro.copyWith(color: AppColors.border),
-                        ),
+                    ),
+                    const SpaceWidth(4),
+                    Text(
+                      isPickUp ? 'Pick Up' : 'Delivery',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SpaceWidth(12),
-                    ],
+                    ),
+                    const SpaceWidth(12),
+
+                    // Tombol Pesan Lagi
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Arahkan ke Checkout dengan metode yang sama
+                        GoRouter.of(
+                          context,
+                        ).push('/checkout', extra: {'isPickUp': isPickUp});
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         minimumSize: const Size(0, 36),
                         elevation: 0,
                       ),
                       child: Text(
-                        'Pesan lagi', 
+                        'Pesan lagi',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.white, 
+                          color: AppColors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

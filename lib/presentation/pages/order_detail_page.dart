@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart'; // 🔥 WAJIB HUKUMNYA DIPANGGIL!
 
 class OrderDetailPage extends StatefulWidget {
-  const OrderDetailPage({super.key});
+  // 🔥 BEST PRACTICE: Parameter dinamis untuk flow
+  final bool isPickUp;
+
+  const OrderDetailPage({super.key, this.isPickUp = false});
 
   @override
   State<OrderDetailPage> createState() => _OrderDetailPageState();
@@ -12,7 +15,7 @@ class OrderDetailPage extends StatefulWidget {
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
   // 🔥 BEST PRACTICE: State Management Sederhana untuk Tracker
-  // 0 = Dibuat, 1 = Dimasak (Pot), 2 = Diantar (Motor), 3 = Tiba (Rumah)
+  // 0 = Dibuat, 1 = Dimasak (Pot), 2 = Diantar/Siap Diambil, 3 = Selesai
   final int currentStatus = 0;
 
   @override
@@ -30,16 +33,16 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             size: 20,
           ),
           onPressed: () {
-            // Kembali ke Home bawa state banner aktif
-            GoRouter.of(context).go('/home', extra: {'hasActiveOrder': true});
+            // 🔥 FIX AMNESIA: Balik ke home dengan membawa 2 state sekaligus!
+            GoRouter.of(context).go('/home', extra: {
+              'hasActiveOrder': true,
+              'isPickUp': widget.isPickUp,
+            });
           },
         ),
         title: Text(
           'Rincian Pesanan',
-          style: AppTextStyles.h1.copyWith(
-            color: AppColors
-                .primary, // 🔥 Pake Core: Font otomatis ngikutin Plus Jakarta Sans yang tebal
-          ),
+          style: AppTextStyles.h1.copyWith(color: AppColors.primary),
         ),
       ),
       body: SingleChildScrollView(
@@ -54,40 +57,58 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               'Pesanan Dibuat',
               style: AppTextStyles.h1.copyWith(fontSize: 22),
             ),
-            const SpaceHeight(4), // 🔥 Pake Core
+            const SpaceHeight(4),
             Text(
               "Mau coba menu lainnya? Pesan lagi di hana's cake!",
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textSecondary,
-              ), // Asumsi core kamu punya textSecondary/abu-abu
+              ),
             ),
             const SpaceHeight(24),
 
-            // 🔥 PROGRESS TRACKER DINAMIS
+            // 🔥 PROGRESS TRACKER DINAMIS (3 Step PickUp, 4 Step Delivery)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildProgressIcon(
-                  'assets/icons/receipt.svg',
-                  currentStatus >= 0,
-                ),
-                _buildProgressLine(currentStatus >= 1),
-                _buildProgressIcon(
-                  'assets/icons/cooking_pot.svg',
-                  currentStatus >= 1,
-                ),
-                _buildProgressLine(currentStatus >= 2),
-                _buildProgressIcon(
-                  'assets/icons/motorcycle.svg',
-                  currentStatus >= 2,
-                ),
-                _buildProgressLine(currentStatus >= 3),
-                _buildProgressIcon(
-                  'assets/icons/house.svg',
-                  currentStatus >= 3,
-                ),
-              ],
+              children: widget.isPickUp
+                  ? [
+                      _buildProgressIcon(
+                        'assets/icons/receipt.svg',
+                        currentStatus >= 0,
+                      ),
+                      _buildProgressLine(currentStatus >= 1),
+                      _buildProgressIcon(
+                        'assets/icons/cooking_pot.svg',
+                        currentStatus >= 1,
+                      ),
+                      _buildProgressLine(currentStatus >= 2),
+                      // Asumsi icon toko adalah store.svg (bisa ganti house.svg jika belum ada)
+                      _buildProgressIcon(
+                        'assets/icons/house.svg',
+                        currentStatus >= 2,
+                      ),
+                    ]
+                  : [
+                      _buildProgressIcon(
+                        'assets/icons/receipt.svg',
+                        currentStatus >= 0,
+                      ),
+                      _buildProgressLine(currentStatus >= 1),
+                      _buildProgressIcon(
+                        'assets/icons/cooking_pot.svg',
+                        currentStatus >= 1,
+                      ),
+                      _buildProgressLine(currentStatus >= 2),
+                      _buildProgressIcon(
+                        'assets/icons/motorcycle.svg',
+                        currentStatus >= 2,
+                      ),
+                      _buildProgressLine(currentStatus >= 3),
+                      _buildProgressIcon(
+                        'assets/icons/house.svg',
+                        currentStatus >= 3,
+                      ),
+                    ],
             ),
             const SpaceHeight(32),
 
@@ -102,7 +123,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: IntrinsicHeight(
-                // 🔥 Best Practice UI Timeline
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -118,18 +138,21 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        Expanded(
-                          child: Container(width: 1, color: AppColors.border),
-                        ),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.successText,
-                            shape: BoxShape.circle,
+                        // 🔥 HANYA MUNCUL JIKA DELIVERY
+                        if (!widget.isPickUp) ...[
+                          Expanded(
+                            child: Container(width: 1, color: AppColors.border),
                           ),
-                        ),
-                        const SpaceHeight(24),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppColors.successText,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SpaceHeight(24),
+                        ],
                       ],
                     ),
                     const SpaceWidth(16),
@@ -139,7 +162,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Diambil dari',
+                            widget.isPickUp
+                                ? 'Diambil di'
+                                : 'Diambil dari', // 🔥 ADAPTIF
                             style: AppTextStyles.micro.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -159,28 +184,32 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                               height: 1.4,
                             ),
                           ),
-                          const SpaceHeight(20),
-                          Text(
-                            'Diantar ke',
-                            style: AppTextStyles.micro.copyWith(
-                              color: AppColors.textSecondary,
+
+                          // 🔥 NODE KEDUA: HANYA MUNCUL JIKA DELIVERY
+                          if (!widget.isPickUp) ...[
+                            const SpaceHeight(20),
+                            Text(
+                              'Diantar ke',
+                              style: AppTextStyles.micro.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
-                          ),
-                          const SpaceHeight(4),
-                          Text(
-                            'Jl.Nakula Sadewa Raya, No. 99 Dukuh, Kec. sidomukti, Kota Salatiga, Jawa Tengah, SIDOMUKTI, KOTA SALATIGA, JAWA TENGAH',
-                            style: AppTextStyles.micro.copyWith(
-                              fontWeight: FontWeight.w600,
-                              height: 1.4,
+                            const SpaceHeight(4),
+                            Text(
+                              'Jl.Nakula Sadewa Raya, No. 99 Dukuh, Kec. sidomukti, Kota Salatiga, Jawa Tengah, SIDOMUKTI, KOTA SALATIGA, JAWA TENGAH',
+                              style: AppTextStyles.micro.copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 1.4,
+                              ),
                             ),
-                          ),
-                          const SpaceHeight(8),
-                          Text(
-                            'Rina - (+62) 888-8888-8888',
-                            style: AppTextStyles.micro.copyWith(
-                              color: AppColors.textSecondary,
+                            const SpaceHeight(8),
+                            Text(
+                              'Rina - (+62) 888-8888-8888',
+                              style: AppTextStyles.micro.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -280,12 +309,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     isBold: true,
                   ),
                   const SpaceHeight(8),
-                  _buildPriceRow(
-                    'Biaya Pengiriman',
-                    'Rp 7.500',
-                    isSubtext: true,
-                  ),
-                  const SpaceHeight(8),
+
+                  // 🔥 HILANGKAN BIAYA KIRIM JIKA PICK UP
+                  if (!widget.isPickUp) ...[
+                    _buildPriceRow(
+                      'Biaya Pengiriman',
+                      'Rp 7.500',
+                      isSubtext: true,
+                    ),
+                    const SpaceHeight(8),
+                  ],
+
                   _buildPriceRow('Biaya Layanan', 'Rp 500', isSubtext: true),
                   const SpaceHeight(16),
 
@@ -299,7 +333,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'Rp 38.000',
+                            // 🔥 TOTAL HARGA ADAPTIF
+                            widget.isPickUp ? 'Rp 30.500' : 'Rp 38.000',
                             style: AppTextStyles.h1.copyWith(fontSize: 16),
                           ),
                           const SpaceHeight(2),
@@ -378,7 +413,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               height: 52,
               child: ElevatedButton(
                 onPressed: () {
-                  GoRouter.of(context).push('/checkout');
+                  // 🔥 Membawa parameter isPickUp jika pesan lagi
+                  GoRouter.of(
+                    context,
+                  ).push('/checkout', extra: {'isPickUp': widget.isPickUp});
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -397,7 +435,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
               ),
             ),
 
-            const SpaceHeight(80), // Jarak aman navbar
+            const SpaceHeight(80),
           ],
         ),
       ),
@@ -405,10 +443,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   // ─────────────────────────────────────────────────────────
-  // HELPER WIDGETS DENGAN CORE
+  // HELPER WIDGETS
   // ─────────────────────────────────────────────────────────
 
-  // 🔥 Tracker Icon Dinamis (Hanya SVG)
   Widget _buildProgressIcon(String svgPath, bool isActive) {
     return SvgPicture.asset(
       svgPath,
@@ -420,7 +457,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  // 🔥 Tracker Line Dinamis
   Widget _buildProgressLine(bool isActive) {
     return Expanded(
       child: Container(

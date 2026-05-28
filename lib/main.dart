@@ -172,7 +172,11 @@ class MyApp extends StatelessWidget {
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final hasActiveOrder = extra?['hasActiveOrder'] as bool? ?? false;
-                    return HomePage(hasActiveOrder: hasActiveOrder);
+                    final isPickUpActiveOrder = extra?['isPickUp'] as bool? ?? false;
+                    return HomePage(
+                      hasActiveOrder: hasActiveOrder, 
+                      isPickUpActiveOrder: isPickUpActiveOrder,
+                    );
                   },
                 ),
               ],
@@ -193,7 +197,11 @@ class MyApp extends StatelessWidget {
                     GoRoute(
                       path: 'detail',
                       parentNavigatorKey: _rootNavigatorKey,
-                      builder: (context, state) => const OrderDetailPage(),
+                      builder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>?;
+                        final isPickUp = extra?['isPickUp'] as bool? ?? false;
+                        return OrderDetailPage(isPickUp: isPickUp);
+                      },
                     ),
                   ],
                 ),

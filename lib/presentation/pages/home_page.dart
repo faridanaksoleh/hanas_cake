@@ -5,7 +5,14 @@ import 'package:hanas_cake/core/core.dart';
 
 class HomePage extends StatefulWidget {
   final bool hasActiveOrder;
-  const HomePage({super.key, this.hasActiveOrder = false});
+  // 🔥 Tetap pakai parameter tambahan dari Kode 1
+  final bool isPickUpActiveOrder;
+
+  const HomePage({
+    super.key,
+    this.hasActiveOrder = false,
+    this.isPickUpActiveOrder = false, // Default false (Delivery)
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,6 +27,7 @@ class _HomePageState extends State<HomePage> {
         child: Stack(
           children: [
             SingleChildScrollView(
+              // 👇 Style dari Kode 2: padding di sini, bukan per widget
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 20.0,
@@ -40,13 +48,20 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            // 👇 Active order banner dengan navigasi dinamis (fitur Kode 1)
             if (widget.hasActiveOrder)
               Positioned(
                 bottom: 16,
                 left: 16,
                 right: 16,
                 child: GestureDetector(
-                  onTap: () => GoRouter.of(context).push('/order/detail'),
+                  onTap: () {
+                    // 🔥 Navigasi dinamis: bawa status isPickUp dari parameter
+                    GoRouter.of(context).push(
+                      '/order/detail',
+                      extra: {'isPickUp': widget.isPickUpActiveOrder},
+                    );
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -96,7 +111,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // TOP BAR
+  // ─────────────────────────────────────────
+  // TOP BAR (sama persis dengan Kode 2)
+  // ─────────────────────────────────────────
   Widget _buildTopBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +159,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // PROMO BANNER (tombol "Pesan sekarang" dihapus)
+  // ─────────────────────────────────────────
+  // PROMO BANNER (style Kode 2: tanpa tombol)
+  // ─────────────────────────────────────────
   Widget _buildPromoBanner() {
     return Container(
       height: 170,
@@ -212,7 +231,7 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                // Tombol "Pesan sekarang" sudah dihapus
+                // Tidak ada tombol "Pesan sekarang" (sesuai Kode 2)
               ],
             ),
           ),
@@ -221,7 +240,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ORDER OPTIONS (tidak diubah)
+  // ─────────────────────────────────────────
+  // ORDER OPTIONS
+  // ─────────────────────────────────────────
   Widget _buildOrderOptions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,6 +266,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // 👇 PickUp Card dengan style Kode 2 (primaryLight + border)
   Widget _buildPickUpCard() {
     return GestureDetector(
       onTap: () => GoRouter.of(context).push('/pickup'),
@@ -297,6 +319,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Delivery Card (style Kode 2, tidak ada perubahan berarti)
   Widget _buildDeliveryCard() {
     return GestureDetector(
       onTap: () => GoRouter.of(context).push('/delivery'),
@@ -325,7 +348,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SpaceHeight(4),
                   Text(
-                    'Garansi tepat\nwaktu. dijamin!',
+                    'Garansi tepat\nwaktu. dijamin!', // Ejaan persis Kode 2
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.primaryLight,
                       height: 1.4,
@@ -349,7 +372,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // PREORDER BANNER (tidak diubah)
+  // ─────────────────────────────────────────
+  // PREORDER BANNER (style Kode 2)
+  // ─────────────────────────────────────────
   Widget _buildPreorderBanner() {
     return GestureDetector(
       onTap: () => GoRouter.of(context).push('/pre-order'),
@@ -410,7 +435,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // CUSTOMER SERVICE (tidak diubah)
+  // ─────────────────────────────────────────
+  // CUSTOMER SERVICE (style Kode 2: tanpa container luar, tanpa divider)
+  // ─────────────────────────────────────────
   Widget _buildCustomerService() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,7 +555,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // BOTTOM SHEET MODAL (POP-UP HALAL) - tidak berubah
+  // ─────────────────────────────────────────
+  // BOTTOM SHEET HALAL (style Kode 2)
+  // ─────────────────────────────────────────
   void _showHalalModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -659,7 +688,7 @@ class _HomePageState extends State<HomePage> {
           margin: const EdgeInsets.only(
             top: 6,
             right: 12,
-          ), // diperbaiki dari `until` menjadi `only`
+          ),
           width: 6,
           height: 6,
           decoration: const BoxDecoration(
