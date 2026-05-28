@@ -10,7 +10,12 @@ import 'package:hanas_cake/data/datasources/auth_remote_datasource.dart';
 import 'package:hanas_cake/data/repositories/auth_repository_impl.dart';
 import 'package:hanas_cake/domain/usecases/login_usecase.dart';
 import 'package:hanas_cake/domain/usecases/register_usecase.dart';
+import 'package:hanas_cake/domain/usecases/logout_usecase.dart';
+import 'package:hanas_cake/domain/usecases/get_profile_usecase.dart';
+import 'package:hanas_cake/domain/usecases/update_profile_usecase.dart';
+import 'package:hanas_cake/domain/usecases/change_password_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
+import 'package:hanas_cake/presentation/blocs/auth/auth_event.dart';
 
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
@@ -43,6 +48,7 @@ import 'package:hanas_cake/presentation/pages/settings_page.dart';
 import 'package:hanas_cake/presentation/pages/setup_pin_page.dart';
 import 'package:hanas_cake/presentation/pages/notification_settings_page.dart';
 import 'package:hanas_cake/presentation/pages/language_settings_page.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -53,20 +59,43 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 1. Setup Dependencies (Idealnya menggunakan library seperti get_it)
-    // Dio untuk network request
-    final dio = Dio(BaseOptions(baseUrl: 'https://hanascake.syauqiebill.my.id/api')); 
     const secureStorage = FlutterSecureStorage();
-    
+    final authLocalDatasource = AuthLocalDatasource(
+      secureStorage: secureStorage,
+    );
+
+    // Dio untuk network request
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://hanascake.syauqiebill.my.id/api',
+        headers: {'Accept': 'application/json'},
+      ),
+    );
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await authLocalDatasource.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+
     final authRemoteDatasource = AuthRemoteDatasource(dio: dio);
-    final authLocalDatasource = AuthLocalDatasource(secureStorage: secureStorage);
-    
     final authRepository = AuthRepositoryImpl(
       remoteDatasource: authRemoteDatasource,
       localDatasource: authLocalDatasource,
     );
-    
+
     final loginUseCase = LoginUseCase(authRepository);
     final registerUseCase = RegisterUseCase(authRepository);
+    final logoutUseCase = LogoutUseCase(authRepository);
+    final getProfileUseCase = GetProfileUseCase(authRepository);
+    final updateProfileUseCase = UpdateProfileUseCase(authRepository);
+    final changePasswordUseCase = ChangePasswordUseCase(authRepository);
 
     final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -74,19 +103,35 @@ class MyApp extends StatelessWidget {
     final GoRouter router = GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
+      redirect: (context, state) async {
+        final token = await authLocalDatasource.getToken();
+        final isAuthenticated = token != null && token.isNotEmpty;
+        
+        final isAuthRoute = state.matchedLocation == '/login' || 
+                            state.matchedLocation == '/register' || 
+                            state.matchedLocation == '/landing';
+                            
+        final isSplash = state.matchedLocation == '/';
+
+        if (!isAuthenticated && !isAuthRoute && !isSplash) {
+          // Redirect to landing if trying to access protected routes without token
+          return '/landing';
+        }
+
+        if (isAuthenticated && isAuthRoute) {
+          // Redirect to home if trying to access auth routes while already logged in
+          return '/home';
+        }
+
+        return null; // No redirect needed
+      },
       routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => const SplashPage(),
-        ),
+        GoRoute(path: '/', builder: (context, state) => const SplashPage()),
         GoRoute(
           path: '/landing',
           builder: (context, state) => const LandingPage(),
         ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginPage(),
-        ),
+        GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/register',
           builder: (context, state) => const RegisterPage(),
@@ -171,10 +216,12 @@ class MyApp extends StatelessWidget {
                   path: '/home',
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
-                    final hasActiveOrder = extra?['hasActiveOrder'] as bool? ?? false;
-                    final isPickUpActiveOrder = extra?['isPickUp'] as bool? ?? false;
+                    final hasActiveOrder =
+                        extra?['hasActiveOrder'] as bool? ?? false;
+                    final isPickUpActiveOrder =
+                        extra?['isPickUp'] as bool? ?? false;
                     return HomePage(
-                      hasActiveOrder: hasActiveOrder, 
+                      hasActiveOrder: hasActiveOrder,
                       isPickUpActiveOrder: isPickUpActiveOrder,
                     );
                   },
@@ -264,12 +311,16 @@ class MyApp extends StatelessWidget {
     // 3. Setup MaterialApp dengan Router dan Global BlocProvider
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(
+        BlocProvider(
           create: (context) => AuthBloc(
             loginUseCase: loginUseCase,
             registerUseCase: registerUseCase,
+            logoutUseCase: logoutUseCase,
+            getProfileUseCase: getProfileUseCase,
+            updateProfileUseCase: updateProfileUseCase,
+            changePasswordUseCase: changePasswordUseCase,
             localDatasource: authLocalDatasource,
-          ),
+          )..add(CheckTokenEvent()),
         ),
       ],
       child: MaterialApp.router(

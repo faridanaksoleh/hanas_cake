@@ -1,14 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../blocs/auth/auth_event.dart';
+import '../blocs/auth/auth_state.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch profile data when the page loads
+    context.read<AuthBloc>().add(GetProfileEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is LogoutSuccess) {
+          context.go('/landing');
+        } else if (state is AuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.surface,
       body: Column(
         children: [
@@ -89,11 +115,14 @@ class ProfilePage extends StatelessWidget {
             width: double.infinity,
             child: AppButton.logout(
               text: 'Logout',
-              onPressed: () {},
+              onPressed: () {
+                context.read<AuthBloc>().add(LogoutEvent());
+              },
             ),
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -109,47 +138,64 @@ class ProfilePage extends StatelessWidget {
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
-          children: [
-            // Avatar
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppColors.primaryMid,
-              child: const Icon(
-                Icons.person_rounded,
-                color: AppColors.primaryLight,
-                size: 32,
-              ),
-            ),
-            const SpaceWidth(14),
-            // Name + phone
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'RINA',
-                    style: AppTextStyles.h2.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            String name = 'RINA';
+            String phone = '+62999999';
+            
+            if (state is ProfileLoaded) {
+              name = state.user.name;
+              phone = state.user.phone ?? phone;
+            } else if (state is ProfileUpdateSuccess) {
+              name = state.user.name;
+              phone = state.user.phone ?? phone;
+            } else if (state is AuthSuccess) {
+              name = state.user.name;
+            }
+
+            return Row(
+              children: [
+                // Avatar
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AppColors.primaryMid,
+                  child: const Icon(
+                    Icons.person_rounded,
+                    color: AppColors.primaryLight,
+                    size: 32,
                   ),
-                  const SpaceHeight(2),
-                  Text(
-                    '+62999999',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.white.withValues(alpha: 0.80),
-                    ),
+                ),
+                const SpaceWidth(14),
+                // Name + phone
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: AppTextStyles.h2.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SpaceHeight(2),
+                      Text(
+                        phone,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.white.withValues(alpha: 0.80),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.white,
-              size: 18,
-            ),
-          ],
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.white,
+                  size: 18,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

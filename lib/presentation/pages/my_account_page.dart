@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../blocs/auth/auth_event.dart';
+import '../blocs/auth/auth_state.dart';
 
 class MyAccountPage extends StatefulWidget {
   const MyAccountPage({super.key});
@@ -15,7 +19,13 @@ class _MyAccountPageState extends State<MyAccountPage> {
   final _emailController = TextEditingController();
   final _tglLahirController = TextEditingController();
   final _jenisKelaminController = TextEditingController();
-  final _teleponController = TextEditingController(text: '+62 1111111111');
+  final _teleponController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthBloc>().add(GetProfileEvent());
+  }
 
   @override
   void dispose() {
@@ -32,22 +42,51 @@ class _MyAccountPageState extends State<MyAccountPage> {
   // ──────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: _buildAppBar(),
-      bottomNavigationBar: _buildBottomButtons(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SpaceHeight(20),
-            _buildProfilePicture(),
-            const SpaceHeight(32),
-            _buildForm(),
-          ],
-        ),
-      ),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is ProfileUpdateSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profil berhasil diperbarui')),
+          );
+        } else if (state is AuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+
+        if (state is ProfileLoaded) {
+          _usernameController.text = state.user.name;
+          _emailController.text = state.user.email;
+          _teleponController.text = state.user.phone ?? '';
+        } else if (state is ProfileUpdateSuccess) {
+          _usernameController.text = state.user.name;
+          _emailController.text = state.user.email;
+          _teleponController.text = state.user.phone ?? '';
+        } else if (state is AuthSuccess) {
+          _usernameController.text = state.user.name;
+          _emailController.text = state.user.email;
+          _teleponController.text = state.user.phone ?? '';
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.surface,
+          appBar: _buildAppBar(),
+          bottomNavigationBar: _buildBottomButtons(),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SpaceHeight(20),
+                _buildProfilePicture(),
+                const SpaceHeight(32),
+                _buildForm(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -256,7 +295,12 @@ class _MyAccountPageState extends State<MyAccountPage> {
         ),
         // Simpan — hijau solid, radius 0
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.read<AuthBloc>().add(UpdateProfileEvent(
+              name: _usernameController.text,
+              phone: _teleponController.text,
+            ));
+          },
           child: Container(
             width: double.infinity,
             height: 56,

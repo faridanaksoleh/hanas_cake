@@ -29,3 +29,26 @@ class AuthFailure extends AuthState {
   @override
   List<Object> get props => [message];
 }
+
+class LogoutSuccess extends AuthState {}
+
+class ProfileLoaded extends AuthState {
+  final User user;
+
+  const ProfileLoaded(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class ProfileUpdateSuccess extends AuthState {
+  final User user;
+
+  const ProfileUpdateSuccess(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class PasswordChangeSuccess extends AuthState {}
+
