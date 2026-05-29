@@ -24,6 +24,17 @@ import 'package:hanas_cake/domain/usecases/get_products_usecase.dart';
 import 'package:hanas_cake/domain/usecases/get_product_detail_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/product/product_bloc.dart';
 
+import 'package:hanas_cake/data/datasources/address_remote_datasource.dart';
+import 'package:hanas_cake/data/repositories/address_repository_impl.dart';
+import 'package:hanas_cake/domain/usecases/get_addresses_usecase.dart';
+import 'package:hanas_cake/domain/usecases/add_address_usecase.dart';
+import 'package:hanas_cake/domain/usecases/update_address_usecase.dart';
+import 'package:hanas_cake/domain/usecases/delete_address_usecase.dart';
+import 'package:hanas_cake/domain/usecases/set_primary_address_usecase.dart';
+import 'package:hanas_cake/presentation/blocs/address/address_bloc.dart';
+import 'package:hanas_cake/presentation/blocs/address/address_event.dart';
+
+
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -112,6 +123,17 @@ class MyApp extends StatelessWidget {
     final getCategoriesUseCase = GetCategoriesUseCase(productRepository);
     final getProductsUseCase = GetProductsUseCase(productRepository);
     final getProductDetailUseCase = GetProductDetailUseCase(productRepository);
+
+    // Address Dependencies
+    final addressRemoteDatasource = AddressRemoteDatasource(dio: dio);
+    final addressRepository = AddressRepositoryImpl(
+      remoteDatasource: addressRemoteDatasource,
+    );
+    final getAddressesUseCase = GetAddressesUseCase(addressRepository);
+    final addAddressUseCase = AddAddressUseCase(addressRepository);
+    final updateAddressUseCase = UpdateAddressUseCase(addressRepository);
+    final deleteAddressUseCase = DeleteAddressUseCase(addressRepository);
+    final setPrimaryAddressUseCase = SetPrimaryAddressUseCase(addressRepository);
 
     final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -345,6 +367,15 @@ class MyApp extends StatelessWidget {
             getProductsUseCase: getProductsUseCase,
             getProductDetailUseCase: getProductDetailUseCase,
           ),
+        ),
+        BlocProvider(
+          create: (context) => AddressBloc(
+            getAddressesUseCase: getAddressesUseCase,
+            addAddressUseCase: addAddressUseCase,
+            updateAddressUseCase: updateAddressUseCase,
+            deleteAddressUseCase: deleteAddressUseCase,
+            setPrimaryAddressUseCase: setPrimaryAddressUseCase,
+          )..add(GetAddressesEvent()),
         ),
       ],
       child: MaterialApp.router(
