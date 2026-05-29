@@ -20,21 +20,23 @@ class AddressModel {
   factory AddressModel.fromJson(Map<String, dynamic> json) {
     return AddressModel(
       id: json['id'] as int? ?? 0,
-      name: json['name']?.toString() ?? '',
-      fullAddress: json['full_address']?.toString() ?? json['address']?.toString() ?? '',
-      receiverName: json['receiver_name']?.toString() ?? json['contact_name']?.toString() ?? '',
-      phoneNumber: json['phone_number']?.toString() ?? json['phone']?.toString() ?? '',
+      name: json['title']?.toString() ?? json['name']?.toString() ?? '',
+      fullAddress: json['detail_address']?.toString() ?? json['full_address']?.toString() ?? '',
+      receiverName: json['receiver_name']?.toString() ?? '',
+      phoneNumber: json['receiver_phone']?.toString() ?? json['phone_number']?.toString() ?? '',
       isPrimary: json['is_primary'] == true || json['is_primary'] == 1,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'full_address': fullAddress,
+      'title': name,
+      'detail_address': fullAddress,
+      'latitude': 0.0,
+      'longitude': 0.0,
       'receiver_name': receiverName,
-      'phone_number': phoneNumber,
-      'is_primary': isPrimary ? 1 : 0,
+      'receiver_phone': phoneNumber,
+      'is_primary': isPrimary,
     };
   }
 

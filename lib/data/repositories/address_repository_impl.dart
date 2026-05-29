@@ -31,11 +31,13 @@ class AddressRepositoryImpl implements AddressRepository {
   }) async {
     try {
       final data = {
-        'name': name,
-        'full_address': fullAddress,
+        'title': name,
+        'detail_address': fullAddress,
+        'latitude': 0.0,
+        'longitude': 0.0,
         'receiver_name': receiverName,
-        'phone_number': phoneNumber,
-        'is_primary': isPrimary ? 1 : 0,
+        'receiver_phone': phoneNumber,
+        'is_primary': isPrimary,
       };
       final model = await remoteDatasource.addAddress(data);
       return Right(model.toEntity());
@@ -55,11 +57,13 @@ class AddressRepositoryImpl implements AddressRepository {
   }) async {
     try {
       final data = <String, dynamic>{};
-      if (name != null) data['name'] = name;
-      if (fullAddress != null) data['full_address'] = fullAddress;
+      if (name != null) data['title'] = name;
+      if (fullAddress != null) data['detail_address'] = fullAddress;
+      data['latitude'] = 0.0;
+      data['longitude'] = 0.0;
       if (receiverName != null) data['receiver_name'] = receiverName;
-      if (phoneNumber != null) data['phone_number'] = phoneNumber;
-      if (isPrimary != null) data['is_primary'] = isPrimary ? 1 : 0;
+      if (phoneNumber != null) data['receiver_phone'] = phoneNumber;
+      if (isPrimary != null) data['is_primary'] = isPrimary;
 
       final model = await remoteDatasource.updateAddress(id, data);
       return Right(model.toEntity());
