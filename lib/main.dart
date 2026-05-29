@@ -17,6 +17,13 @@ import 'package:hanas_cake/domain/usecases/change_password_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_event.dart';
 
+import 'package:hanas_cake/data/datasources/product_remote_datasource.dart';
+import 'package:hanas_cake/data/repositories/product_repository_impl.dart';
+import 'package:hanas_cake/domain/usecases/get_categories_usecase.dart';
+import 'package:hanas_cake/domain/usecases/get_products_usecase.dart';
+import 'package:hanas_cake/domain/usecases/get_product_detail_usecase.dart';
+import 'package:hanas_cake/presentation/blocs/product/product_bloc.dart';
+
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -97,6 +104,15 @@ class MyApp extends StatelessWidget {
     final updateProfileUseCase = UpdateProfileUseCase(authRepository);
     final changePasswordUseCase = ChangePasswordUseCase(authRepository);
 
+    // Product Dependencies
+    final productRemoteDatasource = ProductRemoteDatasource(dio: dio);
+    final productRepository = ProductRepositoryImpl(
+      remoteDatasource: productRemoteDatasource,
+    );
+    final getCategoriesUseCase = GetCategoriesUseCase(productRepository);
+    final getProductsUseCase = GetProductsUseCase(productRepository);
+    final getProductDetailUseCase = GetProductDetailUseCase(productRepository);
+
     final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
     // 2. Setup GoRouter
@@ -153,7 +169,8 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
             final isPickUp = extra?['isPickUp'] as bool? ?? false;
-            return ProductDetailPage(isPickUp: isPickUp);
+            final productId = extra?['productId'] as int?;
+            return ProductDetailPage(isPickUp: isPickUp, productId: productId);
           },
         ),
         GoRoute(
@@ -321,6 +338,13 @@ class MyApp extends StatelessWidget {
             changePasswordUseCase: changePasswordUseCase,
             localDatasource: authLocalDatasource,
           )..add(CheckTokenEvent()),
+        ),
+        BlocProvider(
+          create: (context) => ProductBloc(
+            getCategoriesUseCase: getCategoriesUseCase,
+            getProductsUseCase: getProductsUseCase,
+            getProductDetailUseCase: getProductDetailUseCase,
+          ),
         ),
       ],
       child: MaterialApp.router(

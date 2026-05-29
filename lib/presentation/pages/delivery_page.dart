@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 import 'package:hanas_cake/presentation/pages/branch_list_page.dart';
+import 'package:intl/intl.dart';
+import '../../domain/entities/product.dart';
+import '../blocs/product/product_bloc.dart';
+import '../blocs/product/product_event.dart';
+import '../blocs/product/product_state.dart';
 
 class DeliveryPage extends StatefulWidget {
   final bool isFromCart;
@@ -18,6 +24,23 @@ class _DeliveryPageState extends State<DeliveryPage> {
   final GlobalKey _semuaSectionKey = GlobalKey();
   Set<String> favoriteItems = {};
   bool isAddressSelected = false;
+  String _selectedChip = 'Semua';
+  List<Product> _cachedProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProductBloc>().add(GetProductsEvent());
+  }
+
+  String _formatPrice(double price) {
+    final formatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
+    return formatter.format(price);
+  }
 
   void toggleFavorite(String id) {
     setState(() {
@@ -39,7 +62,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
     }
   }
 
-  void _onProductTapped() {
+  void _onProductTapped({int? productId}) {
     if (!isAddressSelected) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -50,12 +73,19 @@ class _DeliveryPageState extends State<DeliveryPage> {
       );
     } else {
       // 🔥 FIX: Pakai GoRouter.of(context) biar IDE-nya nggak bingung
-      GoRouter.of(context).push('/product-detail', extra: {'isPickUp': false}); 
+      GoRouter.of(context).push(
+        '/product-detail',
+        extra: {'isPickUp': false, 'productId': productId},
+      ).then((_) {
+        if (mounted) {
+          context.read<ProductBloc>().add(GetProductsEvent());
+        }
+      });
     }
   }
 
   void _showOrderMethodBottomSheet(BuildContext context) {
-    String selectedMethod = 'Delivery'; 
+    String selectedMethod = 'Delivery';
 
     showModalBottomSheet(
       context: context,
@@ -97,8 +127,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
                       Future.delayed(const Duration(milliseconds: 300), () {
-                        Navigator.pop(bottomSheetContext); 
-                        GoRouter.of(context).pushReplacement('/pickup'); 
+                        Navigator.pop(bottomSheetContext);
+                        GoRouter.of(context).pushReplacement('/pickup');
                       });
                     },
                   ),
@@ -112,7 +142,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     onChanged: (val) {
                       setModalState(() => selectedMethod = val!);
                       Future.delayed(const Duration(milliseconds: 300), () {
-                        Navigator.pop(bottomSheetContext); 
+                        Navigator.pop(bottomSheetContext);
                       });
                     },
                   ),
@@ -193,7 +223,11 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                       leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryLight, size: 20),
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: AppColors.primaryLight,
+                          size: 20,
+                        ),
                         onPressed: () {
                           if (GoRouter.of(context).canPop()) {
                             GoRouter.of(context).pop();
@@ -204,7 +238,11 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       ),
                       actions: [
                         IconButton(
-                          icon: const Icon(Icons.search, color: AppColors.primaryLight, size: 28),
+                          icon: const Icon(
+                            Icons.search,
+                            color: AppColors.primaryLight,
+                            size: 28,
+                          ),
                           onPressed: () {},
                         ),
                         const SpaceWidth(16),
@@ -215,7 +253,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       height: 147,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(color: AppColors.primaryMid),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryMid,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,8 +265,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             height: 147,
                             decoration: const BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage("assets/images/half_deliv.png"),
-                                fit: BoxFit.contain, 
+                                image: AssetImage(
+                                  "assets/images/half_deliv.png",
+                                ),
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
@@ -263,7 +305,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                   ],
                                 ),
                                 GestureDetector(
-                                  onTap: () => _showOrderMethodBottomSheet(context),
+                                  onTap: () =>
+                                      _showOrderMethodBottomSheet(context),
                                   child: Container(
                                     width: 82,
                                     height: 41,
@@ -271,7 +314,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                     decoration: ShapeDecoration(
                                       color: AppColors.primaryXLight,
                                       shape: RoundedRectangleBorder(
-                                        side: const BorderSide(width: 1, color: AppColors.primary),
+                                        side: const BorderSide(
+                                          width: 1,
+                                          color: AppColors.primary,
+                                        ),
                                         borderRadius: BorderRadius.circular(50),
                                       ),
                                     ),
@@ -315,16 +361,24 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ),
                   ),
                   const SpaceHeight(24),
-                  
+
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SvgPicture.asset('assets/icons/branch.svg', width: 42),
-                          _buildVerticalDashedLine(height: isAddressSelected ? 6 : 3),
-                          SvgPicture.asset('assets/icons/address.svg', width: 42),
+                          SvgPicture.asset(
+                            'assets/icons/branch.svg',
+                            width: 42,
+                          ),
+                          _buildVerticalDashedLine(
+                            height: isAddressSelected ? 6 : 3,
+                          ),
+                          SvgPicture.asset(
+                            'assets/icons/address.svg',
+                            width: 42,
+                          ),
                         ],
                       ),
                       const SpaceWidth(16),
@@ -336,7 +390,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
-                                final result = await GoRouter.of(context).push('/branch-list', extra: {'isPickUp': false});
+                                final result = await GoRouter.of(context).push(
+                                  '/branch-list',
+                                  extra: {'isPickUp': false},
+                                );
                                 if (result != null && result is BranchItem) {
                                   setState(() {
                                     selectedBranch = result;
@@ -347,29 +404,43 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    selectedBranch?.name ?? 'Alamat Cabang terdekat',
-                                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+                                    selectedBranch?.name ??
+                                        'Alamat Cabang terdekat',
+                                    style: AppTextStyles.body.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                   Text(
-                                    isAddressSelected ? '0.59km dari lokasimu' : '-dari lokasimu',
+                                    isAddressSelected
+                                        ? '0.59km dari lokasimu'
+                                        : '-dari lokasimu',
                                     style: AppTextStyles.bodySmall.copyWith(
-                                      color: isAddressSelected ? AppColors.successText : AppColors.textSecondary, 
-                                      fontWeight: FontWeight.w500
+                                      color: isAddressSelected
+                                          ? AppColors.successText
+                                          : AppColors.textSecondary,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            
+
                             const SpaceHeight(18),
-                            const Divider(height: 1, thickness: 1, color: AppColors.border),
+                            const Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: AppColors.border,
+                            ),
                             const SpaceHeight(18),
-                            
+
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () async {
-                                final result = await GoRouter.of(context).push('/location-picker');
-                                if (result != null && result is DeliveryLocation) {
+                                final result = await GoRouter.of(
+                                  context,
+                                ).push('/location-picker');
+                                if (result != null &&
+                                    result is DeliveryLocation) {
                                   setState(() {
                                     selectedLocation = result;
                                     isAddressSelected = true;
@@ -377,22 +448,32 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                 }
                               },
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      isAddressSelected ? (selectedLocation?.address ?? 'jonggol') : 'Pilih alamatmu terlebih dahulu',
+                                      isAddressSelected
+                                          ? (selectedLocation?.address ??
+                                                'jonggol')
+                                          : 'Pilih alamatmu terlebih dahulu',
                                       style: AppTextStyles.body.copyWith(
-                                        color: isAddressSelected ? AppColors.textPrimary : AppColors.textSecondary, 
-                                        fontWeight: FontWeight.w500
+                                        color: isAddressSelected
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   const SpaceWidth(8),
-                                  const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ],
                               ),
                             ),
@@ -407,19 +488,43 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     Row(
                       children: [
                         Container(
-                          width: 42, height: 42,
-                          decoration: const ShapeDecoration(color: AppColors.surface, shape: OvalBorder()),
-                          child: Center(child: SvgPicture.asset('assets/icons/note.svg', width: 20)),
+                          width: 42,
+                          height: 42,
+                          decoration: const ShapeDecoration(
+                            color: AppColors.surface,
+                            shape: OvalBorder(),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              'assets/icons/note.svg',
+                              width: 20,
+                            ),
+                          ),
                         ),
                         const SpaceWidth(16),
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
                               hintText: 'Tambahkan detail lokasi',
-                              hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: AppColors.border)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(50), borderSide: const BorderSide(color: AppColors.primary)),
+                              hintStyle: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(50),
+                                borderSide: const BorderSide(
+                                  color: AppColors.border,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(50),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -427,19 +532,47 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ),
                     const SpaceHeight(24),
                     Container(
-                      width: double.infinity, padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: AppColors.dangerBg, borderRadius: BorderRadius.circular(8)),
-                      child: Text('Pastikan alamat pengiriman sudah benar', style: AppTextStyles.caption.copyWith(color: AppColors.dangerText, fontWeight: FontWeight.w500)),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.dangerBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Pastikan alamat pengiriman sudah benar',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.dangerText,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                     const SpaceHeight(8),
                     Container(
-                      width: double.infinity, padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: AppColors.successBg, borderRadius: BorderRadius.circular(8)),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.successBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Row(
                         children: [
-                          SvgPicture.asset('assets/icons/jam_otw.svg', width: 16, height: 16, colorFilter: const ColorFilter.mode(AppColors.successText, BlendMode.srcIn)),
+                          SvgPicture.asset(
+                            'assets/icons/jam_otw.svg',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.successText,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                           const SpaceWidth(8),
-                          Text('Sampai dalam 23 menit', style: AppTextStyles.caption.copyWith(color: AppColors.successText, fontWeight: FontWeight.w500)),
+                          Text(
+                            'Sampai dalam 23 menit',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.successText,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -447,177 +580,320 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 ],
               ),
             ),
-            
+
             const SpaceHeight(12),
 
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: const BoxDecoration(color: Colors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'My Favorite',
-                          style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.36),
-                        ),
-                        GestureDetector(
-                          onTap: () => GoRouter.of(context).push('/my-favorite'),
-                          child: Text(
-                            'Lihat Semua',
-                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.secondary),
-                          ),
-                        ),
-                      ],
+            BlocBuilder<ProductBloc, ProductState>(
+              builder: (context, state) {
+                if (state is ProductLoading && _cachedProducts.isEmpty) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 60),
+                    decoration: const BoxDecoration(color: Colors.white),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
-                  ),
-                  const SpaceHeight(12),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildHorizontalDashedLine()),
-                  const SpaceHeight(16),
+                  );
+                }
 
-                  SizedBox(
-                    height: 116,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 16),
-                      children: [
-                        _buildFavoriteCard('fav_1', 'Croissant mentega', 'Croissant mentega premium ...', 'Rp15.000', 'assets/images/croissant_mentega.png'),
-                        _buildFavoriteCard('fav_2', 'Donut Matcha cih', 'Donut Matcha premium ...', 'Rp15.000', 'assets/images/donut_matcha_cih.png'),
-                      ],
-                    ),
-                  ),
-
-                  const SpaceHeight(24),
-
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          padding: const EdgeInsets.all(8),
-                          decoration: ShapeDecoration(
-                            color: AppColors.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                if (state is ProductFailure && _cachedProducts.isEmpty) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    decoration: const BoxDecoration(color: Colors.white),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            state.message,
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                          child: Center(
-                            child: Text('⭐', style: AppTextStyles.caption.copyWith(color: AppColors.white)),
+                          const SpaceHeight(12),
+                          ElevatedButton(
+                            onPressed: () => context.read<ProductBloc>().add(
+                              GetProductsEvent(),
+                            ),
+                            child: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                // Cache products to survive state collisions
+                if (state is ProductsLoaded) {
+                  _cachedProducts = state.products;
+                }
+                final allProducts = _cachedProducts;
+                final isFiltering = _selectedChip != 'Semua';
+                final filteredProducts = isFiltering
+                    ? allProducts
+                          .where(
+                            (p) =>
+                                p.category?.name?.toLowerCase() ==
+                                _selectedChip.toLowerCase(),
+                          )
+                          .toList()
+                    : allProducts;
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: const BoxDecoration(color: Colors.white),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── My Favorite (hidden when filtering) ──
+                      if (!isFiltering) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'My Favorite',
+                                style: AppTextStyles.h2.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.36,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () =>
+                                    GoRouter.of(context).push('/my-favorite'),
+                                child: Text(
+                                  'Lihat Semua',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SpaceWidth(12),
-                        GestureDetector(
-                          onTap: scrollToSemua,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: ShapeDecoration(
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(width: 1, color: AppColors.textSecondary),
-                                borderRadius: BorderRadius.circular(16),
+                        const SpaceHeight(12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildHorizontalDashedLine(),
+                        ),
+                        const SpaceHeight(16),
+                        SizedBox(
+                          height: 116,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.only(left: 16),
+                            itemCount: allProducts.length > 2 ? 2 : allProducts.length,
+                            itemBuilder: (context, index) {
+                              final p = allProducts[index];
+                              return _buildFavoriteCard(
+                                'fav_${p.id}',
+                                p.name,
+                                p.description ?? 'Produk premium...',
+                                _formatPrice(p.price),
+                                p.imageUrl,
+                                productId: p.id,
+                              );
+                            },
+                          ),
+                        ),
+                        const SpaceHeight(24),
+                      ],
+
+                      // ── Category Chips (always visible) ──
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              padding: const EdgeInsets.all(8),
+                              decoration: ShapeDecoration(
+                                color: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '⭐',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.white,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: Text('Semua', style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
-                          ),
-                        ),
-                        const SpaceWidth(12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: ShapeDecoration(
-                            color: AppColors.secondaryXLight,
-                            shape: RoundedRectangleBorder(
-                              side: const BorderSide(width: 1, color: AppColors.secondary),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text('Roti', style: AppTextStyles.micro.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w500)),
-                        ),
-                        const SpaceWidth(12),
-                        _buildInactiveFilter('Pastri'),
-                        const SpaceWidth(12),
-                        _buildInactiveFilter('Kue'),
-                        const SpaceWidth(12),
-                        _buildInactiveFilter('Minuman'),
-                      ],
-                    ),
-                  ),
-
-                  const SpaceHeight(24),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Text('⭐ ', style: TextStyle(fontSize: 20)),
-                            Text(
-                              'Must Try!',
-                              style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.36),
-                            ),
+                            const SpaceWidth(12),
+                            _buildChip('Semua'),
+                            const SpaceWidth(12),
+                            ...(state is ProductsLoaded &&
+                                    state.categories.isNotEmpty
+                                ? state.categories.map(
+                                    (cat) => Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: _buildChip(cat.name),
+                                    ),
+                                  )
+                                : [
+                                    _buildChip('Cake'),
+                                    const SpaceWidth(12),
+                                    _buildChip('Bread'),
+                                    const SpaceWidth(12),
+                                    _buildChip('Cookies'),
+                                  ]),
                           ],
                         ),
-                        Text('6 item', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                      ),
+
+                      const SpaceHeight(24),
+
+                      // ── Must Try (hidden when filtering) ──
+                      if (!isFiltering) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text(
+                                    '⭐ ',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  Text(
+                                    'Must Try!',
+                                    style: AppTextStyles.h2.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: -0.36,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${allProducts.length} item',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SpaceHeight(8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildHorizontalDashedLine(),
+                        ),
+                        const SpaceHeight(16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            children: allProducts.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final p = entry.value;
+                              String? badgeAsset;
+                              if (index == 0)
+                                badgeAsset = 'assets/icons/best_seller.svg';
+                              else if (index == 1)
+                                badgeAsset = 'assets/icons/top_ordered.svg';
+                              else
+                                badgeAsset = 'assets/icons/most_popular.svg';
+
+                              return _buildGridCard(
+                                'try_${p.id}',
+                                badgeAsset,
+                                p.category?.name ?? '',
+                                p.name,
+                                _formatPrice(p.price),
+                                p.imageUrl,
+                                productId: p.id,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        const SpaceHeight(12),
                       ],
-                    ),
-                  ),
-                  const SpaceHeight(8),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildHorizontalDashedLine()),
-                  const SpaceHeight(16),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: [
-                        _buildGridCard('try_1', 'assets/icons/best_seller.svg', 'Pastri', 'Croissant Mentega', 'Rp15.000', 'assets/images/croissant_mentega.png'),
-                        _buildGridCard('try_2', 'assets/icons/top_ordered.svg', 'Pastri', 'Donut Mactha cih', 'Rp15.000', 'assets/images/donut_matcha_cih.png'),
-                        _buildGridCard('try_3', 'assets/icons/most_popular.svg', 'Kue', 'Red Velvet Parfait', 'Rp15.000', 'assets/images/red_velvet_parfait.png'),
-                        _buildGridCard('try_4', 'assets/icons/most_popular.svg', 'Kue', 'Molen Bandung', 'Rp15.000', 'assets/images/molen_bandung.png'),
-                        _buildGridCard('try_5', 'assets/icons/most_popular.svg', 'Pastri', 'Butter Pastry', 'Rp15.000', 'assets/images/butter_pastry.png'),
+                      // ── Semua / Filtered Results ──
+                      if (filteredProducts.isEmpty) ...[
+                        Container(
+                          key: _semuaSectionKey,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 24,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Tidak ada produk untuk kategori ini.',
+                              style: AppTextStyles.body,
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        Container(
+                          key: _semuaSectionKey,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 24,
+                          ),
+                          decoration: const BoxDecoration(color: AppColors.white),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    isFiltering ? _selectedChip : 'Semua',
+                                    style: AppTextStyles.h2.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${filteredProducts.length} item',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SpaceHeight(12),
+                              _buildHorizontalDashedLine(),
+                              const SpaceHeight(16),
+                              ...filteredProducts.asMap().entries.map((entry) {
+                                final p = entry.value;
+                                return Column(
+                                  children: [
+                                    _buildSemuaListCard(
+                                      'semua_${p.id}',
+                                      null,
+                                      p.name,
+                                      p.description ?? 'Produk premium...',
+                                      _formatPrice(p.price),
+                                      p.imageUrl,
+                                      productId: p.id,
+                                    ),
+                                    if (p != filteredProducts.last)
+                                      const SpaceHeight(24),
+                                  ],
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SpaceHeight(12),
-
-            Container(
-              key: _semuaSectionKey, 
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              decoration: const BoxDecoration(color: AppColors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Semua', style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.w600)),
-                      Text('3 item', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
                     ],
                   ),
-                  const SpaceHeight(12),
-                  _buildHorizontalDashedLine(),
-                  const SpaceHeight(16),
-                  
-                  _buildSemuaListCard('semua_1', 'assets/icons/most_popular.svg', 'Croissant mentega', 'Croissant mentega premium dengan lapisan...', 'Rp15.000', 'assets/images/croissant_mentega.png'),
-                  const SpaceHeight(24),
-                  _buildSemuaListCard('semua_2', 'assets/icons/most_popular.svg', 'Donut Matcha cih', 'Donut Matcha premium dengan lapisan...', 'Rp15.000', 'assets/images/donut_matcha_cih.png'),
-                  const SpaceHeight(24),
-                  _buildSemuaListCard('semua_3', 'assets/icons/most_popular.svg', 'Red Velvet Parfait', 'Red Velvet Parfait premium dengan lapisan...', 'Rp15.000', 'assets/images/red_velvet_parfait.png'),
-                ],
-              ),
+                );
+              },
             ),
-            
+
             SpaceHeight(widget.isFromCart ? 100 : 32),
           ],
         ),
@@ -625,41 +901,70 @@ class _DeliveryPageState extends State<DeliveryPage> {
 
       // 🔥 FIX: Tombol Keranjang yang tadinya glitch hancur
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: widget.isFromCart ? Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: InkWell(
-          onTap: () {
-            GoRouter.of(context).push('/checkout', extra: {'isPickUp': false});
-          },
-          child: Container(
-            width: double.infinity,
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: AppColors.primary, 
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Cek Keranjang (2 Produk)', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
-                    Text('Rp 30.000', style: AppTextStyles.body.copyWith(color: AppColors.white, fontWeight: FontWeight.bold)),
-                    const SpaceWidth(12),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
-                      child: const Icon(Icons.check, color: AppColors.primary, size: 16),
-                    ),
-                  ],
+      floatingActionButton: widget.isFromCart
+          ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: InkWell(
+                onTap: () {
+                  GoRouter.of(
+                    context,
+                  ).push('/checkout', extra: {'isPickUp': false});
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 60,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Cek Keranjang (2 Produk)',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            'Rp 30.000',
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SpaceWidth(12),
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: AppColors.primary,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ) : null,
+              ),
+            )
+          : null,
     );
   }
 
@@ -692,21 +997,49 @@ class _DeliveryPageState extends State<DeliveryPage> {
     );
   }
 
-  Widget _buildInactiveFilter(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: ShapeDecoration(
-        color: AppColors.border,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  Widget _buildChip(String label) {
+    final isSelected = _selectedChip == label;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() => _selectedChip = label);
+        if (label == 'Semua') scrollToSemua();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: ShapeDecoration(
+          color: isSelected ? AppColors.primaryXLight : AppColors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              width: 1,
+              color: isSelected ? AppColors.primary : AppColors.border,
+            ),
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.micro.copyWith(
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
       ),
-      child: Text(label, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
     );
   }
 
-  Widget _buildFavoriteCard(String id, String name, String subtitle, String price, String imagePath) {
+  Widget _buildFavoriteCard(
+    String id,
+    String name,
+    String subtitle,
+    String price,
+    String imagePath, {
+    int? productId,
+  }) {
     final isFav = favoriteItems.contains(id);
+    final isNetworkImage = imagePath.startsWith('http');
     return GestureDetector(
-      onTap: _onProductTapped, 
+      onTap: () => _onProductTapped(productId: productId),
       child: Container(
         width: 358,
         margin: const EdgeInsets.only(right: 16),
@@ -717,17 +1050,43 @@ class _DeliveryPageState extends State<DeliveryPage> {
             side: const BorderSide(width: 1, color: AppColors.surface),
             borderRadius: BorderRadius.circular(10),
           ),
-          shadows: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.04), blurRadius: 8)],
+          shadows: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.04),
+              blurRadius: 8,
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              width: 88, height: 88,
+              width: 88,
+              height: 88,
+              clipBehavior: Clip.antiAlias,
               decoration: ShapeDecoration(
                 color: AppColors.primaryMid,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
+              child: isNetworkImage && imagePath.isNotEmpty
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      cacheHeight: 400,
+                      errorBuilder: (c, e, s) => Container(
+                        color: AppColors.surface,
+                        child: const Center(
+                          child: Icon(Icons.image, color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: AppColors.surface,
+                      child: const Center(
+                        child: Icon(Icons.image, color: Colors.grey),
+                      ),
+                    ),
             ),
             const SpaceWidth(24),
             Expanded(
@@ -742,28 +1101,57 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600), maxLines: 1),
-                            Text(subtitle, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary), maxLines: 1),
+                            Text(
+                              name,
+                              style: AppTextStyles.body.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                            ),
+                            Text(
+                              subtitle,
+                              style: AppTextStyles.micro.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                            ),
                           ],
                         ),
                       ),
                       GestureDetector(
                         onTap: () => toggleFavorite(id),
-                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : AppColors.border, size: 24),
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : AppColors.border,
+                          size: 24,
+                        ),
                       ),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(price, style: AppTextStyles.h3.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.w600)),
+                      Text(
+                        price,
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.primaryLight,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       Container(
-                        width: 29, height: 28,
+                        width: 29,
+                        height: 28,
                         decoration: ShapeDecoration(
                           color: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
                         ),
-                        child: const Icon(Icons.add, color: AppColors.white, size: 18),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 18,
+                        ),
                       ),
                     ],
                   ),
@@ -776,11 +1164,20 @@ class _DeliveryPageState extends State<DeliveryPage> {
     );
   }
 
-  Widget _buildGridCard(String id, String badgeAsset, String category, String name, String price, String imagePath) {
+  Widget _buildGridCard(
+    String id,
+    String? badgeAsset,
+    String category,
+    String name,
+    String price,
+    String imagePath, {
+    int? productId,
+  }) {
+    final isNetworkImage = imagePath.startsWith('http');
     return GestureDetector(
-      onTap: _onProductTapped,
+      onTap: () => _onProductTapped(productId: productId),
       child: Container(
-        width: 171, 
+        width: 171,
         decoration: ShapeDecoration(
           color: AppColors.white,
           shape: RoundedRectangleBorder(
@@ -794,19 +1191,37 @@ class _DeliveryPageState extends State<DeliveryPage> {
             Stack(
               children: [
                 Container(
-                  width: 171, height: 132,
-                  decoration: ShapeDecoration(
+                  width: 171,
+                  height: 132,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const ShapeDecoration(
                     color: AppColors.surface,
-                    image: DecorationImage(
-                      image: AssetImage(imagePath),
-                      fit: BoxFit.cover, 
-                    ),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
                     ),
                   ),
+                  child: isNetworkImage && imagePath.isNotEmpty
+                      ? Image.network(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          cacheHeight: 400,
+                          errorBuilder: (c, e, s) => const Center(
+                            child: Icon(Icons.image, color: Colors.grey),
+                          ),
+                        )
+                      : const Center(
+                          child: Icon(Icons.image, color: Colors.grey),
+                        ),
                 ),
-                Positioned(top: 11, left: 8, child: SvgPicture.asset(badgeAsset, height: 24)),
+                if (badgeAsset != null)
+                  Positioned(
+                    top: 11,
+                    left: 8,
+                    child: SvgPicture.asset(badgeAsset, height: 24),
+                  ),
               ],
             ),
             Padding(
@@ -814,20 +1229,45 @@ class _DeliveryPageState extends State<DeliveryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category, style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary)),
-                  Text(name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(
+                    category,
+                    style: AppTextStyles.micro.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    name,
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SpaceHeight(8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(price, style: AppTextStyles.body.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.w600)),
+                      Text(
+                        price,
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.primaryLight,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       Container(
-                        width: 29, height: 28,
+                        width: 29,
+                        height: 28,
                         decoration: ShapeDecoration(
                           color: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                          ),
                         ),
-                        child: const Icon(Icons.add, color: AppColors.white, size: 18),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 18,
+                        ),
                       ),
                     ],
                   ),
@@ -840,25 +1280,60 @@ class _DeliveryPageState extends State<DeliveryPage> {
     );
   }
 
-  Widget _buildSemuaListCard(String id, String badgeAsset, String name, String subtitle, String priceString, String imagePath) {
+  Widget _buildSemuaListCard(
+    String id,
+    String? badgeAsset,
+    String name,
+    String subtitle,
+    String priceString,
+    String imagePath, {
+    int? productId,
+  }) {
     final isFav = favoriteItems.contains(id);
+    final isNetworkImage = imagePath.startsWith('http');
 
     return GestureDetector(
-      onTap: _onProductTapped, 
+      onTap: () => _onProductTapped(productId: productId),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               Container(
-                width: 100, height: 100,
+                width: 100,
+                height: 100,
+                clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
                   color: AppColors.primaryMid,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.contain),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+                child: isNetworkImage && imagePath.isNotEmpty
+                    ? Image.network(
+                        imagePath,
+                        fit: BoxFit.contain,
+                        cacheHeight: 400,
+                        errorBuilder: (c, e, s) => Container(
+                          color: AppColors.surface,
+                          child: const Center(
+                            child: Icon(Icons.image, color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: AppColors.surface,
+                        child: const Center(
+                          child: Icon(Icons.image, color: Colors.grey),
+                        ),
+                      ),
               ),
-              Positioned(top: 6, left: 6, child: SvgPicture.asset(badgeAsset, height: 20)),
+              if (badgeAsset != null)
+                Positioned(
+                  top: 6,
+                  left: 6,
+                  child: SvgPicture.asset(badgeAsset, height: 20),
+                ),
             ],
           ),
           const SpaceWidth(16),
@@ -874,9 +1349,21 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            name,
+                            style: AppTextStyles.h3.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SpaceHeight(4),
-                          Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(
+                            subtitle,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
@@ -884,7 +1371,11 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       onTap: () => toggleFavorite(id),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
-                        child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : AppColors.textSecondary, size: 24),
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : AppColors.textSecondary,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ],
@@ -893,11 +1384,25 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(priceString, style: AppTextStyles.h3.copyWith(color: AppColors.primaryLight, fontWeight: FontWeight.bold)),
+                    Text(
+                      priceString,
+                      style: AppTextStyles.h3.copyWith(
+                        color: AppColors.primaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     Container(
-                      width: 32, height: 32,
-                      decoration: const ShapeDecoration(color: AppColors.primary, shape: OvalBorder()),
-                      child: const Icon(Icons.add, color: AppColors.white, size: 20),
+                      width: 32,
+                      height: 32,
+                      decoration: const ShapeDecoration(
+                        color: AppColors.primary,
+                        shape: OvalBorder(),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: AppColors.white,
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),
@@ -907,7 +1412,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
         ],
       ),
     );
-  } 
+  }
 }
 
 class DeliveryLocation {

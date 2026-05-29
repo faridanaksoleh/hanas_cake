@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:intl/intl.dart';
+import '../blocs/product/product_bloc.dart';
+import '../blocs/product/product_event.dart';
+import '../blocs/product/product_state.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final bool isPickUp;
-  const ProductDetailPage({super.key, this.isPickUp = false});
+  final int? productId;
+  const ProductDetailPage({super.key, this.isPickUp = false, this.productId});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -15,6 +21,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   String selectedSweetness = 'Less Sweet';
   int quantity = 2;
   bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.productId != null) {
+      context.read<ProductBloc>().add(GetProductDetailEvent(widget.productId!));
+    }
+  }
+
+  String _formatPrice(double price) {
+    final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    return formatter.format(price);
+  }
 
   void _showAddToCartBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -230,7 +249,43 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocBuilder<ProductBloc, ProductState>(
+      builder: (context, state) {
+        // Extract product data from state or use defaults
+        String productName = 'Croissant mentega';
+        String productDesc = 'Croissant mentega premium dengan lapisan super flaky dan aroma butter yang langsung menggoda sejak gigitan pertama.';
+        String productPrice = 'Rp15.000';
+        String productImage = 'assets/images/croissant_mentega_zoom.png';
+        bool isNetworkImage = false;
+        List<String> portions = ['Small', 'Large'];
+        List<String> flavors = [];
+
+        if (state is ProductDetailLoaded) {
+          final p = state.product;
+          productName = p.name;
+          productDesc = p.description ?? productDesc;
+          productPrice = _formatPrice(p.price);
+          productImage = p.imageUrl;
+          isNetworkImage = productImage.startsWith('http');
+          if (p.portions != null && p.portions!.isNotEmpty) {
+            portions = p.portions!.map((s) => s[0].toUpperCase() + s.substring(1)).toList();
+            if (!portions.contains(selectedSize)) {
+              selectedSize = portions.first;
+            }
+          }
+          if (p.flavors != null && p.flavors!.isNotEmpty) {
+            flavors = p.flavors!.map((s) => s[0].toUpperCase() + s.substring(1)).toList();
+          }
+        }
+
+        if (state is ProductLoading) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          );
+        }
+
+        return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
         children: [
@@ -242,21 +297,34 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   Container(
                     width: double.infinity,
                     height: 340,
-                    color: AppColors.primaryMid,
                     child: SafeArea(
                       bottom: false,
                       child: Stack(
                         children: [
                           Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Transform.scale(
-                                scale: 1,
-                                child: Image.asset(
-                                  'assets/images/croissant_mentega_zoom.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                            child: Transform.scale(
+                              scale: 1,
+                              child: isNetworkImage && productImage.isNotEmpty
+                                  ? Image.network(
+                                      productImage,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      cacheHeight: 400,
+                                      errorBuilder: (c, e, s) => Container(
+                                        width: double.infinity,
+                                        color: AppColors.surface,
+                                        child: const Center(
+                                          child: Icon(Icons.image, color: Colors.grey, size: 64),
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      width: double.infinity,
+                                      color: AppColors.surface,
+                                      child: const Center(
+                                        child: Icon(Icons.image, color: Colors.grey, size: 64),
+                                      ),
+                                    ),
                             ),
                           ),
                           Positioned(
@@ -287,7 +355,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Croissant mentega',
+                          productName,
                           style: AppTextStyles.h1.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
@@ -296,7 +364,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                         const SpaceHeight(8),
                         Text(
-                          'Croissant mentega premium dengan lapisan super flaky dan aroma butter yang langsung menggoda sejak gigitan pertama.',
+                          productDesc,
                           style: AppTextStyles.bodySmall.copyWith(height: 1.5),
                         ),
                         const SpaceHeight(16),
@@ -304,7 +372,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Rp15.000',
+                              productPrice,
                               style: AppTextStyles.h1.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
@@ -354,19 +422,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ],
                         ),
                         const SpaceHeight(12),
-                        _buildRadioOption(
-                          'Small',
-                          '',
-                          selectedSize,
-                          (val) => setState(() => selectedSize = val!),
-                        ),
-                        const SpaceHeight(8),
-                        _buildRadioOption(
-                          'Large',
-                          '+ Rp 3.000',
-                          selectedSize,
-                          (val) => setState(() => selectedSize = val!),
-                        ),
+                        ...portions.map((portion) => Column(
+                          children: [
+                            _buildRadioOption(
+                              portion,
+                              '',
+                              selectedSize,
+                              (val) => setState(() => selectedSize = val!),
+                            ),
+                            const SpaceHeight(8),
+                          ],
+                        )),
                       ],
                     ),
                   ),
@@ -505,6 +571,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 
