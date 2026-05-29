@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import '../../core/errors/failures.dart';
-import '../entities/address.dart';
 import '../repositories/address_repository.dart';
 
 class SetPrimaryAddressUseCase {
@@ -8,7 +7,7 @@ class SetPrimaryAddressUseCase {
 
   SetPrimaryAddressUseCase(this.repository);
 
-  Future<Either<Failure, Address>> execute(int id) {
+  Future<Either<Failure, void>> execute(int id) {
     return repository.setPrimaryAddress(id);
   }
 }

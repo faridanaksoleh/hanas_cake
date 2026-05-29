@@ -20,5 +20,5 @@ abstract class AddressRepository {
     bool? isPrimary,
   });
   Future<Either<Failure, void>> deleteAddress(int id);
-  Future<Either<Failure, Address>> setPrimaryAddress(int id);
+  Future<Either<Failure, void>> setPrimaryAddress(int id);
 }

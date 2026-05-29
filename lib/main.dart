@@ -33,8 +33,7 @@ import 'package:hanas_cake/domain/usecases/delete_address_usecase.dart';
 import 'package:hanas_cake/domain/usecases/set_primary_address_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/address/address_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/address/address_event.dart';
-
-
+import 'package:hanas_cake/domain/entities/address.dart';
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -326,7 +325,9 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/add-address',
-          builder: (context, state) => const AddAddressPage(),
+          builder: (context, state) => AddAddressPage(
+            address: state.extra as Address?,
+          ),
         ),
         GoRoute(
           path: '/payment-method',

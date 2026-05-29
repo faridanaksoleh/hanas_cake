@@ -106,7 +106,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     final result = await setPrimaryAddressUseCase.execute(event.id);
     result.fold(
       (failure) => emit(AddressFailure(failure.message)),
-      (address) {
+      (_) {
         emit(const AddressActionSuccess('Berhasil mengatur alamat utama'));
         add(GetAddressesEvent());
       },

@@ -10,7 +10,9 @@ import '../blocs/address/address_event.dart';
 import '../blocs/address/address_state.dart';
 
 class AddAddressPage extends StatefulWidget {
-  const AddAddressPage({super.key});
+  final Address? address; // null = mode Tambah, ada isi = mode Ubah
+
+  const AddAddressPage({super.key, this.address});
 
   @override
   State<AddAddressPage> createState() => _AddAddressPageState();
@@ -19,8 +21,23 @@ class AddAddressPage extends StatefulWidget {
 class _AddAddressPageState extends State<AddAddressPage> {
   final _namaAlamatController = TextEditingController();
   final _detailAlamatController = TextEditingController();
-  final _namaPenerimaController = TextEditingController(text: 'RINA');
-  final _nomorTeleponController = TextEditingController(text: '+6280000000000');
+  final _namaPenerimaController = TextEditingController();
+  final _nomorTeleponController = TextEditingController();
+
+  bool get _isEditMode => widget.address != null;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill controllers jika mode Edit
+    if (_isEditMode) {
+      final addr = widget.address!;
+      _namaAlamatController.text = addr.name;
+      _detailAlamatController.text = addr.fullAddress;
+      _namaPenerimaController.text = addr.receiverName;
+      _nomorTeleponController.text = addr.phoneNumber;
+    }
+  }
 
   @override
   void dispose() {
@@ -56,55 +73,55 @@ class _AddAddressPageState extends State<AddAddressPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search bar
-            _buildSearchBar(),
-            const SpaceHeight(24),
-            // Detail Alamat section
-            _buildSectionHeader('Detail Alamat'),
-            const SpaceHeight(16),
-            CustomTextField(
-              label: 'Nama Alamat',
-              controller: _namaAlamatController,
-              hintText: 'Contoh: Rumah, Kantor',
-              isOutlineBorder: true,
-              labelColor: AppColors.textSecondary,
-            ),
-            const SpaceHeight(16),
-            CustomTextField(
-              label: 'Detail Alamat (opsional)',
-              controller: _detailAlamatController,
-              hintText: 'Contoh: Tower A, Kamar Nomo 22',
-              isOutlineBorder: true,
-              labelColor: AppColors.textSecondary,
-            ),
-            const SpaceHeight(28),
-            // Divider
-            const Divider(color: AppColors.border, height: 1),
-            const SpaceHeight(24),
-            // Detail Penerima section
-            _buildSectionHeader('Detail Penerima'),
-            const SpaceHeight(16),
-            CustomTextField(
-              label: 'Nama Penerima',
-              controller: _namaPenerimaController,
-              hintText: 'Nama Penerima',
-              isOutlineBorder: true,
-              labelColor: AppColors.textSecondary,
-            ),
-            const SpaceHeight(16),
-            CustomTextField(
-              label: 'Nomor Telepon',
-              controller: _nomorTeleponController,
-              hintText: 'Nomor Telepon',
-              keyboardType: TextInputType.phone,
-              isOutlineBorder: true,
-              labelColor: AppColors.textSecondary,
-            ),
-            const SpaceHeight(32),
-          ],
+            children: [
+              // Search bar
+              _buildSearchBar(),
+              const SpaceHeight(24),
+              // Detail Alamat section
+              _buildSectionHeader('Detail Alamat'),
+              const SpaceHeight(16),
+              CustomTextField(
+                label: 'Nama Alamat',
+                controller: _namaAlamatController,
+                hintText: 'Contoh: Rumah, Kantor',
+                isOutlineBorder: true,
+                labelColor: AppColors.textSecondary,
+              ),
+              const SpaceHeight(16),
+              CustomTextField(
+                label: 'Detail Alamat (opsional)',
+                controller: _detailAlamatController,
+                hintText: 'Contoh: Tower A, Kamar Nomo 22',
+                isOutlineBorder: true,
+                labelColor: AppColors.textSecondary,
+              ),
+              const SpaceHeight(28),
+              // Divider
+              const Divider(color: AppColors.border, height: 1),
+              const SpaceHeight(24),
+              // Detail Penerima section
+              _buildSectionHeader('Detail Penerima'),
+              const SpaceHeight(16),
+              CustomTextField(
+                label: 'Nama Penerima',
+                controller: _namaPenerimaController,
+                hintText: 'Nama Penerima',
+                isOutlineBorder: true,
+                labelColor: AppColors.textSecondary,
+              ),
+              const SpaceHeight(16),
+              CustomTextField(
+                label: 'Nomor Telepon',
+                controller: _nomorTeleponController,
+                hintText: 'Nomor Telepon',
+                keyboardType: TextInputType.phone,
+                isOutlineBorder: true,
+                labelColor: AppColors.textSecondary,
+              ),
+              const SpaceHeight(32),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -135,7 +152,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
         ),
       ),
       title: Text(
-        'Tambah Alamat',
+        _isEditMode ? 'Ubah Alamat' : 'Tambah Alamat',
         style: AppTextStyles.display.copyWith(
           fontSize: 22,
           color: AppColors.textPrimary,
@@ -182,7 +199,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
       style: AppTextStyles.h3.copyWith(
         color: AppColors.textPrimary,
         fontWeight: FontWeight.bold,
-        fontSize: 18, // Menambahkan fontSize 18 untuk memperbesar teks
+        fontSize: 18,
       ),
     );
   }
@@ -196,12 +213,16 @@ class _AddAddressPageState extends State<AddAddressPage> {
       child: BlocBuilder<AddressBloc, AddressState>(
         builder: (context, state) {
           return AppButton.primary(
-            text: state is AddressLoading ? 'Menyimpan...' : 'Simpan',
+            text: state is AddressLoading
+                ? 'Menyimpan...'
+                : (_isEditMode ? 'Simpan Perubahan' : 'Simpan'),
             onPressed: state is AddressLoading
                 ? () {} // Disable when loading
                 : () {
                     // Validasi input dasar
-                    if (_namaAlamatController.text.isEmpty || _namaPenerimaController.text.isEmpty || _nomorTeleponController.text.isEmpty) {
+                    if (_namaAlamatController.text.isEmpty ||
+                        _namaPenerimaController.text.isEmpty ||
+                        _nomorTeleponController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Mohon lengkapi data alamat yang wajib diisi'),
@@ -211,20 +232,24 @@ class _AddAddressPageState extends State<AddAddressPage> {
                       return;
                     }
 
-                    // Debugging input
-                    print('DEBUG FORM -> Label: ${_namaAlamatController.text}, Alamat: ${_detailAlamatController.text}, Penerima: ${_namaPenerimaController.text}, HP: ${_nomorTeleponController.text}');
-
                     final newAddress = Address(
-                      id: 0, // id is auto-generated by the server
+                      id: _isEditMode ? widget.address!.id : 0,
                       name: _namaAlamatController.text,
-                      fullAddress: _detailAlamatController.text.isNotEmpty 
-                          ? _detailAlamatController.text 
+                      fullAddress: _detailAlamatController.text.isNotEmpty
+                          ? _detailAlamatController.text
                           : _namaAlamatController.text,
                       receiverName: _namaPenerimaController.text,
                       phoneNumber: _nomorTeleponController.text,
-                      isPrimary: false,
+                      isPrimary: _isEditMode ? widget.address!.isPrimary : false,
                     );
-                    context.read<AddressBloc>().add(AddAddressEvent(newAddress));
+
+                    if (_isEditMode) {
+                      context.read<AddressBloc>().add(
+                            UpdateAddressEvent(widget.address!.id, newAddress),
+                          );
+                    } else {
+                      context.read<AddressBloc>().add(AddAddressEvent(newAddress));
+                    }
                   },
           );
         },

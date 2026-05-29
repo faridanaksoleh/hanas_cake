@@ -83,10 +83,10 @@ class AddressRepositoryImpl implements AddressRepository {
   }
 
   @override
-  Future<Either<Failure, Address>> setPrimaryAddress(int id) async {
+  Future<Either<Failure, void>> setPrimaryAddress(int id) async {
     try {
-      final model = await remoteDatasource.setPrimaryAddress(id);
-      return Right(model.toEntity());
+      await remoteDatasource.setPrimaryAddress(id);
+      return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

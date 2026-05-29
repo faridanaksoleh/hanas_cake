@@ -246,8 +246,7 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // Navigate to Edit Address
-                    print('Navigasi ke Edit Address ID: ${address.id}');
+                    GoRouter.of(context).push('/add-address', extra: address);
                   },
                   child: Text(
                     'Ubah',

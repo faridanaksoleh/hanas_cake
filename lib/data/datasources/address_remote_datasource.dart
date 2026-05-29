@@ -83,15 +83,12 @@ class AddressRemoteDatasource {
     }
   }
 
-  /// POST /addresses/{id}/set-primary
-  Future<AddressModel> setPrimaryAddress(int id) async {
+  /// PATCH /addresses/{id}/primary
+  Future<void> setPrimaryAddress(int id) async {
     try {
-      final response = await dio.post('/addresses/$id/set-primary');
+      final response = await dio.patch('/addresses/$id/primary');
 
-      if (response.statusCode == 200) {
-        final responseData = response.data['data'] as Map<String, dynamic>;
-        return AddressModel.fromJson(responseData);
-      } else {
+      if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Gagal mengatur alamat utama');
       }
     } on DioException catch (e) {
