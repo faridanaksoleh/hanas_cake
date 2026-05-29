@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+
+import '../../domain/entities/address.dart';
+import '../blocs/address/address_bloc.dart';
+import '../blocs/address/address_event.dart';
+import '../blocs/address/address_state.dart';
 
 class SavedAddressPage extends StatefulWidget {
   const SavedAddressPage({super.key});
@@ -11,17 +17,12 @@ class SavedAddressPage extends StatefulWidget {
 }
 
 class _SavedAddressPageState extends State<SavedAddressPage> {
-  // Toggle this to switch between empty/filled UI
-  bool isEmpty = false;
-
-  // Mock address data
-  final List<Map<String, String>> _addresses = [
-    {
-      'name': 'Kantor',
-      'address':
-          'jl. Gatot Subroto No. 10, Rt.4 /RW.4, Mampang Prpt., Kec. mampang Prpt., Kota Jakarta Selatan, DAerah Khusus ibukota Jakarta 12790,',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data when page initializes
+    context.read<AddressBloc>().add(GetAddressesEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,71 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
       backgroundColor: AppColors.white,
       appBar: _buildAppBar(),
       bottomNavigationBar: _buildBottomButton(),
-      body: isEmpty ? _buildEmptyState() : _buildAddressList(),
+      body: BlocConsumer<AddressBloc, AddressState>(
+        listener: (context, state) {
+          if (state is AddressActionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } else if (state is AddressFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is AddressLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          }
+          
+          if (state is AddressFailure) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Gagal Memuat Alamat',
+                      style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SpaceHeight(8),
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                    ),
+                    const SpaceHeight(16),
+                    AppButton.primary(
+                      text: 'Coba Lagi',
+                      onPressed: () => context.read<AddressBloc>().add(GetAddressesEvent()),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }
+
+          if (state is AddressLoaded) {
+            if (state.addresses.isEmpty) {
+              return _buildEmptyState();
+            }
+            return _buildAddressList(state.addresses);
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -47,7 +112,10 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
         child: IconButton(
           icon: SvgPicture.asset(
             Assets.icons.caretLeft,
-            colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.primary,
+              BlendMode.srcIn,
+            ),
             width: 22,
             height: 22,
           ),
@@ -108,76 +176,122 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
   // ──────────────────────────────────────────────────────────
   // ADDRESS LIST
   // ──────────────────────────────────────────────────────────
-  Widget _buildAddressList() {
+  Widget _buildAddressList(List<Address> addresses) {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      itemCount: _addresses.length,
+      itemCount: addresses.length,
       separatorBuilder: (_, __) => const SpaceHeight(12),
       itemBuilder: (context, index) {
-        final addr = _addresses[index];
-        return _buildAddressCard(
-          name: addr['name']!,
-          address: addr['address']!,
-        );
+        final address = addresses[index];
+        return _buildAddressCard(address);
       },
     );
   }
 
-  Widget _buildAddressCard({required String name, required String address}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: name + Ubah + delete
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  name,
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'Ubah',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SpaceWidth(12),
-              GestureDetector(
-                onTap: () => _showDeleteDialog(context, name, address),
-                child: SvgPicture.asset(
-                  Assets.icons.trashOutline,
-                  colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
-                  width: 20,
-                  height: 20,
-                ),
-              ),
-            ],
+  Widget _buildAddressCard(Address address) {
+    return InkWell(
+      onTap: () {
+        context.read<AddressBloc>().add(SetPrimaryAddressEvent(address.id));
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: address.isPrimary ? AppColors.primary : AppColors.border, 
+            width: address.isPrimary ? 1.5 : 1,
           ),
-          const SpaceHeight(10),
-          // Address text
-          Text(
-            address,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.5,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row: Label Alamat + Badge Utama + Edit + Delete
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          address.name,
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (address.isPrimary) ...[
+                        const SpaceWidth(8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.green.withOpacity(0.5)),
+                          ),
+                          child: Text(
+                            'Utama',
+                            style: AppTextStyles.micro.copyWith(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to Edit Address
+                    print('Navigasi ke Edit Address ID: ${address.id}');
+                  },
+                  child: Text(
+                    'Ubah',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SpaceWidth(12),
+                GestureDetector(
+                  onTap: () => _showDeleteDialog(context, address),
+                  child: SvgPicture.asset(
+                    Assets.icons.trashOutline,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.dangerText,
+                      BlendMode.srcIn,
+                    ),
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SpaceHeight(10),
+            // Contact Information
+            Text(
+              '${address.receiverName} | ${address.phoneNumber}',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SpaceHeight(4),
+            // Detail Address
+            Text(
+              address.fullAddress,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -185,7 +299,7 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
   // ──────────────────────────────────────────────────────────
   // DELETE BOTTOM SHEET
   // ──────────────────────────────────────────────────────────
-  void _showDeleteDialog(BuildContext context, String name, String address) {
+  void _showDeleteDialog(BuildContext context, Address address) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.white,
@@ -218,7 +332,7 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
                 ),
               ),
               const SpaceHeight(16),
-              // Address summary card
+              // Address Summary
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
@@ -230,7 +344,7 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      address.name,
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -238,11 +352,13 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
                     ),
                     const SpaceHeight(6),
                     Text(
-                      address,
+                      address.fullAddress,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.4,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -262,9 +378,8 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
                     child: GestureDetector(
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        setState(() {
-                          isEmpty = true;
-                        });
+                        // Dispatch Delete Event
+                        context.read<AddressBloc>().add(DeleteAddressEvent(address.id));
                       },
                       child: Container(
                         height: 44,
@@ -291,7 +406,6 @@ class _SavedAddressPageState extends State<SavedAddressPage> {
       },
     );
   }
-
 
   // ──────────────────────────────────────────────────────────
   // BOTTOM BUTTON
