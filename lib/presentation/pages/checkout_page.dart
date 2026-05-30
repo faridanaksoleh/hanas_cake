@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // Untuk CupertinoSwitch
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:hanas_cake/core/core.dart';
+import '../blocs/cart/cart_bloc.dart';
+import '../blocs/cart/cart_state.dart';
+import '../blocs/cart/cart_event.dart';
+import '../blocs/address/address_bloc.dart';
+import '../blocs/address/address_event.dart';
+import '../blocs/address/address_state.dart';
+import '../../domain/entities/address.dart';
+import '../pages/branch_list_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   final bool isPickUp;
-  const CheckoutPage({super.key, this.isPickUp = false});
+  final BranchItem? location;
+  const CheckoutPage({super.key, this.isPickUp = false, this.location});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -18,12 +29,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   // 🔥 BEST PRACTICE: State Lokal untuk nahan user tetap di halaman
   late bool _isPickUpLocal;
+  BranchItem? currentBranch;
 
   @override
   void initState() {
     super.initState();
     // Set awal dari halaman sebelumnya
     _isPickUpLocal = widget.isPickUp;
+    currentBranch = widget.location;
+    // Panggil address event
+    context.read<AddressBloc>().add(GetAddressesEvent());
+  }
+
+  String _formatPrice(double price) {
+    final formatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return formatter.format(price);
   }
 
   // 🔥 FUNGSI POPUP GANTI METODE PEMESANAN (STATE LOKAL)
@@ -152,31 +176,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: AppColors.primary,
-            size: 20,
+    return BlocBuilder<CartBloc, CartState>(
+      builder: (context, cartState) {
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: AppBar(
+            backgroundColor: AppColors.white,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: AppColors.primary,
+                size: 20,
+              ),
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  GoRouter.of(context).pop();
+                } else {
+                  GoRouter.of(context).go(_isPickUpLocal ? '/pickup' : '/home');
+                }
+              },
+            ),
+            title: Text(
+              'Checkout',
+              style: AppTextStyles.h1.copyWith(color: AppColors.primary),
+            ),
           ),
-          onPressed: () {
-            if (GoRouter.of(context).canPop()) {
-              GoRouter.of(context).pop();
-            } else {
-              GoRouter.of(context).go(_isPickUpLocal ? '/pickup' : '/home');
-            }
-          },
-        ),
-        title: Text(
-          'Checkout',
-          style: AppTextStyles.h1.copyWith(color: AppColors.primary),
-        ),
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,11 +294,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Ambil pesananmu di',
-                      style: AppTextStyles.h3.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Ambil pesananmu di',
+                          style: AppTextStyles.h3.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            final result = await GoRouter.of(context).push('/branch-list', extra: {'isPickUp': true});
+                            if (result != null && result is BranchItem) {
+                              setState(() {
+                                currentBranch = result;
+                              });
+                            }
+                          },
+                          child: Text(
+                            currentBranch != null ? 'Ubah' : 'Pilih Lokasi',
+                            style: AppTextStyles.caption.copyWith(
+                              color: currentBranch != null ? AppColors.primary : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SpaceHeight(16),
                     Row(
@@ -289,18 +337,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Alamat Cabang terdekat',
+                                currentBranch?.name ?? 'Silakan pilih cabang toko terlebih dahulu',
                                 style: AppTextStyles.body.copyWith(
                                   fontWeight: FontWeight.w600,
+                                  color: currentBranch == null ? Colors.red : AppColors.textPrimary,
                                 ),
                               ),
                               const SpaceHeight(4),
-                              Text(
-                                '19.48 km dari lokasimu',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
+                              if (currentBranch != null)
+                                Text(
+                                  '${currentBranch!.distanceKm} km dari lokasimu',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -339,6 +389,81 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
               ),
               const Divider(height: 1, thickness: 4, color: AppColors.surface),
+            ] else ...[
+              // WIRING ALAMAT PENGIRIMAN
+              BlocBuilder<AddressBloc, AddressState>(
+                builder: (context, state) {
+                  Address? primaryAddress;
+                  if (state is AddressLoaded) {
+                    try {
+                      primaryAddress = state.addresses.firstWhere((a) => a.isPrimary);
+                    } catch (e) {
+                      if (state.addresses.isNotEmpty) {
+                        primaryAddress = state.addresses.first;
+                      }
+                    }
+                  }
+                  
+                  return Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Alamat Pengiriman',
+                              style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            GestureDetector(
+                              onTap: () => GoRouter.of(context).push('/saved-address'),
+                              child: Text(
+                                primaryAddress != null ? 'Ubah' : 'Tambah',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SpaceHeight(16),
+                        if (primaryAddress != null) ...[
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on, color: AppColors.primary, size: 24),
+                              const SpaceWidth(12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${primaryAddress.receiverName} | ${primaryAddress.phoneNumber}',
+                                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
+                                    ),
+                                    const SpaceHeight(4),
+                                    Text(
+                                      primaryAddress.fullAddress,
+                                      style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          Text(
+                            'Silakan pilih/tambah alamat pengiriman',
+                            style: AppTextStyles.body.copyWith(color: Colors.red),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1, thickness: 4, color: AppColors.surface),
             ],
 
             // ─────────────────────────────────────────────────────────
@@ -357,117 +482,117 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   const SpaceHeight(16),
 
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
+                  ...cartState.items.map((item) {
+                    final product = item.product;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Croissant Mentega',
-                              style: AppTextStyles.h3.copyWith(
-                                fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.name,
+                                    style: AppTextStyles.h3.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SpaceHeight(4),
+                                  if (item.notes != null && item.notes!.isNotEmpty)
+                                    Text(
+                                      item.notes!,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            const SpaceHeight(4),
-                            Text(
-                              'Large',
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryMid,
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: NetworkImage(product.imageUrl),
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryMid,
-                          borderRadius: BorderRadius.circular(8),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/croissant.png'),
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SpaceHeight(16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Rp 15.000',
-                        style: AppTextStyles.h3.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              'Ubah',
-                              style: AppTextStyles.body.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
+                        const SpaceHeight(16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _formatPrice(product.price * item.quantity),
+                              style: AppTextStyles.h3.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          const SpaceWidth(16),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  if (quantity > 1) setState(() => quantity--);
-                                },
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: AppColors.border),
-                                  ),
-                                  child: const Icon(
-                                    Icons.remove,
-                                    size: 16,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ),
-                              const SpaceWidth(12),
-                              Text(
-                                '$quantity',
-                                style: AppTextStyles.h3.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SpaceWidth(12),
-                              GestureDetector(
-                                onTap: () => setState(() => quantity++),
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color: AppColors.white,
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (item.quantity > 1) {
+                                      context.read<CartBloc>().add(UpdateCartItemQuantityEvent(product.id, item.quantity - 1));
+                                    } else {
+                                      context.read<CartBloc>().add(RemoveFromCartEvent(product.id));
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: AppColors.border),
+                                    ),
+                                    child: const Icon(
+                                      Icons.remove,
+                                      size: 16,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                                const SpaceWidth(12),
+                                Text(
+                                  '${item.quantity}',
+                                  style: AppTextStyles.h3.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SpaceWidth(12),
+                                GestureDetector(
+                                  onTap: () {
+                                    context.read<CartBloc>().add(UpdateCartItemQuantityEvent(product.id, item.quantity + 1));
+                                  },
+                                  child: Container(
+                                    width: 28,
+                                    height: 28,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SpaceHeight(24),
+                      ],
+                    );
+                  }).toList(),
                 ],
               ),
             ),
@@ -503,14 +628,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   OutlinedButton(
                     onPressed: () {
-                      // 🔥 FIX & BEST PRACTICE:
-                      // 1. Arahkan ke rute yang benar berdasarkan state lokal (_isPickUpLocal)
-                      // 2. Lempar 'isFromCart: true' agar banner keranjang muncul!
-                      // 3. Pakai pushReplacement agar tidak menumpuk stack screen.
-                      GoRouter.of(context).pushReplacement(
-                        _isPickUpLocal ? '/pickup' : '/delivery',
-                        extra: {'isFromCart': true},
-                      );
+                      GoRouter.of(context).pop();
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
@@ -587,58 +705,44 @@ class _CheckoutPageState extends State<CheckoutPage> {
             // ─────────────────────────────────────────────────────────
             // 6. METODE PEMBAYARAN
             // ─────────────────────────────────────────────────────────
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => GoRouter.of(context).push('/payment-method'),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Metode Pembayaran',
-                      style: AppTextStyles.h3.copyWith(
-                        fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Metode Pembayaran',
+                    style: AppTextStyles.h3.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SpaceHeight(16),
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.credit_card, size: 16, color: AppColors.primary),
+                        ),
                       ),
-                    ),
-                    const SpaceHeight(16),
-                    Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Center(
-                            child: Image.asset(
-                              'assets/icons/qris.png',
-                              width: 20,
-                              height: 20,
-                              fit: BoxFit.contain,
-                            ),
+                      const SpaceWidth(12),
+                      Expanded(
+                        child: Text(
+                          'Midtrans Payment Gateway',
+                          style: AppTextStyles.body.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SpaceWidth(12),
-                        Expanded(
-                          child: Text(
-                            'QRIS',
-                            style: AppTextStyles.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: AppColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
 
@@ -669,7 +773,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       Text(
-                        'Rp 30.000',
+                        _formatPrice(cartState.grandTotal),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -714,9 +818,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       Text(
-                        !_isPickUpLocal || isBagChecked
-                            ? 'Rp 33.000'
-                            : 'Rp 30.000',
+                        _formatPrice(cartState.grandTotal + (!_isPickUpLocal || isBagChecked ? 3000 : 0)),
                         style: AppTextStyles.body.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -756,7 +858,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () => GoRouter.of(context).push('/payment-success', extra: {'isPickUp': _isPickUpLocal}),
+              onPressed: () {
+                final state = context.read<CartBloc>().state;
+                final addressState = context.read<AddressBloc>().state;
+                int? addressId;
+                if (!_isPickUpLocal && addressState is AddressLoaded) {
+                  try {
+                    addressId = addressState.addresses.firstWhere((a) => a.isPrimary).id;
+                  } catch (e) {
+                    if (addressState.addresses.isNotEmpty) {
+                      addressId = addressState.addresses.first.id;
+                    }
+                  }
+                }
+
+                final payload = {
+                  'delivery_type': _isPickUpLocal ? 'pickup' : 'delivery',
+                  'store_id': 1, // Sesuai instruksi hardcode 1
+                  if (!_isPickUpLocal && addressId != null) 'address_id': addressId,
+                  'total_belanja': state.grandTotal + (!_isPickUpLocal || isBagChecked ? 3000 : 0),
+                  'items': state.items.map((item) => {
+                    'product_id': item.product.id,
+                    'quantity': item.quantity,
+                    'price': item.product.price,
+                  }).toList(),
+                };
+
+                debugPrint('PAYLOAD CHECKOUT: $payload');
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
@@ -776,5 +905,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
     );
+  });
   }
 }

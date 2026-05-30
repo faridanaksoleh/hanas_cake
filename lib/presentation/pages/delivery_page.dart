@@ -79,7 +79,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
       GoRouter.of(context)
           .push(
             '/product-detail',
-            extra: {'isPickUp': false, 'productId': productId},
+            extra: {'isPickUp': false, 'productId': productId, 'location': null},
           )
           .then((_) {
             if (mounted) {
@@ -217,9 +217,18 @@ class _DeliveryPageState extends State<DeliveryPage> {
         builder: (context, cartState) {
           if (cartState.isEmpty) return const SizedBox.shrink();
           return GestureDetector(
-            onTap: () => GoRouter.of(
-              context,
-            ).push('/checkout', extra: {'isPickUp': false}),
+            onTap: () {
+              if (!isAddressSelected) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Pilih alamat pengiriman terlebih dahulu!'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else {
+                GoRouter.of(context).push('/checkout', extra: {'isPickUp': false});
+              }
+            },
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

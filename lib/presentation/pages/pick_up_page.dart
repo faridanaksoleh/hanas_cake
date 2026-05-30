@@ -80,7 +80,7 @@ class _PickUpPageState extends State<PickUpPage> {
             'Pilih cabang toko terlebih dahulu ya!',
             style: AppTextStyles.bodySmall.copyWith(color: AppColors.white),
           ),
-          backgroundColor: AppColors.dangerBg,
+          backgroundColor: Colors.red,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -88,7 +88,7 @@ class _PickUpPageState extends State<PickUpPage> {
       GoRouter.of(context)
           .push(
             '/product-detail',
-            extra: {'isPickUp': true, 'productId': productId},
+            extra: {'isPickUp': true, 'productId': productId, 'location': selectedBranch},
           )
           .then((_) {
             if (mounted) {
@@ -229,9 +229,18 @@ class _PickUpPageState extends State<PickUpPage> {
         builder: (context, cartState) {
           if (cartState.isEmpty) return const SizedBox.shrink();
           return GestureDetector(
-            onTap: () => GoRouter.of(
-              context,
-            ).push('/checkout', extra: {'isPickUp': true}),
+            onTap: () {
+              if (selectedBranch == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Pilih cabang toko terlebih dahulu!'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else {
+                GoRouter.of(context).push('/checkout', extra: {'isPickUp': true, 'location': selectedBranch});
+              }
+            },
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

@@ -381,14 +381,28 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 }
 ```
 
-| Field         | Type    | Required | Keterangan                 |
-| ------------- | ------- | -------- | -------------------------- |
-| delivery_type | string  | ✅       | `pickup` atau `delivery`   |
-| store_id      | int     | ✅       | ID toko (untuk semua tipe) |
-| address_id    | int     | ✅\*     | Wajib jika `delivery`      |
-| total_belanja | numeric | ✅       | Total harga belanja        |
-| items         | array   | ✅       | Minimal 1 item             |
-| notes         | string  | ❌       | Catatan pesanan            |
+| Field         | Type    | Required | Keterangan                                  |
+| ------------- | ------- | -------- | ------------------------------------------- |
+| delivery_type | string  | ✅       | `pickup` atau `delivery`                    |
+| store_id      | int     | ✅       | ID toko (untuk semua tipe)                  |
+| address_id    | int     | ✅\*     | Wajib jika `delivery`                       |
+| total_belanja | numeric | ✅       | Total harga belanja (belum termasuk ongkir) |
+| items         | array   | ✅       | Minimal 1 item                              |
+| notes         | string  | ❌       | Catatan pesanan                             |
+
+> **⚠️ Catatan Ongkir:** `total_belanja` adalah subtotal produk saja (tanpa ongkir). Ongkir dihitung **otomatis oleh backend** berdasarkan jarak antara `address_id` dan `store_id`. Flutter **tidak perlu** mengirim field ongkir.
+
+### Perhitungan Ongkir Otomatis
+
+| Tipe          | Kondisi Jarak   | Ongkir                         |
+| ------------- | --------------- | ------------------------------ |
+| `pickup`      | —               | Rp 0 (gratis)                  |
+| `delivery`    | ≤ 1 km          | Rp 2.000                       |
+| `delivery`    | 1 – 10 km       | `ceil(jarak) × Rp 2.000`      |
+| `delivery`    | > 10 km         | ❌ Ditolak (error 500)         |
+| `delivery`    | Koordinat kosong| Rp 0 (tidak bisa dihitung)     |
+
+**Contoh:** Jarak 3.2 km → `ceil(3.2) = 4` → Ongkir = `4 × 2.000` = **Rp 8.000**
 
 ### Response Sukses (200)
 
@@ -398,18 +412,36 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
     "message": "Checkout Berhasil",
     "data": {
         "order_id": 15,
-        "snap_token": "66e4fa55-fdac-4ef5-bcab-95c305d..."
+        "snap_token": "66e4fa55-fdac-4ef5-bcab-95c305d...",
+        "shipping_cost": 8000,
+        "grand_total": 308000
     }
 }
 ```
 
-### Response Gagal (422)
+| Field Response  | Keterangan                                          |
+| --------------- | --------------------------------------------------- |
+| order_id        | ID order yang dibuat                                |
+| snap_token      | Token Midtrans untuk halaman pembayaran             |
+| shipping_cost   | Ongkir yang dihitung otomatis (Rp)                  |
+| grand_total     | Total akhir: `total_belanja` + `shipping_cost` (Rp) |
+
+### Response Gagal — Validasi (422)
 
 ```json
 {
     "success": false,
     "message": "Validasi gagal",
     "errors": { "store_id": ["Toko wajib dipilih."] }
+}
+```
+
+### Response Gagal — Di Luar Jangkauan (500)
+
+```json
+{
+    "success": false,
+    "message": "Checkout gagal: Lokasi pengiriman di luar jangkauan (jarak: 12.5 km, maks: 10 km). Silakan ganti alamat atau pilih metode pickup."
 }
 ```
 
@@ -479,27 +511,35 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 ```json
 {
     "success": true,
+    "message": "Daftar alamat berhasil diambil",
     "data": [
         {
             "id": 1,
+            "customer_id": 1,
             "title": "Rumah",
-            "detail_address": "Jl. Pettarani No.10",
-            "latitude": -5.1477,
-            "longitude": 119.4327,
-            "receiver_name": "John",
+            "detail_address": "Jl. Pettarani No.10, Makassar",
+            "latitude": "-5.14770000",
+            "longitude": "119.43270000",
+            "receiver_name": "John Doe",
             "receiver_phone": "081234567890",
-            "is_primary": true
+            "is_primary": 1,
+            "created_at": "2026-05-29T09:50:52.000000Z",
+            "updated_at": "2026-05-29T09:50:52.000000Z"
         }
     ]
 }
 ```
 
-**`POST /api/addresses`** 🔒
+---
+
+**`POST /api/addresses`** 🔒 — Tambah alamat baru
+
+### Request Body
 
 ```json
 {
     "title": "Kantor",
-    "detail_address": "Jl. AP Pettarani No. 20",
+    "detail_address": "Jl. AP Pettarani No. 20, Makassar",
     "latitude": -5.15,
     "longitude": 119.435,
     "receiver_name": "John Doe",
@@ -508,11 +548,29 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 }
 ```
 
-**`PUT /api/addresses/{id}`** 🔒 — Body sama seperti POST
+| Field          | Type    | Required | Keterangan                                  |
+| -------------- | ------- | -------- | ------------------------------------------- |
+| title          | string  | ✅       | Label alamat: Rumah, Kantor, dll (maks 100) |
+| detail_address | string  | ✅       | Alamat lengkap (maks 500)                   |
+| receiver_name  | string  | ✅       | Nama penerima (maks 255)                    |
+| receiver_phone | string  | ✅       | No HP penerima (maks 20)                    |
+| latitude       | numeric | ❌       | -90 s/d 90                                  |
+| longitude      | numeric | ❌       | -180 s/d 180                                |
+| is_primary     | boolean | ❌       | Default false. Alamat pertama otomatis primary |
 
-**`DELETE /api/addresses/{id}`** 🔒
+> **⚠️ Penting:** Pastikan key JSON **persis** seperti tabel di atas. Menggunakan key berbeda (misal `label` alih-alih `title`, atau `address` alih-alih `detail_address`) akan menyebabkan error validasi 422.
 
-**`PATCH /api/addresses/{id}/primary`** 🔒 — Set sebagai alamat utama (tanpa body)
+---
+
+**`PUT /api/addresses/{id}`** 🔒 — Edit alamat (body sama seperti POST)
+
+**`DELETE /api/addresses/{id}`** 🔒 — Hapus alamat
+
+> Jika yang dihapus adalah alamat primary, alamat terbaru otomatis dijadikan primary baru.
+
+**`PATCH /api/addresses/{id}/primary`** 🔒 — Set sebagai alamat utama
+
+> Method: **PATCH** (bukan POST/PUT). Tanpa request body. Semua alamat lain otomatis di-reset menjadi non-primary.
 
 ---
 

@@ -13,15 +13,16 @@ import '../blocs/cart/cart_event.dart';
 class ProductDetailPage extends StatefulWidget {
   final bool isPickUp;
   final int? productId;
-  const ProductDetailPage({super.key, this.isPickUp = false, this.productId});
+  final dynamic location;
+  const ProductDetailPage({super.key, this.isPickUp = false, this.productId, this.location});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  String selectedSize = 'Large';
-  String selectedSweetness = 'Less Sweet';
+  String selectedSize = 'Small';
+  String selectedSweetness = 'Normal sweet';
   int quantity = 1;
   bool isFavorite = false;
 
@@ -167,8 +168,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   height: 48,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(bottomSheetContext);
-                      GoRouter.of(context).push('/checkout', extra: {'isPickUp': widget.isPickUp});
+                      Navigator.pop(bottomSheetContext); // Tutup bottom sheet
+                      GoRouter.of(context).push('/checkout', extra: {'isPickUp': widget.isPickUp, 'location': widget.location});
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -192,15 +193,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   height: 48,
                   child: OutlinedButton(
                     onPressed: () {
-                      Navigator.pop(bottomSheetContext); 
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        GoRouter.of(context).pushReplacement(
-                          widget.isPickUp ? '/pickup' : '/delivery',
-                          extra: {
-                            'isFromCart': true,
-                          }
-                        );
-                      });
+                      Navigator.pop(bottomSheetContext);
+                      GoRouter.of(context).pop();
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
@@ -229,15 +223,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget _buildSuggestionChip(String label, BuildContext bottomSheetContext) {
     return GestureDetector(
       onTap: () {
-        Navigator.pop(bottomSheetContext); 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          GoRouter.of(context).pushReplacement(
-            widget.isPickUp ? '/pickup' : '/delivery',
-            extra: {
-              'isFromCart': true,
-            }
-          );
-        });
+        Navigator.pop(bottomSheetContext);
+        GoRouter.of(context).pop();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -266,11 +253,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         List<String> portions = ['Small', 'Large'];
         List<String> flavors = [];
 
+        // Extract product object for cart
+        Product? currentProduct;
+
         if (state is ProductDetailLoaded) {
           final p = state.product;
           productName = p.name;
           productDesc = p.description ?? productDesc;
-          productPrice = _formatPrice(p.price);
+          
+          // Kalkulasi Harga (Large +5000)
+          double basePrice = p.price;
+          if (selectedSize == 'Large') {
+            basePrice += 5000;
+          }
+          productPrice = _formatPrice(basePrice);
+          
           productImage = p.imageUrl;
           isNetworkImage = productImage.startsWith('http');
           if (p.portions != null && p.portions!.isNotEmpty) {
@@ -282,6 +279,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           if (p.flavors != null && p.flavors!.isNotEmpty) {
             flavors = p.flavors!.map((s) => s[0].toUpperCase() + s.substring(1)).toList();
           }
+
+          // Buat object baru untuk keranjang
+          currentProduct = Product(
+            id: p.id,
+            categoryId: p.categoryId,
+            name: '${p.name} ($selectedSize)', // Tambah informasi variant ke nama
+            description: p.description,
+            price: basePrice, // Harga yang sudah ditambah 5000
+            imageUrl: p.imageUrl,
+            portions: p.portions,
+            flavors: p.flavors,
+            stock: p.stock,
+            discount: p.discount,
+            slug: p.slug,
+            isPo: p.isPo,
+          );
         }
 
         if (state is ProductLoading) {
@@ -289,12 +302,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             backgroundColor: AppColors.white,
             body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
           );
-        }
-
-        // Extract product object for cart
-        Product? currentProduct;
-        if (state is ProductDetailLoaded) {
-          currentProduct = state.product;
         }
 
         return Scaffold(
@@ -560,28 +567,34 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               Expanded(
                 child: SizedBox(
                   height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (currentProduct != null) {
-                        // Dispatch AddToCartEvent ke CartBloc
-                        context.read<CartBloc>().add(
-                              AddToCartEvent(currentProduct, quantity: quantity),
-                            );
-                        _showAddToCartBottomSheet(context, currentProduct);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Bayar Sekarang',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (currentProduct != null) {
+                            // Dispatch AddToCartEvent ke CartBloc
+                            context.read<CartBloc>().add(
+                                  AddToCartEvent(currentProduct, quantity: quantity),
+                                );
+                            _showAddToCartBottomSheet(context, currentProduct);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Bayar Sekarang',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),

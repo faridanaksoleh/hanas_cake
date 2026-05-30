@@ -192,7 +192,8 @@ class MyApp extends StatelessWidget {
             final extra = state.extra as Map<String, dynamic>?;
             final isPickUp = extra?['isPickUp'] as bool? ?? false;
             final productId = extra?['productId'] as int?;
-            return ProductDetailPage(isPickUp: isPickUp, productId: productId);
+            final location = extra?['location'];
+            return ProductDetailPage(isPickUp: isPickUp, productId: productId, location: location);
           },
         ),
         GoRoute(
@@ -200,7 +201,8 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
             final isPickUp = extra?['isPickUp'] as bool? ?? false;
-            return CheckoutPage(isPickUp: isPickUp);
+            final location = extra?['location']; // Akan dilempar dari pick_up_page
+            return CheckoutPage(isPickUp: isPickUp, location: location);
           },
         ),
         GoRoute(
