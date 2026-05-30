@@ -12,6 +12,8 @@ import '../blocs/product/product_state.dart';
 import '../blocs/cart/cart_bloc.dart';
 import '../blocs/cart/cart_event.dart';
 import '../blocs/cart/cart_state.dart';
+import '../blocs/address/address_bloc.dart';
+import '../blocs/address/address_state.dart';
 
 class DeliveryPage extends StatefulWidget {
   final bool isFromCart;
@@ -509,49 +511,69 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             ),
                             const SpaceHeight(18),
 
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () async {
-                                final result = await GoRouter.of(
-                                  context,
-                                ).push('/location-picker');
-                                if (result != null &&
-                                    result is DeliveryLocation) {
-                                  setState(() {
-                                    selectedLocation = result;
-                                    isAddressSelected = true;
+                            BlocBuilder<AddressBloc, AddressState>(
+                              builder: (context, state) {
+                                bool hasAddress = false;
+                                String addressText = 'Pilih alamat pengirimanmu terlebih dahulu';
+                                
+                                if (state is AddressLoaded && state.addresses.isNotEmpty) {
+                                  hasAddress = true;
+                                  try {
+                                    final primary = state.addresses.firstWhere((a) => a.isPrimary);
+                                    addressText = primary.fullAddress;
+                                  } catch (e) {
+                                    addressText = state.addresses.first.fullAddress;
+                                  }
+
+                                  // Update global isAddressSelected state safely
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted && isAddressSelected != hasAddress) {
+                                      setState(() {
+                                        isAddressSelected = hasAddress;
+                                      });
+                                    }
+                                  });
+                                } else {
+                                  // Update global isAddressSelected state safely
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted && isAddressSelected != hasAddress) {
+                                      setState(() {
+                                        isAddressSelected = hasAddress;
+                                      });
+                                    }
                                   });
                                 }
-                              },
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      isAddressSelected
-                                          ? (selectedLocation?.address ??
-                                                'jonggol')
-                                          : 'Pilih alamatmu terlebih dahulu',
-                                      style: AppTextStyles.body.copyWith(
-                                        color: isAddressSelected
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                        fontWeight: FontWeight.w500,
+
+                                return GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    GoRouter.of(context).push('/saved-address');
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          addressText,
+                                          style: AppTextStyles.body.copyWith(
+                                            color: hasAddress ? AppColors.textPrimary : AppColors.textSecondary,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                      const SpaceWidth(8),
+                                      const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ],
                                   ),
-                                  const SpaceWidth(8),
-                                  const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -868,11 +890,19 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         const SpaceHeight(16),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
-                            children: allProducts.asMap().entries.map((entry) {
-                              final p = entry.value;
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.75,
+                            ),
+                            itemCount: allProducts.length,
+                            itemBuilder: (context, index) {
+                              final p = allProducts[index];
                               return _buildGridCard(
                                 p.id.toString(),
                                 null,
@@ -882,7 +912,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                 p.imageUrl,
                                 product: p,
                               );
-                            }).toList(),
+                            },
                           ),
                         ),
                         const SpaceHeight(12),
@@ -944,8 +974,8 @@ class _DeliveryPageState extends State<DeliveryPage> {
                                   child: _buildSemuaListCard(
                                     p.id.toString(),
                                     null,
-                                    p.category?.name ?? 'Pastry',
                                     p.name,
+                                    p.description ?? 'Produk premium...',
                                     _formatPrice(p.price),
                                     p.imageUrl,
                                     product: p,

@@ -710,19 +710,27 @@ class _PickUpPageState extends State<PickUpPage> {
                         const SpaceHeight(16),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
-                            children: allProducts.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final p = entry.value;
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.75,
+                            ),
+                            itemCount: allProducts.length,
+                            itemBuilder: (context, index) {
+                              final p = allProducts[index];
                               String? badgeAsset;
-                              if (index == 0)
+                              if (index == 0) {
                                 badgeAsset = 'assets/icons/best_seller.svg';
-                              else if (index == 1)
+                              } else if (index == 1) {
                                 badgeAsset = 'assets/icons/top_ordered.svg';
-                              else
+                              } else {
                                 badgeAsset = 'assets/icons/most_popular.svg';
+                              }
 
                               return _buildGridCard(
                                 'try_${p.id}',
@@ -733,7 +741,7 @@ class _PickUpPageState extends State<PickUpPage> {
                                 p.imageUrl,
                                 product: p,
                               );
-                            }).toList(),
+                            },
                           ),
                         ),
                         const SpaceHeight(12),
