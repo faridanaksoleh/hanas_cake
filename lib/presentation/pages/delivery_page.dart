@@ -9,6 +9,9 @@ import '../../domain/entities/product.dart';
 import '../blocs/product/product_bloc.dart';
 import '../blocs/product/product_event.dart';
 import '../blocs/product/product_state.dart';
+import '../blocs/cart/cart_bloc.dart';
+import '../blocs/cart/cart_event.dart';
+import '../blocs/cart/cart_state.dart';
 
 class DeliveryPage extends StatefulWidget {
   final bool isFromCart;
@@ -73,14 +76,16 @@ class _DeliveryPageState extends State<DeliveryPage> {
       );
     } else {
       // 🔥 FIX: Pakai GoRouter.of(context) biar IDE-nya nggak bingung
-      GoRouter.of(context).push(
-        '/product-detail',
-        extra: {'isPickUp': false, 'productId': productId},
-      ).then((_) {
-        if (mounted) {
-          context.read<ProductBloc>().add(GetProductsEvent());
-        }
-      });
+      GoRouter.of(context)
+          .push(
+            '/product-detail',
+            extra: {'isPickUp': false, 'productId': productId},
+          )
+          .then((_) {
+            if (mounted) {
+              context.read<ProductBloc>().add(GetProductsEvent());
+            }
+          });
     }
   }
 
@@ -208,6 +213,68 @@ class _DeliveryPageState extends State<DeliveryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
+      bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
+        builder: (context, cartState) {
+          if (cartState.isEmpty) return const SizedBox.shrink();
+          return GestureDetector(
+            onTap: () => GoRouter.of(
+              context,
+            ).push('/checkout', extra: {'isPickUp': false}),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${cartState.totalItems}',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Keranjang',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    _formatPrice(cartState.grandTotal),
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,16 +753,18 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.only(left: 16),
-                            itemCount: allProducts.length > 2 ? 2 : allProducts.length,
+                            itemCount: allProducts.length > 2
+                                ? 2
+                                : allProducts.length,
                             itemBuilder: (context, index) {
                               final p = allProducts[index];
                               return _buildFavoriteCard(
-                                'fav_${p.id}',
+                                p.id.toString(),
                                 p.name,
-                                p.description ?? 'Produk premium...',
+                                p.category?.name ?? 'Pastry',
                                 _formatPrice(p.price),
                                 p.imageUrl,
-                                productId: p.id,
+                                product: p,
                               );
                             },
                           ),
@@ -794,24 +863,15 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             spacing: 16,
                             runSpacing: 16,
                             children: allProducts.asMap().entries.map((entry) {
-                              final index = entry.key;
                               final p = entry.value;
-                              String? badgeAsset;
-                              if (index == 0)
-                                badgeAsset = 'assets/icons/best_seller.svg';
-                              else if (index == 1)
-                                badgeAsset = 'assets/icons/top_ordered.svg';
-                              else
-                                badgeAsset = 'assets/icons/most_popular.svg';
-
                               return _buildGridCard(
-                                'try_${p.id}',
-                                badgeAsset,
-                                p.category?.name ?? '',
+                                p.id.toString(),
+                                null,
+                                p.category?.name ?? 'Pastry',
                                 p.name,
                                 _formatPrice(p.price),
                                 p.imageUrl,
-                                productId: p.id,
+                                product: p,
                               );
                             }).toList(),
                           ),
@@ -842,12 +902,15 @@ class _DeliveryPageState extends State<DeliveryPage> {
                             horizontal: 16,
                             vertical: 24,
                           ),
-                          decoration: const BoxDecoration(color: AppColors.white),
+                          decoration: const BoxDecoration(
+                            color: AppColors.white,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     isFiltering ? _selectedChip : 'Semua',
@@ -866,22 +929,18 @@ class _DeliveryPageState extends State<DeliveryPage> {
                               const SpaceHeight(12),
                               _buildHorizontalDashedLine(),
                               const SpaceHeight(16),
-                              ...filteredProducts.asMap().entries.map((entry) {
-                                final p = entry.value;
-                                return Column(
-                                  children: [
-                                    _buildSemuaListCard(
-                                      'semua_${p.id}',
-                                      null,
-                                      p.name,
-                                      p.description ?? 'Produk premium...',
-                                      _formatPrice(p.price),
-                                      p.imageUrl,
-                                      productId: p.id,
-                                    ),
-                                    if (p != filteredProducts.last)
-                                      const SpaceHeight(24),
-                                  ],
+                              ...filteredProducts.map((p) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: _buildSemuaListCard(
+                                    p.id.toString(),
+                                    null,
+                                    p.category?.name ?? 'Pastry',
+                                    p.name,
+                                    _formatPrice(p.price),
+                                    p.imageUrl,
+                                    product: p,
+                                  ),
                                 );
                               }),
                             ],
@@ -1034,12 +1093,12 @@ class _DeliveryPageState extends State<DeliveryPage> {
     String subtitle,
     String price,
     String imagePath, {
-    int? productId,
+    Product? product,
   }) {
     final isFav = favoriteItems.contains(id);
     final isNetworkImage = imagePath.startsWith('http');
     return GestureDetector(
-      onTap: () => _onProductTapped(productId: productId),
+      onTap: () => _onProductTapped(productId: product?.id),
       child: Container(
         width: 358,
         margin: const EdgeInsets.only(right: 16),
@@ -1138,19 +1197,37 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Container(
-                        width: 29,
-                        height: 28,
-                        decoration: ShapeDecoration(
-                          color: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
+                      GestureDetector(
+                        onTap: () {
+                          if (product != null) {
+                            context.read<CartBloc>().add(
+                              AddToCartEvent(product),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${product.name} dimasukkan ke keranjang',
+                                ),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: 29,
+                          height: 28,
+                          decoration: ShapeDecoration(
+                            color: AppColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppColors.white,
-                          size: 18,
+                          child: const Icon(
+                            Icons.add,
+                            color: AppColors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ],
@@ -1171,11 +1248,11 @@ class _DeliveryPageState extends State<DeliveryPage> {
     String name,
     String price,
     String imagePath, {
-    int? productId,
+    Product? product,
   }) {
     final isNetworkImage = imagePath.startsWith('http');
     return GestureDetector(
-      onTap: () => _onProductTapped(productId: productId),
+      onTap: () => _onProductTapped(productId: product?.id),
       child: Container(
         width: 171,
         decoration: ShapeDecoration(
@@ -1254,19 +1331,37 @@ class _DeliveryPageState extends State<DeliveryPage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Container(
-                        width: 29,
-                        height: 28,
-                        decoration: ShapeDecoration(
-                          color: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
+                      GestureDetector(
+                        onTap: () {
+                          if (product != null) {
+                            context.read<CartBloc>().add(
+                              AddToCartEvent(product),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${product.name} dimasukkan ke keranjang',
+                                ),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: 29,
+                          height: 28,
+                          decoration: ShapeDecoration(
+                            color: AppColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.add,
-                          color: AppColors.white,
-                          size: 18,
+                          child: const Icon(
+                            Icons.add,
+                            color: AppColors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ],
@@ -1287,13 +1382,13 @@ class _DeliveryPageState extends State<DeliveryPage> {
     String subtitle,
     String priceString,
     String imagePath, {
-    int? productId,
+    Product? product,
   }) {
     final isFav = favoriteItems.contains(id);
     final isNetworkImage = imagePath.startsWith('http');
 
     return GestureDetector(
-      onTap: () => _onProductTapped(productId: productId),
+      onTap: () => _onProductTapped(productId: product?.id),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1391,17 +1486,33 @@ class _DeliveryPageState extends State<DeliveryPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const ShapeDecoration(
-                        color: AppColors.primary,
-                        shape: OvalBorder(),
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: AppColors.white,
-                        size: 20,
+                    GestureDetector(
+                      onTap: () {
+                        if (product != null) {
+                          context.read<CartBloc>().add(AddToCartEvent(product));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '${product.name} dimasukkan ke keranjang',
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const ShapeDecoration(
+                          color: AppColors.primary,
+                          shape: OvalBorder(),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],

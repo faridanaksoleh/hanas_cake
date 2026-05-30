@@ -34,6 +34,7 @@ import 'package:hanas_cake/domain/usecases/set_primary_address_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/address/address_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/address/address_event.dart';
 import 'package:hanas_cake/domain/entities/address.dart';
+import 'package:hanas_cake/presentation/blocs/cart/cart_bloc.dart';
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -377,6 +378,9 @@ class MyApp extends StatelessWidget {
             deleteAddressUseCase: deleteAddressUseCase,
             setPrimaryAddressUseCase: setPrimaryAddressUseCase,
           )..add(GetAddressesEvent()),
+        ),
+        BlocProvider(
+          create: (context) => CartBloc(),
         ),
       ],
       child: MaterialApp.router(

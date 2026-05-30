@@ -3,9 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
 import 'package:intl/intl.dart';
+import '../../domain/entities/product.dart';
 import '../blocs/product/product_bloc.dart';
 import '../blocs/product/product_event.dart';
 import '../blocs/product/product_state.dart';
+import '../blocs/cart/cart_bloc.dart';
+import '../blocs/cart/cart_event.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final bool isPickUp;
@@ -19,7 +22,7 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   String selectedSize = 'Large';
   String selectedSweetness = 'Less Sweet';
-  int quantity = 2;
+  int quantity = 1;
   bool isFavorite = false;
 
   @override
@@ -35,7 +38,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return formatter.format(price);
   }
 
-  void _showAddToCartBottomSheet(BuildContext context) {
+  void _showAddToCartBottomSheet(BuildContext context, Product product) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -95,13 +98,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         decoration: BoxDecoration(
                           color: AppColors.primaryMid,
                           borderRadius: BorderRadius.circular(8),
-                          image: const DecorationImage(
-                            image: AssetImage(
-                              'assets/images/croissant_mentega_zoom.png',
-                            ),
-                            fit: BoxFit.contain,
-                          ),
+                          image: product.imageUrl.startsWith('http')
+                              ? DecorationImage(
+                                  image: NetworkImage(product.imageUrl),
+                                  fit: BoxFit.contain,
+                                )
+                              : null,
                         ),
+                        child: !product.imageUrl.startsWith('http')
+                            ? const Center(child: Icon(Icons.image, color: Colors.grey, size: 28))
+                            : null,
                       ),
                       const SpaceWidth(16),
                       Expanded(
@@ -109,14 +115,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Croissant Mentega',
+                              product.name,
                               style: AppTextStyles.body.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SpaceHeight(2),
                             Text(
-                              'Large',
+                              '$quantity x ${_formatPrice(product.price)}',
                               style: AppTextStyles.micro.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -283,6 +289,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             backgroundColor: AppColors.white,
             body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
           );
+        }
+
+        // Extract product object for cart
+        Product? currentProduct;
+        if (state is ProductDetailLoaded) {
+          currentProduct = state.product;
         }
 
         return Scaffold(
@@ -549,7 +561,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () => _showAddToCartBottomSheet(context),
+                    onPressed: () {
+                      if (currentProduct != null) {
+                        // Dispatch AddToCartEvent ke CartBloc
+                        context.read<CartBloc>().add(
+                              AddToCartEvent(currentProduct, quantity: quantity),
+                            );
+                        _showAddToCartBottomSheet(context, currentProduct);
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
