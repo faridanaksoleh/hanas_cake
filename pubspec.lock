@@ -592,6 +592,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  midtrans_sdk:
+    dependency: "direct main"
+    description:
+      name: midtrans_sdk
+      sha256: "76ceac7e0f02f53fed2c7b5fc64774186281521183887c1e6eb378875bf5d82b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   mime:
     dependency: transitive
     description:

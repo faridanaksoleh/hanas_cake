@@ -4,7 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:midtrans_sdk/midtrans_sdk.dart';
 import 'package:hanas_cake/core/core.dart';
+import '../blocs/checkout/checkout_bloc.dart';
+import '../blocs/checkout/checkout_event.dart';
+import '../blocs/checkout/checkout_state.dart';
 import '../blocs/cart/cart_bloc.dart';
 import '../blocs/cart/cart_state.dart';
 import '../blocs/cart/cart_event.dart';
@@ -176,8 +180,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CartBloc, CartState>(
-      builder: (context, cartState) {
+    return BlocListener<CheckoutBloc, CheckoutState>(
+      listener: (context, state) async {
+        if (state is CheckoutLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          );
+        } else if (state is CheckoutError) {
+          Navigator.pop(context); // Close loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else if (state is CheckoutSuccess) {
+          Navigator.pop(context); // Close loading dialog
+          final midtrans = await MidtransSDK.init(
+            config: MidtransConfig(
+              clientKey: 'Mid-client-tgtMCpKtxtZT3ePk',
+              merchantBaseUrl: 'https://hanascake.syauqiebill.my.id/api/',
+            ),
+          );
+          
+          midtrans.setTransactionFinishedCallback((result) {
+            context.read<CartBloc>().add(ClearCartEvent());
+            GoRouter.of(context).go('/delivery'); // Sesuaikan rute home/menu
+          });
+
+          midtrans.startPaymentUiFlow(token: state.snapToken);
+        }
+      },
+      child: BlocBuilder<CartBloc, CartState>(
+        builder: (context, cartState) {
         return Scaffold(
           backgroundColor: AppColors.white,
           appBar: AppBar(
@@ -885,6 +924,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 };
 
                 debugPrint('PAYLOAD CHECKOUT: $payload');
+                context.read<CheckoutBloc>().add(SubmitCheckoutEvent(payload));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -905,6 +945,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ),
     );
-  });
+        },
+      ),
+    );
   }
 }

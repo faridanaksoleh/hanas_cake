@@ -35,6 +35,9 @@ import 'package:hanas_cake/presentation/blocs/address/address_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/address/address_event.dart';
 import 'package:hanas_cake/domain/entities/address.dart';
 import 'package:hanas_cake/presentation/blocs/cart/cart_bloc.dart';
+import 'package:hanas_cake/presentation/blocs/checkout/checkout_bloc.dart';
+import 'package:hanas_cake/data/datasources/order_remote_datasource.dart';
+import 'package:hanas_cake/data/repositories/order_repository_impl.dart';
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -134,6 +137,10 @@ class MyApp extends StatelessWidget {
     final updateAddressUseCase = UpdateAddressUseCase(addressRepository);
     final deleteAddressUseCase = DeleteAddressUseCase(addressRepository);
     final setPrimaryAddressUseCase = SetPrimaryAddressUseCase(addressRepository);
+
+    // Order/Checkout Dependencies
+    final orderRemoteDatasource = OrderRemoteDataSourceImpl(dio);
+    final orderRepository = OrderRepositoryImpl(orderRemoteDatasource);
 
     final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -383,6 +390,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => CartBloc(),
+        ),
+        BlocProvider(
+          create: (context) => CheckoutBloc(orderRepository),
         ),
       ],
       child: MaterialApp.router(
