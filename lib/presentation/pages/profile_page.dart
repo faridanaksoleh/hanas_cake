@@ -50,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: _buildProfileCard(context),
                     ),
                   ),
-                  const SpaceHeight(16),
+                  const SpaceHeight(14),
                   // Pengaturan section
                   _buildMenuSection(children: [
                     _buildMenuItem(
@@ -67,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () => GoRouter.of(context).push('/settings'),
                     ),
                   ]),
-                  const SpaceHeight(16),
+                  const SpaceHeight(14),
                   // Informasi & Sosial Media section
                   _buildMenuSection(children: [
                     _buildMenuItem(
@@ -99,13 +99,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ]),
-                  const SpaceHeight(16),
+                  const SpaceHeight(14),
                   // Help Center section
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: _buildHelpCenter(),
                   ),
-                  const SpaceHeight(24),
                 ],
               ),
             ),
@@ -140,15 +139,18 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            String name = 'RINA';
-            String phone = '+62999999';
+            String name = 'Pelanggan';
+            String phone = '-';
             
-            if (state is ProfileLoaded) {
+            if (state is AuthLoading) {
+              name = 'Memuat...';
+              phone = 'Memuat...';
+            } else if (state is ProfileLoaded) {
               name = state.user.name;
-              phone = state.user.phone ?? phone;
+              phone = state.user.phone ?? '-';
             } else if (state is ProfileUpdateSuccess) {
               name = state.user.name;
-              phone = state.user.phone ?? phone;
+              phone = state.user.phone ?? '-';
             } else if (state is AuthSuccess) {
               name = state.user.name;
             }
@@ -235,7 +237,7 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: onTap ?? () {},
       borderRadius: isLast ? const BorderRadius.vertical(bottom: Radius.circular(12)) : BorderRadius.zero,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           border: isLast
               ? null
@@ -285,7 +287,7 @@ class _ProfilePageState extends State<ProfilePage> {
           onTap: () {},
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12),
