@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../blocs/auth/auth_state.dart';
 
 class HomePage extends StatefulWidget {
   final bool hasActiveOrder;
@@ -62,18 +65,33 @@ class _HomePageState extends State<HomePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hi Rina, Selamat Datang!',
-              style: AppTextStyles.display.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
-            ),
-          ],
+        Expanded(
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              String userName = 'Pelanggan';
+              if (state is AuthSuccess) {
+                userName = state.user.name;
+              } else if (state is ProfileLoaded) {
+                userName = state.user.name;
+              }
+              
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hi $userName, Selamat Datang!',
+                    style: AppTextStyles.display.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
         GestureDetector(
           onTap: () {
@@ -219,7 +237,7 @@ class _HomePageState extends State<HomePage> {
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: AppColors.primaryLight,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.primary, width: 1.5),
         ),
         child: Stack(
@@ -272,7 +290,7 @@ class _HomePageState extends State<HomePage> {
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: AppColors.primaryMid,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.primaryLight, width: 1.5),
         ),
         child: Stack(
@@ -328,12 +346,11 @@ class _HomePageState extends State<HomePage> {
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 1),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.06),
-              blurRadius: 12,
+              color: AppColors.textPrimary.withValues(alpha: 0.05),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -402,7 +419,7 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: AppColors.textPrimary.withValues(alpha: 0.05),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -463,8 +480,8 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.06),
-                  blurRadius: 12,
+                  color: AppColors.textPrimary.withValues(alpha: 0.05),
+                  blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
