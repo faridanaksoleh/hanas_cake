@@ -15,7 +15,7 @@ class LandingPage extends StatelessWidget {
           children: [
             // Gambar Roti dengan Gradient Overlay
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.55,
+              height: MediaQuery.of(context).size.height * 0.50,
               width: double.infinity,
               child: Stack(
                 fit: StackFit.expand,
@@ -47,12 +47,12 @@ class LandingPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SpaceHeight(MediaQuery.of(context).size.height * 0.40),
+                SpaceHeight(MediaQuery.of(context).size.height * 0.35),
                 Image.asset(
                   'assets/images/home.png',
                   width: 140,
                 ),
-                const SpaceHeight(16),
+                const SpaceHeight(12),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -76,7 +76,7 @@ class LandingPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SpaceHeight(48),
+                const SpaceHeight(32),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -85,7 +85,7 @@ class LandingPage extends StatelessWidget {
                         text: 'Daftar',
                         onPressed: () => GoRouter.of(context).push('/register'),
                       ),
-                      const SpaceHeight(16),
+                      const SpaceHeight(12),
                       AppButton.outline(
                         text: 'Masuk',
                         onPressed: () => GoRouter.of(context).push('/login'),
@@ -93,7 +93,7 @@ class LandingPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SpaceHeight(40),
+                const SpaceHeight(24),
               ],
             ),
           ],
