@@ -36,6 +36,7 @@ import 'package:hanas_cake/presentation/blocs/address/address_event.dart';
 import 'package:hanas_cake/domain/entities/address.dart';
 import 'package:hanas_cake/presentation/blocs/cart/cart_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/checkout/checkout_bloc.dart';
+import 'package:hanas_cake/presentation/blocs/order_history/order_history_bloc.dart';
 import 'package:hanas_cake/data/datasources/order_remote_datasource.dart';
 import 'package:hanas_cake/data/repositories/order_repository_impl.dart';
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
@@ -136,7 +137,9 @@ class MyApp extends StatelessWidget {
     final addAddressUseCase = AddAddressUseCase(addressRepository);
     final updateAddressUseCase = UpdateAddressUseCase(addressRepository);
     final deleteAddressUseCase = DeleteAddressUseCase(addressRepository);
-    final setPrimaryAddressUseCase = SetPrimaryAddressUseCase(addressRepository);
+    final setPrimaryAddressUseCase = SetPrimaryAddressUseCase(
+      addressRepository,
+    );
 
     // Order/Checkout Dependencies
     final orderRemoteDatasource = OrderRemoteDataSourceImpl(dio);
@@ -151,11 +154,12 @@ class MyApp extends StatelessWidget {
       redirect: (context, state) async {
         final token = await authLocalDatasource.getToken();
         final isAuthenticated = token != null && token.isNotEmpty;
-        
-        final isAuthRoute = state.matchedLocation == '/login' || 
-                            state.matchedLocation == '/register' || 
-                            state.matchedLocation == '/landing';
-                            
+
+        final isAuthRoute =
+            state.matchedLocation == '/login' ||
+            state.matchedLocation == '/register' ||
+            state.matchedLocation == '/landing';
+
         final isSplash = state.matchedLocation == '/';
 
         if (!isAuthenticated && !isAuthRoute && !isSplash) {
@@ -200,7 +204,11 @@ class MyApp extends StatelessWidget {
             final isPickUp = extra?['isPickUp'] as bool? ?? false;
             final productId = extra?['productId'] as int?;
             final location = extra?['location'];
-            return ProductDetailPage(isPickUp: isPickUp, productId: productId, location: location);
+            return ProductDetailPage(
+              isPickUp: isPickUp,
+              productId: productId,
+              location: location,
+            );
           },
         ),
         GoRoute(
@@ -208,7 +216,8 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             final extra = state.extra as Map<String, dynamic>?;
             final isPickUp = extra?['isPickUp'] as bool? ?? false;
-            final location = extra?['location']; // Akan dilempar dari pick_up_page
+            final location =
+                extra?['location']; // Akan dilempar dari pick_up_page
             return CheckoutPage(isPickUp: isPickUp, location: location);
           },
         ),
@@ -293,9 +302,8 @@ class MyApp extends StatelessWidget {
                       path: 'detail',
                       parentNavigatorKey: _rootNavigatorKey,
                       builder: (context, state) {
-                        final extra = state.extra as Map<String, dynamic>?;
-                        final isPickUp = extra?['isPickUp'] as bool? ?? false;
-                        return OrderDetailPage(isPickUp: isPickUp);
+                        final orderData = state.extra as Map<String, dynamic>? ?? {};
+                        return OrderDetailPage(order: orderData);
                       },
                     ),
                   ],
@@ -335,9 +343,8 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/add-address',
-          builder: (context, state) => AddAddressPage(
-            address: state.extra as Address?,
-          ),
+          builder: (context, state) =>
+              AddAddressPage(address: state.extra as Address?),
         ),
         GoRoute(
           path: '/payment-method',
@@ -388,12 +395,9 @@ class MyApp extends StatelessWidget {
             setPrimaryAddressUseCase: setPrimaryAddressUseCase,
           )..add(GetAddressesEvent()),
         ),
-        BlocProvider(
-          create: (context) => CartBloc(),
-        ),
-        BlocProvider(
-          create: (context) => CheckoutBloc(orderRepository),
-        ),
+        BlocProvider(create: (context) => CartBloc()),
+        BlocProvider(create: (context) => CheckoutBloc(orderRepository)),
+        BlocProvider(create: (context) => OrderHistoryBloc(orderRepository)),
       ],
       child: MaterialApp.router(
         title: "Hana's Cake",

@@ -3,11 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart'; // 🔥 WAJIB HUKUMNYA DIPANGGIL!
 
+import 'package:intl/intl.dart';
+
 class OrderDetailPage extends StatefulWidget {
   // 🔥 BEST PRACTICE: Parameter dinamis untuk flow
-  final bool isPickUp;
+  final Map<String, dynamic> order;
 
-  const OrderDetailPage({super.key, this.isPickUp = false});
+  const OrderDetailPage({super.key, this.order = const {}});
 
   @override
   State<OrderDetailPage> createState() => _OrderDetailPageState();
@@ -20,6 +22,51 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final order = widget.order;
+    final isPickUp = order['delivery_type'] == 'pickup';
+
+    // Parse harga
+    double grandTotal = 0;
+    if (order['total'] != null) {
+      grandTotal = double.tryParse(order['total'].toString()) ?? 0;
+    }
+    
+    double shippingCost = 0;
+    if (order['shipping_price'] != null) {
+      shippingCost = double.tryParse(order['shipping_price'].toString()) ?? 0;
+    }
+    
+    final items = order['items'] as List<dynamic>? ?? [];
+    
+    final subtotalProduk = items.fold<num>(0, (sum, item) {
+      final qtyRaw = item['jumlah'];
+      final priceRaw = item['harga_satuan'];
+      final qty = qtyRaw is int ? qtyRaw : (int.tryParse(qtyRaw?.toString() ?? '1') ?? 1);
+      final price = priceRaw is num ? priceRaw : (double.tryParse(priceRaw?.toString() ?? '0') ?? 0);
+      return sum + (price * qty);
+    }).toDouble();
+    
+    final taxAndService = grandTotal - (subtotalProduk + shippingCost);
+
+    // Alamat
+    String addressName = '';
+    String addressDetail = '';
+    if (isPickUp) {
+      final storeDetails = order['store_details'] ?? {};
+      addressName = storeDetails['name'] ?? "Hana's Bakery";
+      addressDetail = storeDetails['address'] ?? 'Alamat toko tidak tersedia';
+    } else {
+      addressName = order['shipping_name'] ?? 'Penerima';
+      addressDetail = order['shipping_address'] ?? 'Alamat pengiriman tidak tersedia';
+    }
+    
+    final orderNumber = order['merchant_order_id'] ?? '-';
+    
+    final createdAt = order['tanggal'] != null 
+        ? DateFormat('dd MMM yyyy HH:mm').format(DateTime.parse(order['tanggal']).toLocal())
+        : '-';
+    final status = order['status'] ?? 'Sedang disiapkan';
+
     return Scaffold(
       backgroundColor: AppColors.surface, // 🔥 Pake Core
       appBar: AppBar(
@@ -33,11 +80,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             size: 20,
           ),
           onPressed: () {
-            // 🔥 FIX AMNESIA: Balik ke home dengan membawa 2 state sekaligus!
-            GoRouter.of(context).go('/home', extra: {
-              'hasActiveOrder': true,
-              'isPickUp': widget.isPickUp,
-            });
+            GoRouter.of(context).pop();
           },
         ),
         title: Text(
@@ -70,7 +113,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: widget.isPickUp
+              children: isPickUp
                   ? [
                       _buildProgressIcon(
                         'assets/icons/receipt.svg',
@@ -139,7 +182,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           ),
                         ),
                         // 🔥 HANYA MUNCUL JIKA DELIVERY
-                        if (!widget.isPickUp) ...[
+                        if (!isPickUp) ...[
                           Expanded(
                             child: Container(width: 1, color: AppColors.border),
                           ),
@@ -162,7 +205,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.isPickUp
+                            isPickUp
                                 ? 'Diambil di'
                                 : 'Diambil dari', // 🔥 ADAPTIF
                             style: AppTextStyles.micro.copyWith(
@@ -171,14 +214,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           ),
                           const SpaceHeight(4),
                           Text(
-                            'Jonggol dayeuh',
+                            isPickUp ? addressName : 'Cabang Utama',
                             style: AppTextStyles.body.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SpaceHeight(4),
                           Text(
-                            'Jl.Sukanegara, No. 99 Dukuh, Kec. seukanegara, Kabupaten Bogor, Jawa Barat, Jonggol , KOTA BOGOR, JAWA BARAT',
+                            isPickUp ? addressDetail : 'Jl. Makassar No. 1, Kota Makassar',
                             style: AppTextStyles.micro.copyWith(
                               color: AppColors.textSecondary,
                               height: 1.4,
@@ -186,7 +229,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           ),
 
                           // 🔥 NODE KEDUA: HANYA MUNCUL JIKA DELIVERY
-                          if (!widget.isPickUp) ...[
+                          if (!isPickUp) ...[
                             const SpaceHeight(20),
                             Text(
                               'Diantar ke',
@@ -196,7 +239,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             ),
                             const SpaceHeight(4),
                             Text(
-                              'Jl.Nakula Sadewa Raya, No. 99 Dukuh, Kec. sidomukti, Kota Salatiga, Jawa Tengah, SIDOMUKTI, KOTA SALATIGA, JAWA TENGAH',
+                              addressDetail,
                               style: AppTextStyles.micro.copyWith(
                                 fontWeight: FontWeight.w600,
                                 height: 1.4,
@@ -204,7 +247,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             ),
                             const SpaceHeight(8),
                             Text(
-                              'Rina - (+62) 888-8888-8888',
+                              addressName,
                               style: AppTextStyles.micro.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -239,88 +282,105 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   const SpaceHeight(16),
 
                   // Item Menu
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryMid,
-                          borderRadius: BorderRadius.circular(8),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/croissant.png'),
-                            fit: BoxFit.contain,
+                  ...items.map((item) {
+                    final productId = item['product_id'];
+                    
+                    String getProductName(dynamic id) {
+                      if (id == 1 || id == '1') return 'Croissant Mentega';
+                      if (id == 2 || id == '2') return 'Donut Matcha Cih';
+                      if (id == 3 || id == '3') return 'Red Velvet Parfait';
+                      if (id == 4 || id == '4') return 'Butter Pastry';
+                      return 'Menu Hanas Cake';
+                    }
+                    
+                    final productName = getProductName(productId);
+                    final qtyRaw = item['jumlah'];
+                    final priceRaw = item['harga_satuan'];
+                    final quantity = qtyRaw is int ? qtyRaw : (int.tryParse(qtyRaw?.toString() ?? '1') ?? 1);
+                    final price = priceRaw is num ? priceRaw : (double.tryParse(priceRaw?.toString() ?? '0') ?? 0);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryMid,
+                              borderRadius: BorderRadius.circular(8),
+                              image: const DecorationImage(
+                                image: AssetImage('assets/images/croissant.png'),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SpaceWidth(12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                          const SpaceWidth(12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('2', style: AppTextStyles.body),
-                                const SpaceWidth(4),
-                                Text(
-                                  'x',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                const SpaceWidth(4),
-                                Expanded(
-                                  child: Text(
-                                    'Croissant Mentega',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.w600,
+                                Row(
+                                  children: [
+                                    Text('$quantity', style: AppTextStyles.body),
+                                    const SpaceWidth(4),
+                                    Text(
+                                      'x',
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
-                                  ),
+                                    const SpaceWidth(4),
+                                    Expanded(
+                                      child: Text(
+                                        productName,
+                                        style: AppTextStyles.body.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const SpaceHeight(2),
-                            Text(
-                              'Large',
-                              style: AppTextStyles.micro.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                          ),
+                          Text(
+                            NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(price * quantity),
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Rp 15.000',
-                        style: AppTextStyles.body.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  }),
                   const SpaceHeight(16),
                   const Divider(height: 1, color: AppColors.border),
                   const SpaceHeight(16),
 
                   // Rincian Biaya
                   _buildPriceRow(
-                    'Subtotal Pesanan (2 menu)',
-                    'Rp 30.000',
+                    'Subtotal Pesanan (${items.length} menu)',
+                    NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(subtotalProduk),
                     isBold: true,
                   ),
                   const SpaceHeight(8),
 
                   // 🔥 HILANGKAN BIAYA KIRIM JIKA PICK UP
-                  if (!widget.isPickUp) ...[
+                  if (!isPickUp) ...[
                     _buildPriceRow(
                       'Biaya Pengiriman',
-                      'Rp 7.500',
+                      NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(shippingCost),
                       isSubtext: true,
                     ),
                     const SpaceHeight(8),
                   ],
 
-                  _buildPriceRow('Biaya Layanan', 'Rp 500', isSubtext: true),
+                  _buildPriceRow(
+                    'Biaya Layanan / Pajak',
+                    NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(taxAndService > 0 ? taxAndService : 0),
+                    isSubtext: true,
+                  ),
                   const SpaceHeight(16),
 
                   // Total
@@ -334,7 +394,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         children: [
                           Text(
                             // 🔥 TOTAL HARGA ADAPTIF
-                            widget.isPickUp ? 'Rp 30.500' : 'Rp 38.000',
+                            NumberFormat.currency(locale: 'id', symbol: 'Rp ', decimalDigits: 0).format(grandTotal),
                             style: AppTextStyles.h1.copyWith(fontSize: 16),
                           ),
                           const SpaceHeight(2),
@@ -372,15 +432,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   ),
                   const SpaceHeight(16),
 
-                  _buildInfoRow('Catatan Tambahan', 'Tidak ada'),
+                  _buildInfoRow('Catatan Tambahan', order['notes'] ?? 'Tidak ada'),
                   const SpaceHeight(12),
-                  _buildInfoRow('No. Pesanan', '182347827485234987'),
+                  _buildInfoRow('No. Pesanan', orderNumber),
                   const SpaceHeight(12),
-                  _buildInfoRow('Waktu Pemesanan', '20 Mei 2026 11:54'),
+                  _buildInfoRow('Status', status),
                   const SpaceHeight(12),
-                  _buildInfoRow('Waktu Pembayaran', '20 Mei 2026 12:26'),
+                  _buildInfoRow('Waktu Pemesanan', createdAt),
                   const SpaceHeight(12),
-                  _buildInfoRow('Pembayaran', 'Qris'),
+                  _buildInfoRow('Pembayaran', order['payment_method'] ?? 'Online Payment'),
 
                   const SpaceHeight(16),
                   const Divider(height: 1, color: AppColors.border),
@@ -416,7 +476,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   // 🔥 Membawa parameter isPickUp jika pesan lagi
                   GoRouter.of(
                     context,
-                  ).push('/checkout', extra: {'isPickUp': widget.isPickUp});
+                  ).push('/checkout', extra: {'isPickUp': isPickUp});
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

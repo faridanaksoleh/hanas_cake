@@ -200,10 +200,7 @@ class PaymentSuccessPage extends StatelessWidget {
                 height: 52,
                 child: OutlinedButton(
                   onPressed: () {
-                    context.go('/home', extra: {
-                      'hasActiveOrder': true, 
-                      'isPickUp': isPickUp,
-                    });
+                    context.go('/home');
                   },
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.primary),
@@ -278,10 +275,8 @@ class PaymentSuccessPage extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Sementara arahkan ke order detail
-                    GoRouter.of(
-                      context,
-                    ).push('/order/detail', extra: {'isPickUp': isPickUp});
+                    // Arahkan ke daftar riwayat pesanan
+                    GoRouter.of(context).go('/order');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -305,10 +300,7 @@ class PaymentSuccessPage extends StatelessWidget {
                 height: 52,
                 child: OutlinedButton(
                   onPressed: () {
-                    context.go('/home', extra: {
-                      'hasActiveOrder': true, 
-                      'isPickUp': isPickUp,
-                    });
+                    context.go('/home');
                   },
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.primary),

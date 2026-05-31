@@ -14,4 +14,13 @@ class OrderRepositoryImpl implements OrderRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<dynamic>> getOrders() async {
+    try {
+      return await remoteDataSource.getOrders();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

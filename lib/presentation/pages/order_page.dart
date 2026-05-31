@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:intl/intl.dart';
+import '../blocs/order_history/order_history_bloc.dart';
+import '../blocs/order_history/order_history_event.dart';
+import '../blocs/order_history/order_history_state.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -13,6 +18,12 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   // 🔥 Ubah jadi true untuk tes tampilan "Belum Ada Riwayat Pesanan"
   bool isEmpty = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<OrderHistoryBloc>().add(FetchOrderHistoryEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +66,23 @@ class _OrderPageState extends State<OrderPage> {
           const SpaceWidth(8),
         ],
       ),
-      body: isEmpty ? _buildEmptyState() : _buildOrderList(),
+      body: BlocBuilder<OrderHistoryBloc, OrderHistoryState>(
+        builder: (context, state) {
+          if (state is OrderHistoryLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
+          } else if (state is OrderHistoryLoaded) {
+            if (state.orders.isEmpty) {
+              return _buildEmptyState();
+            }
+            return _buildOrderList(state.orders);
+          } else if (state is OrderHistoryError) {
+            return Center(child: Text(state.message));
+          }
+          return const SizedBox();
+        },
+      ),
     );
   }
 
@@ -71,31 +98,49 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildOrderList() {
-    // 🔥 DATA DUMMY UNTUK TES UI BERDASARKAN FIGMA
+  Widget _buildOrderList(List<dynamic> orders) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: 3,
+      itemCount: orders.length,
       separatorBuilder: (context, index) => const SpaceHeight(16),
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildOrderCard(status: 'Sedang disiapkan', isPickUp: false);
-        } else if (index == 1) {
-          return _buildOrderCard(status: 'Selesai', isPickUp: true);
-        } else {
-          return _buildOrderCard(status: 'Selesai', isPickUp: false);
-        }
+        final order = orders[index];
+        return _buildOrderCard(order: order);
       },
     );
   }
 
   // 🔥 FUNGSI BUILDER KARTU DINAMIS
-  Widget _buildOrderCard({required String status, required bool isPickUp}) {
+  Widget _buildOrderCard({required dynamic order}) {
+    final status = order['status'] ?? 'Sedang disiapkan';
+    final isPickUp = order['delivery_type'] == 'pickup';
+    
+    // Parse total from String to double
+    double grandTotal = 0;
+    if (order['total'] != null) {
+      grandTotal = double.tryParse(order['total'].toString()) ?? 0;
+    }
+
+    final items = order['items'] as List<dynamic>? ?? [];
+    final title = order['merchant_order_id'] ?? 'Pesanan';
+    
+    final totalItems = items.fold<int>(0, (sum, item) {
+      final jumlah = item['jumlah'];
+      if (jumlah is int) return sum + jumlah;
+      if (jumlah is String) return sum + (int.tryParse(jumlah) ?? 1);
+      return sum + 1;
+    });
+
+    final createdAt = order['tanggal'] != null 
+        ? DateFormat('dd MMM yyyy').format(DateTime.parse(order['tanggal']).toLocal())
+        : 'Hari ini';
+
     return GestureDetector(
-      // 🔥 FIX: Arahkan ke Detail Pesanan dengan membawa state yang benar
-      onTap: () => GoRouter.of(
-        context,
-      ).push('/order/detail', extra: {'isPickUp': isPickUp}),
+      // 🔥 FIX: Mengirim seluruh data order melalui extra
+      onTap: () {
+        // Karena route di main.dart adalah /order/detail, maka:
+        GoRouter.of(context).push('/order/detail', extra: order);
+      },
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -112,10 +157,12 @@ class _OrderPageState extends State<OrderPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Croissant Mentega...',
+                  title,
                   style: AppTextStyles.body.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Row(
                   children: [
@@ -126,7 +173,7 @@ class _OrderPageState extends State<OrderPage> {
                     ),
                     const SpaceWidth(8),
                     Text(
-                      '21 Apr 2026',
+                      createdAt,
                       style: AppTextStyles.micro.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -153,14 +200,18 @@ class _OrderPageState extends State<OrderPage> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Rp 15.000',
+                      NumberFormat.currency(
+                        locale: 'id',
+                        symbol: 'Rp ',
+                        decimalDigits: 0,
+                      ).format(grandTotal),
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SpaceHeight(2),
                     Text(
-                      '1 menu',
+                      '$totalItems menu',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -194,10 +245,11 @@ class _OrderPageState extends State<OrderPage> {
                           ? 'assets/icons/tote_simple.svg'
                           : 'assets/icons/moped.svg',
                       width: 16,
-                      colorFilter: const ColorFilter.mode(
+                      // Hapus colorFilter agar ikon moped.svg kembali ke warna aslinya (biru)
+                      colorFilter: isPickUp ? const ColorFilter.mode(
                         AppColors.primary,
                         BlendMode.srcIn,
-                      ),
+                      ) : null,
                     ),
                     const SpaceWidth(4),
                     Text(

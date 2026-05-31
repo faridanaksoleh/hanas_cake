@@ -44,67 +44,11 @@ class _HomePageState extends State<HomePage> {
                   _buildPreorderBanner(),
                   const SpaceHeight(32),
                   _buildCustomerService(),
-                  if (widget.hasActiveOrder) const SpaceHeight(80),
                 ],
               ),
             ),
             // 👇 Active order banner dengan navigasi dinamis (fitur Kode 1)
-            if (widget.hasActiveOrder)
-              Positioned(
-                bottom: 16,
-                left: 16,
-                right: 16,
-                child: GestureDetector(
-                  onTap: () {
-                    // 🔥 Navigasi dinamis: bawa status isPickUp dari parameter
-                    GoRouter.of(context).push(
-                      '/order/detail',
-                      extra: {'isPickUp': widget.isPickUpActiveOrder},
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.textPrimary.withValues(alpha: 0.15),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          color: AppColors.white,
-                          size: 22,
-                        ),
-                        const SpaceWidth(12),
-                        Expanded(
-                          child: Text(
-                            'Pesananmu akan siap dalam 00:19:33 lagi',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          color: AppColors.white,
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            // 🔥 FITUR DIBATALKAN PADA VERSI INI KARENA KETERBATASAN WAKTU & API REAL-TIME
           ],
         ),
       ),
@@ -685,10 +629,7 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(
-            top: 6,
-            right: 12,
-          ),
+          margin: const EdgeInsets.only(top: 6, right: 12),
           width: 6,
           height: 6,
           decoration: const BoxDecoration(

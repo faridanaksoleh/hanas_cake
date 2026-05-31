@@ -209,7 +209,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           
           midtrans.setTransactionFinishedCallback((result) {
             context.read<CartBloc>().add(ClearCartEvent());
-            GoRouter.of(context).go('/delivery'); // Sesuaikan rute home/menu
+            GoRouter.of(context).go('/payment-success', extra: {'isPickUp': widget.isPickUp});
           });
 
           midtrans.startPaymentUiFlow(token: state.snapToken);
