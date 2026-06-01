@@ -43,13 +43,14 @@ class GetProfileEvent extends AuthEvent {}
 
 class UpdateProfileEvent extends AuthEvent {
   final String? name;
+  final String? email;
   final String? phone;
   final String? avatarPath;
 
-  const UpdateProfileEvent({this.name, this.phone, this.avatarPath});
+  const UpdateProfileEvent({this.name, this.email, this.phone, this.avatarPath});
 
   @override
-  List<Object> get props => [name ?? '', phone ?? '', avatarPath ?? ''];
+  List<Object> get props => [name ?? '', email ?? '', phone ?? '', avatarPath ?? ''];
 }
 
 class ChangePasswordEvent extends AuthEvent {

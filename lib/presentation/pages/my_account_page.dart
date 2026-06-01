@@ -15,7 +15,7 @@ class MyAccountPage extends StatefulWidget {
 }
 
 class _MyAccountPageState extends State<MyAccountPage> {
-  final _usernameController = TextEditingController(text: 'RINA');
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _tglLahirController = TextEditingController();
   final _jenisKelaminController = TextEditingController();
@@ -24,6 +24,16 @@ class _MyAccountPageState extends State<MyAccountPage> {
   @override
   void initState() {
     super.initState();
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthSuccess) {
+      _usernameController.text = authState.user.name;
+      _emailController.text = authState.user.email;
+      _teleponController.text = authState.user.phone ?? '';
+    } else if (authState is ProfileLoaded) {
+      _usernameController.text = authState.user.name;
+      _emailController.text = authState.user.email;
+      _teleponController.text = authState.user.phone ?? '';
+    }
     context.read<AuthBloc>().add(GetProfileEvent());
   }
 
@@ -49,23 +59,32 @@ class _MyAccountPageState extends State<MyAccountPage> {
             const SnackBar(content: Text('Profil berhasil diperbarui')),
           );
         } else if (state is AuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
 
         if (state is ProfileLoaded) {
-          _usernameController.text = state.user.name;
-          _emailController.text = state.user.email;
-          _teleponController.text = state.user.phone ?? '';
+          if (_usernameController.text.isEmpty)
+            _usernameController.text = state.user.name;
+          if (_emailController.text.isEmpty)
+            _emailController.text = state.user.email;
+          if (_teleponController.text.isEmpty)
+            _teleponController.text = state.user.phone ?? '';
         } else if (state is ProfileUpdateSuccess) {
-          _usernameController.text = state.user.name;
-          _emailController.text = state.user.email;
-          _teleponController.text = state.user.phone ?? '';
+          if (_usernameController.text.isEmpty)
+            _usernameController.text = state.user.name;
+          if (_emailController.text.isEmpty)
+            _emailController.text = state.user.email;
+          if (_teleponController.text.isEmpty)
+            _teleponController.text = state.user.phone ?? '';
         } else if (state is AuthSuccess) {
-          _usernameController.text = state.user.name;
-          _emailController.text = state.user.email;
-          _teleponController.text = state.user.phone ?? '';
+          if (_usernameController.text.isEmpty)
+            _usernameController.text = state.user.name;
+          if (_emailController.text.isEmpty)
+            _emailController.text = state.user.email;
+          if (_teleponController.text.isEmpty)
+            _teleponController.text = state.user.phone ?? '';
         }
       },
       builder: (context, state) {
@@ -104,7 +123,10 @@ class _MyAccountPageState extends State<MyAccountPage> {
         child: IconButton(
           icon: SvgPicture.asset(
             Assets.icons.caretLeft,
-            colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.primary,
+              BlendMode.srcIn,
+            ),
             width: 22,
             height: 22,
           ),
@@ -147,43 +169,38 @@ class _MyAccountPageState extends State<MyAccountPage> {
         ),
         const SpaceHeight(16),
         // Avatar with edit button
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CircleAvatar(
-              radius: 52,
-              backgroundColor: AppColors.primaryMid,
-              child: const Icon(
-                Icons.person_rounded,
-                size: 56,
-                color: AppColors.primaryLight,
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryMid,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.edit,
-                  size: 15,
-                  color: AppColors.primary,
+        GestureDetector(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Fitur ubah foto profil akan hadir di versi 2.0!',
                 ),
               ),
-            ),
-          ],
+            );
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              CircleAvatar(
+                radius: 52,
+                backgroundColor: AppColors.primaryMid,
+                backgroundImage: const AssetImage('assets/images/pp.png'),
+              ),
+              Positioned(
+                bottom: -10,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/icons/pencil.svg',
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -240,20 +257,12 @@ class _MyAccountPageState extends State<MyAccountPage> {
     );
   }
 
-  /// Pensil edit suffix — lingkaran kecil coklat muda
+  /// Pensil edit suffix
   Widget _editIcon() {
     return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: AppColors.primaryMid,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.edit,
-        size: 14,
-        color: AppColors.primary,
-      ),
+      width: 24,
+      alignment: Alignment.center,
+      child: SvgPicture.asset('assets/icons/pencil.svg', width: 30, height: 30),
     );
   }
 
@@ -275,10 +284,14 @@ class _MyAccountPageState extends State<MyAccountPage> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.delete_outline_rounded,
-                  color: AppColors.dangerText,
-                  size: 20,
+                SvgPicture.asset(
+                  'assets/icons/trash_outline.svg',
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.dangerText,
+                    BlendMode.srcIn,
+                  ),
+                  width: 20,
+                  height: 20,
                 ),
                 const SpaceWidth(8),
                 Text(
@@ -296,10 +309,13 @@ class _MyAccountPageState extends State<MyAccountPage> {
         // Simpan — hijau solid, radius 0
         GestureDetector(
           onTap: () {
-            context.read<AuthBloc>().add(UpdateProfileEvent(
-              name: _usernameController.text,
-              phone: _teleponController.text,
-            ));
+            context.read<AuthBloc>().add(
+              UpdateProfileEvent(
+                name: _usernameController.text,
+                email: _emailController.text,
+                phone: _teleponController.text,
+              ),
+            );
           },
           child: Container(
             width: double.infinity,

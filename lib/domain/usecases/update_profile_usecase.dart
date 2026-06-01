@@ -8,7 +8,7 @@ class UpdateProfileUseCase {
 
   UpdateProfileUseCase(this.repository);
 
-  Future<Either<Failure, User>> execute({String? name, String? phone, String? avatarPath}) {
-    return repository.updateProfile(name: name, phone: phone, avatarPath: avatarPath);
+  Future<Either<Failure, User>> execute({String? name, String? email, String? phone, String? avatarPath}) {
+    return repository.updateProfile(name: name, email: email, phone: phone, avatarPath: avatarPath);
   }
 }

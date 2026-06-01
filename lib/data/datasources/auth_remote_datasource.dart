@@ -87,11 +87,12 @@ class AuthRemoteDatasource {
     }
   }
 
-  Future<UserModel> updateProfile({String? name, String? phone, String? avatarPath}) async {
+  Future<UserModel> updateProfile({String? name, String? email, String? phone, String? avatarPath}) async {
     try {
       final formData = FormData();
 
       if (name != null) formData.fields.add(MapEntry('name', name));
+      if (email != null) formData.fields.add(MapEntry('email', email));
       if (phone != null) formData.fields.add(MapEntry('phone', phone));
       if (avatarPath != null) {
         formData.files.add(MapEntry(

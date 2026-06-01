@@ -73,6 +73,12 @@ class _HomePageState extends State<HomePage> {
                 userName = state.user.name;
               } else if (state is ProfileLoaded) {
                 userName = state.user.name;
+              } else if (state is ProfileUpdateSuccess) {
+                userName = state.user.name;
+              }
+              
+              if (userName.trim().isEmpty) {
+                userName = 'Pelanggan';
               }
               
               return Column(

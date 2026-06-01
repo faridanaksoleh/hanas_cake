@@ -82,6 +82,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       final result = await updateProfileUseCase.execute(
         name: event.name,
+        email: event.email,
         phone: event.phone,
         avatarPath: event.avatarPath,
       );

@@ -95,10 +95,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> updateProfile({String? name, String? phone, String? avatarPath}) async {
+  Future<Either<Failure, User>> updateProfile({String? name, String? email, String? phone, String? avatarPath}) async {
     try {
       final userModel = await remoteDatasource.updateProfile(
         name: name,
+        email: email,
         phone: phone,
         avatarPath: avatarPath,
       );

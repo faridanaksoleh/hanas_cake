@@ -20,7 +20,7 @@ class AppColors {
   static const Color successBg = Color(0xFFDCFCE7);
   static const Color warningText = Color(0xFF92400E);
   static const Color warningBg = Color(0xFFFEF3C7);
-  static const Color dangerText = Color(0xFF991B1B);
+  static const Color dangerText = Color(0xFFFF3B30);
   static const Color dangerBg = Color(0xFFFEE2E2);
 
   // TEXT

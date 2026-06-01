@@ -161,11 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: AppColors.primaryMid,
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: AppColors.primaryLight,
-                    size: 32,
-                  ),
+                  backgroundImage: const AssetImage('assets/images/pp.png'),
                 ),
                 const SpaceWidth(14),
                 // Name + phone
