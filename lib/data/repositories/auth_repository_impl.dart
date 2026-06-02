@@ -130,5 +130,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await remoteDatasource.deleteAccount();
+      await localDatasource.removeToken();
+      return const Right(null);
+    } catch (e) {
+      await localDatasource.removeToken();
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
 

@@ -52,3 +52,5 @@ class ProfileUpdateSuccess extends AuthState {
 
 class PasswordChangeSuccess extends AuthState {}
 
+class DeleteAccountSuccess extends AuthState {}
+

@@ -65,3 +65,5 @@ class ChangePasswordEvent extends AuthEvent {
   @override
   List<Object> get props => [currentPassword, newPassword];
 }
+
+class DeleteAccountEvent extends AuthEvent {}

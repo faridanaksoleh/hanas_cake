@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hanas_cake/core/core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/auth/auth_bloc.dart';
+import '../blocs/auth/auth_state.dart';
+import '../blocs/auth/auth_event.dart';
 
 class DeleteAccountPage extends StatefulWidget {
   const DeleteAccountPage({super.key});
@@ -32,8 +36,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
   // ──────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is DeleteAccountSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Permintaan hapus akun sedang diproses oleh admin.')),
+          );
+          context.go('/landing');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
       appBar: _buildAppBar(),
       bottomNavigationBar: _buildBottomButtons(),
       body: SingleChildScrollView(
@@ -105,6 +118,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             ],
           ],
         ),
+      ),
       ),
     );
   }
@@ -228,7 +242,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
         ),
         // "HAPUS AKUN" button — grey when no selection, red when selected
         GestureDetector(
-          onTap: hasSelection ? () {} : null,
+          onTap: hasSelection ? () {
+            context.read<AuthBloc>().add(DeleteAccountEvent());
+          } : null,
           child: Container(
             width: double.infinity,
             height: 60,

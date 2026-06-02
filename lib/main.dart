@@ -14,6 +14,7 @@ import 'package:hanas_cake/domain/usecases/logout_usecase.dart';
 import 'package:hanas_cake/domain/usecases/get_profile_usecase.dart';
 import 'package:hanas_cake/domain/usecases/update_profile_usecase.dart';
 import 'package:hanas_cake/domain/usecases/change_password_usecase.dart';
+import 'package:hanas_cake/domain/usecases/delete_account_usecase.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/auth/auth_event.dart';
 
@@ -118,6 +119,7 @@ class MyApp extends StatelessWidget {
     final getProfileUseCase = GetProfileUseCase(authRepository);
     final updateProfileUseCase = UpdateProfileUseCase(authRepository);
     final changePasswordUseCase = ChangePasswordUseCase(authRepository);
+    final deleteAccountUseCase = DeleteAccountUseCase(authRepository);
 
     // Product Dependencies
     final productRemoteDatasource = ProductRemoteDatasource(dio: dio);
@@ -376,6 +378,7 @@ class MyApp extends StatelessWidget {
             getProfileUseCase: getProfileUseCase,
             updateProfileUseCase: updateProfileUseCase,
             changePasswordUseCase: changePasswordUseCase,
+            deleteAccountUseCase: deleteAccountUseCase,
             localDatasource: authLocalDatasource,
           )..add(CheckTokenEvent()),
         ),

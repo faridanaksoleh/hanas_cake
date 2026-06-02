@@ -136,5 +136,15 @@ class AuthRemoteDatasource {
       throw Exception('Terjadi kesalahan saat mengganti password: $e');
     }
   }
+
+  Future<void> deleteAccount() async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Gagal menghapus akun');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan saat menghapus akun: $e');
+    }
+  }
 }
 

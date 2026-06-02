@@ -7,6 +7,7 @@ import '../../../domain/usecases/logout_usecase.dart';
 import '../../../domain/usecases/get_profile_usecase.dart';
 import '../../../domain/usecases/update_profile_usecase.dart';
 import '../../../domain/usecases/change_password_usecase.dart';
+import '../../../domain/usecases/delete_account_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -17,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GetProfileUseCase getProfileUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
   final ChangePasswordUseCase changePasswordUseCase;
+  final DeleteAccountUseCase deleteAccountUseCase;
   final AuthLocalDatasource localDatasource;
 
   AuthBloc({
@@ -26,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.getProfileUseCase,
     required this.updateProfileUseCase,
     required this.changePasswordUseCase,
+    required this.deleteAccountUseCase,
     required this.localDatasource,
   }) : super(AuthInitial()) {
     on<LoginEvent>((event, emit) async {
@@ -101,6 +104,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       result.fold(
         (failure) => emit(AuthFailure(failure.message)),
         (_) => emit(PasswordChangeSuccess()),
+      );
+    });
+
+    on<DeleteAccountEvent>((event, emit) async {
+      emit(AuthLoading());
+      final result = await deleteAccountUseCase.execute();
+      result.fold(
+        (failure) => emit(AuthFailure(failure.message)),
+        (_) => emit(DeleteAccountSuccess()),
       );
     });
   }
