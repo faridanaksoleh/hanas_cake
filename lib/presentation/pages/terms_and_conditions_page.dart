@@ -38,23 +38,66 @@ class TermsAndConditionsPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         // 🔥 Ini margin leganya biar nggak nempel ke layar
-        padding: const EdgeInsets.all(24.0), 
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Teks',
-              style: AppTextStyles.h2.copyWith(
+              "Selamat datang di aplikasi Hana's Cake.",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '1. Pemesanan & Pembayaran',
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SpaceHeight(16),
+            const SpaceHeight(8),
             Text(
-              'Lorem ipsum dolor sit amet consectetur. Tempus et non arcu ac feugiat facilisi dolor quam. Vel et lectus enim donec natoque ut. Pulvinar metus sapien ultrices ipsum natoque. Eleifend urna vel vehicula risus consequat in magna arcu sapien. Tempus tristique lacus mollis magna egestas suspendisse ut. Viverra odio nisl est viverra sit nunc massa id sed.\n\nFacilisis adipiscing nunc quisque potenti egestas ornare enim massa non. Sit senectus orci neque in pharetra mauris. Pellentesque commodo porta at senectus morbi. Massa rhoncus scelerisque massa amet sit nulla.\n\nProin orci mattis ac velit. Ullamcorper integer ultrices maecenas sit. Tempor volutpat at eu tortor mattis in ornare. Dui ut sollicitudin enim proin dapibus nibh est. Faucibus quis odio in ullamcorper hendrerit molestie magna. Tellus massa tortor et duis nec fringilla arcu id elit. Nec cras tortor turpis scelerisque vitae amet.',
+              "Semua pesanan yang telah dikonfirmasi dan dibayar melalui sistem (Midtrans) tidak dapat dibatalkan atau diubah. Pastikan rincian pesanan Anda sudah benar sebelum melakukan konfirmasi.",
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                height: 1.6, // 🔥 Line-height biar paragrafnya rapi dan enak dibaca
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '2. Pengiriman & Pengambilan',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SpaceHeight(8),
+            Text(
+              "Untuk metode Delivery, pesanan akan dikirimkan sesuai dengan alamat yang tertera. Untuk metode Pick Up, harap tunjukkan ID Pesanan Anda kepada staf di toko.",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '3. Ketersediaan Produk',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SpaceHeight(8),
+            Text(
+              "Menu yang tampil bergantung pada ketersediaan stok harian. Jika terjadi kehabisan stok setelah pembayaran berhasil, Customer Service kami akan menghubungi Anda untuk proses pengembalian dana (refund).",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
               ),
               textAlign: TextAlign.justify,
             ),

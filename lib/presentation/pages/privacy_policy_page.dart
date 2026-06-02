@@ -37,23 +37,66 @@ class PrivacyPolicyPage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Teks',
-              style: AppTextStyles.h2.copyWith(
+              "Hana's Cake sangat menghargai privasi pengguna kami.",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '1. Pengumpulan Informasi',
+              style: AppTextStyles.body.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SpaceHeight(16),
+            const SpaceHeight(8),
             Text(
-              'Id tempor et et feugiat. Nunc sodales dictum dui sit lobortis pellentesque lectus. Morbi tellus rhoncus sem nisl nisl ullamcorper.\n\nLorem sed pharetra mattis massa eget velit feugiat. Quam dui non leo sed. Ut aliquam massa arcu amet amet in volutpat purus sapien. Ultricies diam sit pretium cursus arcu. Ante diam mattis enim lectus orci ac ornare. Dictum ac lectus non ut et amet consectetur. Ante vitae at etiam nisl amet sed interdum commodo libero. Nec nulla pretium lorem ut lectus duis posuere amet etiam. Congue arcu dui vel quis sed porttitor non tortor tellus. Tempor lectus eget amet ligula amet mi vestibulum.\n\nSed sed accumsan pellentesque cras at. Non interdum platea ullamcorper semper. Fringilla scelerisque eget risus faucibus nibh volutpat nunc non. Convallis malesuada maecenas magna feugiat. Orci nunc lacus consectetur proin sit condimentum enim molestie mauris. Pulvinar tincidunt sed tincidunt porta eleifend interdum nisi tristique non.\n\nGravida ut lectus vitae cursus quam eu fames amet id. Aliquet phasellus scelerisque pellentesque molestie fringilla mattis. Adipiscing facilisis odio lacinia vel.',
+              "Kami mengumpulkan informasi pribadi yang Anda berikan saat mendaftar, seperti nama, alamat email, nomor telepon, dan lokasi pengiriman. Data ini mutlak diperlukan untuk memproses pesanan Anda.",
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
-                height: 1.5,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '2. Penggunaan Data',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SpaceHeight(8),
+            Text(
+              "Data Anda HANYA digunakan untuk keperluan internal transaksi, pelacakan pengiriman pesanan, dan peningkatan layanan aplikasi. Kami tidak akan membagikan atau menjual data Anda kepada pihak ketiga mana pun.",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.justify,
+            ),
+            const SpaceHeight(24),
+            Text(
+              '3. Keamanan Transaksi',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SpaceHeight(8),
+            Text(
+              "Seluruh proses pembayaran dikelola dengan enkripsi aman oleh Payment Gateway resmi (Midtrans). Kami tidak menyimpan data sensitif seperti detail kartu kredit atau PIN Anda di server kami.",
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.6,
               ),
               textAlign: TextAlign.justify,
             ),
