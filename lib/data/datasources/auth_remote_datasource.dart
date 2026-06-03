@@ -139,7 +139,7 @@ class AuthRemoteDatasource {
 
   Future<void> deleteAccount() async {
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      await dio.delete('/profile');
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Gagal menghapus akun');
     } catch (e) {

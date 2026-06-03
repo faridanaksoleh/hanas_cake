@@ -20,31 +20,32 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 
 ## 📋 Daftar Endpoint
 
-| #   | Method | Endpoint                   | Auth | Deskripsi                 |
-| --- | ------ | -------------------------- | ---- | ------------------------- |
-| 1   | POST   | `/register`                | ❌   | Registrasi pelanggan baru |
-| 2   | POST   | `/login`                   | ❌   | Login pelanggan           |
-| 3   | POST   | `/logout`                  | ✅   | Logout (revoke token)     |
-| 4   | GET    | `/profile`                 | ✅   | Ambil data profil         |
-| 5   | POST   | `/profile/update`          | ✅   | Update profil + avatar    |
-| 6   | POST   | `/change-password`         | ✅   | Ganti password            |
-| 7   | GET    | `/categories`              | ❌   | Daftar kategori           |
-| 8   | GET    | `/products`                | ❌   | Daftar produk             |
-| 9   | GET    | `/products/{id}`           | ❌   | Detail produk             |
-| 10  | GET    | `/stores`                  | ❌   | Daftar toko aktif         |
-| 11  | POST   | `/checkout`                | ✅   | Proses checkout           |
-| 12  | GET    | `/orders`                  | ✅   | Riwayat pesanan           |
-| 13  | GET    | `/orders/{id}`             | ✅   | Detail pesanan            |
-| 14  | POST   | `/pin/setup`               | ✅   | Atur PIN pembayaran       |
-| 15  | POST   | `/pin/verify`              | ✅   | Verifikasi PIN            |
-| 16  | GET    | `/addresses`               | ✅   | Daftar alamat             |
-| 17  | POST   | `/addresses`               | ✅   | Tambah alamat             |
-| 18  | PUT    | `/addresses/{id}`          | ✅   | Edit alamat               |
-| 19  | DELETE | `/addresses/{id}`          | ✅   | Hapus alamat              |
-| 20  | PATCH  | `/addresses/{id}/primary`  | ✅   | Set alamat utama          |
-| 21  | GET    | `/notifications`           | ✅   | Daftar notifikasi         |
-| 22  | POST   | `/notifications/{id}/read` | ✅   | Tandai dibaca             |
-| 23  | POST   | `/midtrans/webhook`        | ❌   | Webhook Midtrans          |
+| #   | Method | Endpoint                   | Auth | Deskripsi                    |
+| --- | ------ | -------------------------- | ---- | ---------------------------- |
+| 1   | POST   | `/register`                | ❌   | Registrasi pelanggan baru    |
+| 2   | POST   | `/login`                   | ❌   | Login pelanggan              |
+| 3   | POST   | `/logout`                  | ✅   | Logout (revoke token)        |
+| 4   | GET    | `/profile`                 | ✅   | Ambil data profil            |
+| 5   | POST   | `/profile/update`          | ✅   | Update profil + avatar       |
+| 6   | POST   | `/change-password`         | ✅   | Ganti password               |
+| 7   | GET    | `/categories`              | ❌   | Daftar kategori              |
+| 8   | GET    | `/products`                | ❌   | Daftar produk                |
+| 9   | GET    | `/products/{id}`           | ❌   | Detail produk                |
+| 10  | GET    | `/stores`                  | ❌   | Daftar toko aktif            |
+| 11  | POST   | `/shipping/calculate`      | ✅   | Hitung estimasi ongkir       |
+| 12  | POST   | `/checkout`                | ✅   | Proses checkout              |
+| 13  | GET    | `/orders`                  | ✅   | Riwayat pesanan              |
+| 14  | GET    | `/orders/{id}`             | ✅   | Detail pesanan               |
+| 15  | POST   | `/pin/setup`               | ✅   | Atur PIN pembayaran          |
+| 16  | POST   | `/pin/verify`              | ✅   | Verifikasi PIN               |
+| 17  | GET    | `/addresses`               | ✅   | Daftar alamat                |
+| 18  | POST   | `/addresses`               | ✅   | Tambah alamat                |
+| 19  | PUT    | `/addresses/{id}`          | ✅   | Edit alamat                  |
+| 20  | DELETE | `/addresses/{id}`          | ✅   | Hapus alamat                 |
+| 21  | PATCH  | `/addresses/{id}/primary`  | ✅   | Set alamat utama             |
+| 22  | GET    | `/notifications`           | ✅   | Daftar notifikasi            |
+| 23  | POST   | `/notifications/{id}/read` | ✅   | Tandai dibaca                |
+| 24  | POST   | `/midtrans/webhook`        | ❌   | Webhook Midtrans             |
 
 ---
 
@@ -245,7 +246,29 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 
 ---
 
-## 7. Kategori
+## 🗑 Hapus Akun
+
+**`DELETE /api/profile`** 🔒
+
+Menghapus akun pengguna secara permanen. Semua riwayat pesanan (orders) yang terkait dengan pengguna ini akan dipertahankan untuk keperluan laporan keuangan (hanya menghilangkan referensi ID pengguna). Token akses saat ini juga akan dicabut.
+
+**Header Required:**
+```http
+Authorization: Bearer 1|abcdef12345...
+```
+
+**Response Sukses (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Akun berhasil dihapus",
+    "data": null
+}
+```
+
+---
+
+## 🛍 Kategori Produk
 
 **`GET /api/categories`**
 
@@ -364,7 +387,78 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 
 ---
 
-## 11. Checkout
+## 11. Estimasi Ongkir
+
+**`POST /api/shipping/calculate`** 🔒
+
+Endpoint ini digunakan Flutter untuk menampilkan **preview ongkir** di halaman checkout sebelum user menekan tombol bayar. Panggil endpoint ini setiap kali user mengubah toko atau alamat.
+
+### Request Body
+
+```json
+{
+    "store_id": 1,
+    "address_id": 2
+}
+```
+
+| Field      | Type | Required | Keterangan         |
+| ---------- | ---- | -------- | ------------------ |
+| store_id   | int  | ✅       | ID toko            |
+| address_id | int  | ✅       | ID alamat pelanggan|
+
+### Response Sukses (200)
+
+```json
+{
+    "success": true,
+    "message": "Estimasi ongkir berhasil dihitung",
+    "data": {
+        "distance": 3.25,
+        "shipping_cost": 8000,
+        "is_out_of_bounds": false,
+        "max_distance": 10,
+        "store_name": "Hana's Cake Pusat",
+        "address_title": "Rumah"
+    }
+}
+```
+
+| Field Response   | Keterangan                                      |
+| ---------------- | ----------------------------------------------- |
+| distance         | Jarak dalam km (null jika koordinat tidak ada)  |
+| shipping_cost    | Ongkir dalam Rupiah                             |
+| is_out_of_bounds | `true` jika jarak > 10 km (tidak bisa delivery) |
+| max_distance     | Jarak maksimal yang diizinkan (10 km)           |
+| store_name       | Nama toko yang dipilih                          |
+| address_title    | Label alamat yang dipilih                       |
+
+### Response — Di Luar Jangkauan (200, tapi `is_out_of_bounds: true`)
+
+```json
+{
+    "success": true,
+    "message": "Lokasi di luar jangkauan (jarak: 12.5 km, maks: 10 km)",
+    "data": {
+        "distance": 12.5,
+        "shipping_cost": 0,
+        "is_out_of_bounds": true,
+        "max_distance": 10,
+        "store_name": "Hana's Cake Pusat",
+        "address_title": "Kantor"
+    }
+}
+```
+
+> **💡 Alur Flutter yang direkomendasikan:**
+> 1. User pilih toko & alamat → panggil `POST /api/shipping/calculate`
+> 2. Tampilkan: Subtotal produk + Ongkir = **Grand Total**
+> 3. Jika `is_out_of_bounds: true` → disable tombol checkout, tampilkan pesan error
+> 4. User tekan bayar → panggil `POST /api/checkout` (backend hitung ulang ongkir secara independen)
+
+---
+
+## 12. Checkout
 
 **`POST /api/checkout`** 🔒
 
