@@ -12,7 +12,7 @@ class OrderFilterPage extends StatefulWidget {
 class _OrderFilterPageState extends State<OrderFilterPage> {
   // 🔥 KEMBALI KE SINGLE SELECT (Hanya bisa pilih 1 per kategori)
   String selectedFilter = 'Semua';
-  String selectedDate = 'Semua';
+  String selectedDate = 'Terbaru';
 
   @override
   Widget build(BuildContext context) {
@@ -83,15 +83,9 @@ class _OrderFilterPageState extends State<OrderFilterPage> {
                   ),
                 ),
                 const SpaceHeight(8),
-                _buildRadio('Semua', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildRadio('Terbaru', selectedDate, (val) => setState(() => selectedDate = val!)),
                 _buildDivider(),
-                _buildRadio('Pemesanan via Aplikasi', selectedDate, (val) => setState(() => selectedDate = val!)),
-                _buildDivider(),
-                _buildRadio('Pick Up', selectedDate, (val) => setState(() => selectedDate = val!)),
-                _buildDivider(),
-                _buildRadio('Delivery', selectedDate, (val) => setState(() => selectedDate = val!)),
-                _buildDivider(),
-                _buildRadio('Pemesanan di store', selectedDate, (val) => setState(() => selectedDate = val!)),
+                _buildRadio('Terlama', selectedDate, (val) => setState(() => selectedDate = val!)),
                 
                 const SpaceHeight(40), 
               ],
@@ -104,7 +98,7 @@ class _OrderFilterPageState extends State<OrderFilterPage> {
             child: ElevatedButton(
               onPressed: () {
                 if (GoRouter.of(context).canPop()) {
-                  GoRouter.of(context).pop();
+                  GoRouter.of(context).pop({'tipe': selectedFilter, 'urutan': selectedDate});
                 }
               },
               style: ElevatedButton.styleFrom(

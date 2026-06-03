@@ -19,6 +19,9 @@ class _OrderPageState extends State<OrderPage> {
   // 🔥 Ubah jadi true untuk tes tampilan "Belum Ada Riwayat Pesanan"
   bool isEmpty = false;
 
+  String filterTipe = 'Semua';
+  String filterUrutan = 'Terbaru';
+
   @override
   void initState() {
     super.initState();
@@ -53,7 +56,15 @@ class _OrderPageState extends State<OrderPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () => GoRouter.of(context).push('/order/filter'),
+            onPressed: () async {
+              final result = await GoRouter.of(context).push('/order/filter');
+              if (result != null && result is Map<String, dynamic>) {
+                setState(() {
+                  filterTipe = result['tipe'] as String? ?? 'Semua';
+                  filterUrutan = result['urutan'] as String? ?? 'Terbaru';
+                });
+              }
+            },
             icon: SvgPicture.asset(
               'assets/icons/sliders_outline.svg',
               width: 24,
@@ -73,10 +84,33 @@ class _OrderPageState extends State<OrderPage> {
               child: CircularProgressIndicator(color: AppColors.primary),
             );
           } else if (state is OrderHistoryLoaded) {
-            if (state.orders.isEmpty) {
+            var filteredOrders = state.orders.where((order) {
+              if (filterTipe == 'Semua') return true;
+              
+              final deliveryType = order['delivery_type']?.toString().toLowerCase() ?? '';
+              
+              if (filterTipe == 'Pick Up') return deliveryType == 'pickup' || deliveryType == 'pick up';
+              if (filterTipe == 'Delivery') return deliveryType == 'delivery';
+              if (filterTipe == 'Pemesanan di store') return deliveryType == 'store' || deliveryType == 'dine-in' || deliveryType == 'dine_in';
+              if (filterTipe == 'Pemesanan via Aplikasi') return deliveryType != 'store' && deliveryType != 'dine-in' && deliveryType != 'dine_in';
+              
+              return true;
+            }).toList();
+
+            filteredOrders.sort((a, b) {
+              final dateA = a['tanggal'] != null ? DateTime.tryParse(a['tanggal'].toString()) ?? DateTime.fromMillisecondsSinceEpoch(0) : DateTime.fromMillisecondsSinceEpoch(0);
+              final dateB = b['tanggal'] != null ? DateTime.tryParse(b['tanggal'].toString()) ?? DateTime.fromMillisecondsSinceEpoch(0) : DateTime.fromMillisecondsSinceEpoch(0);
+              if (filterUrutan == 'Terlama') {
+                return dateA.compareTo(dateB);
+              } else {
+                return dateB.compareTo(dateA);
+              }
+            });
+
+            if (filteredOrders.isEmpty) {
               return _buildEmptyState();
             }
-            return _buildOrderList(state.orders);
+            return _buildOrderList(filteredOrders);
           } else if (state is OrderHistoryError) {
             return Center(child: Text(state.message));
           }
