@@ -20,32 +20,37 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
 
 ## 📋 Daftar Endpoint
 
-| #   | Method | Endpoint                   | Auth | Deskripsi                    |
-| --- | ------ | -------------------------- | ---- | ---------------------------- |
-| 1   | POST   | `/register`                | ❌   | Registrasi pelanggan baru    |
-| 2   | POST   | `/login`                   | ❌   | Login pelanggan              |
-| 3   | POST   | `/logout`                  | ✅   | Logout (revoke token)        |
-| 4   | GET    | `/profile`                 | ✅   | Ambil data profil            |
-| 5   | POST   | `/profile/update`          | ✅   | Update profil + avatar       |
-| 6   | POST   | `/change-password`         | ✅   | Ganti password               |
-| 7   | GET    | `/categories`              | ❌   | Daftar kategori              |
-| 8   | GET    | `/products`                | ❌   | Daftar produk                |
-| 9   | GET    | `/products/{id}`           | ❌   | Detail produk                |
-| 10  | GET    | `/stores`                  | ❌   | Daftar toko aktif            |
-| 11  | POST   | `/shipping/calculate`      | ✅   | Hitung estimasi ongkir       |
-| 12  | POST   | `/checkout`                | ✅   | Proses checkout              |
-| 13  | GET    | `/orders`                  | ✅   | Riwayat pesanan              |
-| 14  | GET    | `/orders/{id}`             | ✅   | Detail pesanan               |
-| 15  | POST   | `/pin/setup`               | ✅   | Atur PIN pembayaran          |
-| 16  | POST   | `/pin/verify`              | ✅   | Verifikasi PIN               |
-| 17  | GET    | `/addresses`               | ✅   | Daftar alamat                |
-| 18  | POST   | `/addresses`               | ✅   | Tambah alamat                |
-| 19  | PUT    | `/addresses/{id}`          | ✅   | Edit alamat                  |
-| 20  | DELETE | `/addresses/{id}`          | ✅   | Hapus alamat                 |
-| 21  | PATCH  | `/addresses/{id}/primary`  | ✅   | Set alamat utama             |
-| 22  | GET    | `/notifications`           | ✅   | Daftar notifikasi            |
-| 23  | POST   | `/notifications/{id}/read` | ✅   | Tandai dibaca                |
-| 24  | POST   | `/midtrans/webhook`        | ❌   | Webhook Midtrans             |
+| #   | Method | Endpoint                          | Auth | Deskripsi                       |
+| --- | ------ | --------------------------------- | ---- | ------------------------------- |
+| 1   | POST   | `/register`                       | ❌   | Registrasi pelanggan baru       |
+| 2   | POST   | `/login`                          | ❌   | Login pelanggan                 |
+| 3   | POST   | `/logout`                         | ✅   | Logout (revoke token)           |
+| 4   | GET    | `/profile`                        | ✅   | Ambil data profil               |
+| 5   | POST   | `/profile/update`                 | ✅   | Update profil + avatar          |
+| 6   | POST   | `/change-password`                | ✅   | Ganti password                  |
+| 7   | DELETE | `/profile`                        | ✅   | Hapus akun permanen             |
+| 8   | GET    | `/categories`                     | ❌   | Daftar kategori                 |
+| 9   | GET    | `/products`                       | ❌   | Daftar produk                   |
+| 10  | GET    | `/products/{id}`                  | ❌   | Detail produk                   |
+| 11  | GET    | `/stores`                         | ❌   | Daftar toko aktif               |
+| 12  | POST   | `/shipping/calculate`             | ✅   | Hitung estimasi ongkir          |
+| 13  | POST   | `/checkout`                       | ✅   | Proses checkout                 |
+| 14  | GET    | `/orders`                         | ✅   | Riwayat pesanan                 |
+| 15  | GET    | `/orders/{id}`                    | ✅   | Detail pesanan                  |
+| 16  | POST   | `/pin/setup`                      | ✅   | Atur PIN pembayaran             |
+| 17  | POST   | `/pin/verify`                     | ✅   | Verifikasi PIN                  |
+| 18  | GET    | `/addresses`                      | ✅   | Daftar alamat                   |
+| 19  | POST   | `/addresses`                      | ✅   | Tambah alamat                   |
+| 20  | PUT    | `/addresses/{id}`                 | ✅   | Edit alamat                     |
+| 21  | DELETE | `/addresses/{id}`                 | ✅   | Hapus alamat                    |
+| 22  | PATCH  | `/addresses/{id}/primary`         | ✅   | Set alamat utama                |
+| 23  | GET    | `/notifications`                  | ✅   | Daftar notifikasi               |
+| 24  | POST   | `/notifications/{id}/read`        | ✅   | Tandai dibaca                   |
+| 25  | GET    | `/favorites`                      | ✅   | Daftar produk favorit           |
+| 26  | POST   | `/favorites/toggle/{product_id}`  | ✅   | Toggle favorit (tambah/hapus)   |
+| 27  | GET    | `/favorites/check/{product_id}`   | ✅   | Cek status favorit satu produk  |
+| 28  | DELETE | `/favorites/{product_id}`         | ✅   | Hapus dari favorit (eksplisit)  |
+| 29  | POST   | `/midtrans/webhook`               | ❌   | Webhook Midtrans                |
 
 ---
 
@@ -701,6 +706,124 @@ Endpoint ini digunakan Flutter untuk menampilkan **preview ongkir** di halaman c
 
 > ⚠️ Endpoint ini TIDAK memerlukan autentikasi Bearer Token.
 > Keamanan dijamin oleh verifikasi signature SHA-512.
+
+---
+
+## ❤️ Favorit Produk
+
+> 🔒 Semua endpoint favorit memerlukan Bearer Token.
+
+---
+
+### `GET /api/favorites`
+
+Ambil semua produk favorit user yang sedang login, diurutkan dari yang paling baru difavoritkan.
+
+#### Response Sukses (200)
+
+```json
+{
+    "success": true,
+    "message": "Daftar Produk Favorit",
+    "data": [
+        {
+            "id": 3,
+            "name": "Croissant Mentega",
+            "price": 15000,
+            "description": "Croissant mentega premium dengan lapisan...",
+            "image_url": "https://hanascake.syauqiebill.my.id/storage/products/abc.jpg",
+            "is_favorited": true,
+            "category": { "id": 2, "name": "Pastry" }
+        }
+    ]
+}
+```
+
+---
+
+### `POST /api/favorites/toggle/{product_id}` ⭐ Endpoint Utama
+
+Toggle favorit — **tambah jika belum ada, hapus jika sudah ada**. Ini adalah endpoint utama yang dipakai saat user menekan ikon ❤️ di mana pun dalam aplikasi.
+
+#### Contoh: `POST /api/favorites/toggle/3`
+
+#### Response — Saat Ditambahkan (200)
+
+```json
+{
+    "success": true,
+    "message": "Produk ditambahkan ke favorit",
+    "data": {
+        "product_id": 3,
+        "is_favorited": true,
+        "favorite_count": 12
+    }
+}
+```
+
+#### Response — Saat Dihapus (200)
+
+```json
+{
+    "success": true,
+    "message": "Produk dihapus dari favorit",
+    "data": {
+        "product_id": 3,
+        "is_favorited": false,
+        "favorite_count": 11
+    }
+}
+```
+
+> 💡 **Tips Flutter:** Simpan `is_favorited` di local state untuk update ikon hati secara instan tanpa menunggu respons API berikutnya.
+
+---
+
+### `GET /api/favorites/check/{product_id}`
+
+Cek apakah satu produk sudah difavoritkan oleh user yang login. Berguna untuk mengisi state awal ikon hati saat membuka halaman detail produk.
+
+#### Contoh: `GET /api/favorites/check/3`
+
+#### Response (200)
+
+```json
+{
+    "success": true,
+    "message": "Status Favorit",
+    "data": {
+        "product_id": 3,
+        "is_favorited": true
+    }
+}
+```
+
+---
+
+### `DELETE /api/favorites/{product_id}`
+
+Hapus produk dari favorit secara eksplisit (tanpa toggle). Gunakan ini jika Anda butuh aksi hapus yang pasti, misalnya dari halaman "My Favorite" via swipe-to-delete.
+
+#### Contoh: `DELETE /api/favorites/3`
+
+#### Response Sukses (200)
+
+```json
+{
+    "success": true,
+    "message": "Produk dihapus dari favorit",
+    "data": null
+}
+```
+
+#### Response Gagal — Produk tidak di favorit (404)
+
+```json
+{
+    "success": false,
+    "message": "Produk tidak ada di daftar favorit"
+}
+```
 
 ---
 

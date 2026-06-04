@@ -40,6 +40,12 @@ import 'package:hanas_cake/presentation/blocs/checkout/checkout_bloc.dart';
 import 'package:hanas_cake/presentation/blocs/order_history/order_history_bloc.dart';
 import 'package:hanas_cake/data/datasources/order_remote_datasource.dart';
 import 'package:hanas_cake/data/repositories/order_repository_impl.dart';
+import 'package:hanas_cake/data/datasources/favorite_remote_datasource.dart';
+import 'package:hanas_cake/data/repositories/favorite_repository_impl.dart';
+import 'package:hanas_cake/domain/usecases/get_favorites_usecase.dart';
+import 'package:hanas_cake/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:hanas_cake/presentation/blocs/favorite/favorite_bloc.dart';
+import 'package:hanas_cake/presentation/blocs/favorite/favorite_event.dart';
 import 'package:hanas_cake/presentation/pages/add_address_page.dart';
 import 'package:hanas_cake/presentation/pages/delete_account_page.dart';
 import 'package:hanas_cake/presentation/pages/home_page.dart';
@@ -146,6 +152,14 @@ class MyApp extends StatelessWidget {
     // Order/Checkout Dependencies
     final orderRemoteDatasource = OrderRemoteDataSourceImpl(dio);
     final orderRepository = OrderRepositoryImpl(orderRemoteDatasource);
+
+    // Favorite Dependencies
+    final favoriteRemoteDatasource = FavoriteRemoteDatasource(dio: dio);
+    final favoriteRepository = FavoriteRepositoryImpl(
+      remoteDatasource: favoriteRemoteDatasource,
+    );
+    final getFavoritesUseCase = GetFavoritesUseCase(favoriteRepository);
+    final toggleFavoriteUseCase = ToggleFavoriteUseCase(favoriteRepository);
 
     final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -401,6 +415,12 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => CartBloc()),
         BlocProvider(create: (context) => CheckoutBloc(orderRepository)),
         BlocProvider(create: (context) => OrderHistoryBloc(orderRepository)),
+        BlocProvider(
+          create: (context) => FavoriteBloc(
+            getFavoritesUseCase: getFavoritesUseCase,
+            toggleFavoriteUseCase: toggleFavoriteUseCase,
+          )..add(LoadFavoritesEvent()),
+        ),
       ],
       child: MaterialApp.router(
         title: "Hana's Cake",

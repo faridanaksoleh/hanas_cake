@@ -12,6 +12,9 @@ import '../blocs/product/product_state.dart';
 import '../blocs/cart/cart_bloc.dart';
 import '../blocs/cart/cart_event.dart';
 import '../blocs/cart/cart_state.dart';
+import '../blocs/favorite/favorite_bloc.dart';
+import '../blocs/favorite/favorite_event.dart';
+import '../blocs/favorite/favorite_state.dart';
 
 class PickUpPage extends StatefulWidget {
   final bool isFromCart;
@@ -29,7 +32,6 @@ class _PickUpPageState extends State<PickUpPage> {
   bool isBranchSelected = false;
 
   final GlobalKey _semuaSectionKey = GlobalKey();
-  Set<String> favoriteItems = {};
 
   String _selectedChip = 'Semua';
   List<String> _categories = ['Semua', 'Cake', 'Bread', 'Cookies'];
@@ -50,16 +52,6 @@ class _PickUpPageState extends State<PickUpPage> {
       decimalDigits: 0,
     );
     return formatter.format(price);
-  }
-
-  void toggleFavorite(String id) {
-    setState(() {
-      if (favoriteItems.contains(id)) {
-        favoriteItems.remove(id);
-      } else {
-        favoriteItems.add(id);
-      }
-    });
   }
 
   void scrollToSemua() {
@@ -607,26 +599,45 @@ class _PickUpPageState extends State<PickUpPage> {
                           child: _buildHorizontalDashedLine(),
                         ),
                         const SpaceHeight(16),
-                        SizedBox(
-                          height: 116,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.only(left: 16),
-                            itemCount: allProducts.length > 2
-                                ? 2
-                                : allProducts.length,
-                            itemBuilder: (context, index) {
-                              final p = allProducts[index];
-                              return _buildFavoriteCard(
-                                p.id.toString(),
-                                p.name,
-                                p.description ?? 'Produk premium...',
-                                _formatPrice(p.price),
-                                p.imageUrl,
-                                product: p,
+                        BlocBuilder<FavoriteBloc, FavoriteState>(
+                          builder: (context, favState) {
+                            final favList = favState is FavoriteLoaded
+                                ? favState.favorites
+                                : <Product>[];
+                            if (favList.isEmpty) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  'Belum ada produk favorit',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
                               );
-                            },
-                          ),
+                            }
+                            final displayList = favList.length > 2
+                                ? favList.take(2).toList()
+                                : favList;
+                            return SizedBox(
+                              height: 116,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.only(left: 16),
+                                itemCount: displayList.length,
+                                itemBuilder: (context, index) {
+                                  final p = displayList[index];
+                                  return _buildFavoriteCard(
+                                    p.id.toString(),
+                                    p.name,
+                                    p.description ?? 'Produk premium...',
+                                    _formatPrice(p.price),
+                                    p.imageUrl,
+                                    product: p,
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                         const SpaceHeight(24),
                       ],
@@ -958,7 +969,6 @@ class _PickUpPageState extends State<PickUpPage> {
     String imagePath, {
     Product? product,
   }) {
-    final isFav = favoriteItems.contains(id);
     final isNetworkImage = imagePath.startsWith('http');
     return GestureDetector(
       onTap: () => _onProductTapped(productId: product?.id),
@@ -1040,13 +1050,23 @@ class _PickUpPageState extends State<PickUpPage> {
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () => toggleFavorite(id),
-                        child: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : AppColors.border,
-                          size: 24,
-                        ),
+                      BlocBuilder<FavoriteBloc, FavoriteState>(
+                        builder: (context, favState) {
+                          final isFav = favState is FavoriteLoaded &&
+                              favState.favorites.any((p) => p.id == product?.id);
+                          return GestureDetector(
+                            onTap: () {
+                              if (product != null) {
+                                context.read<FavoriteBloc>().add(ToggleFavoriteEvent(product));
+                              }
+                            },
+                            child: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? AppColors.dangerText : AppColors.border,
+                              size: 24,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -1247,7 +1267,6 @@ class _PickUpPageState extends State<PickUpPage> {
     String imagePath, {
     Product? product,
   }) {
-    final isFav = favoriteItems.contains(id);
     final isNetworkImage = imagePath.startsWith('http');
 
     return GestureDetector(
@@ -1325,16 +1344,26 @@ class _PickUpPageState extends State<PickUpPage> {
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => toggleFavorite(id),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : AppColors.textSecondary,
-                          size: 24,
-                        ),
-                      ),
+                    BlocBuilder<FavoriteBloc, FavoriteState>(
+                      builder: (context, favState) {
+                        final isFav = favState is FavoriteLoaded &&
+                            favState.favorites.any((p) => p.id == product?.id);
+                        return GestureDetector(
+                          onTap: () {
+                            if (product != null) {
+                              context.read<FavoriteBloc>().add(ToggleFavoriteEvent(product));
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? AppColors.dangerText : AppColors.textSecondary,
+                              size: 24,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
