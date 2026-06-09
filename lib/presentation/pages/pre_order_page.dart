@@ -17,8 +17,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   int _currentIndex = 0;
   final int _storyCount = 2; 
 
-  // 🔥 WARNA KHUSUS PRE-ORDER (Sesuai Izin Pak Ketua)
-  // Cokelat sangat gelap (hampir hitam) seperti di Figma
+  // 🔥 WARNA KHUSUS PRE-ORDER
   final Color darkChocolate = const Color(0xFF241511);
 
   @override
@@ -43,6 +42,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     super.dispose();
   }
 
+  // Animasi ke halaman berikutnya
   void _nextPage() {
     if (_currentIndex < _storyCount - 1) {
       _pageController.nextPage(
@@ -56,6 +56,20 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
       } else {
         GoRouter.of(context).go('/home');
       }
+    }
+  }
+
+  // 🔥 FIX 2: Fungsi baru untuk mundur ke halaman sebelumnya (ala IG Story)
+  void _previousPage() {
+    if (_currentIndex > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // Jika sudah di slide pertama, cukup reset waktunya dari awal
+      _animController.reset();
+      _animController.forward();
     }
   }
 
@@ -81,17 +95,30 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: darkChocolate, // Default bg gelap
+      backgroundColor: darkChocolate, 
       body: Stack(
         children: [
           GestureDetector(
-            onTap: () => _nextPage(), 
+            // 🔥 FIX 2: Menggunakan onTapUp untuk mendeteksi posisi tap (Kiri / Kanan)
+            onTapUp: (TapUpDetails details) {
+              final double screenWidth = MediaQuery.of(context).size.width;
+              final double tapPosition = details.globalPosition.dx;
+              
+              // Jika di-tap di area 30% layar sebelah kiri, mundur. Sisanya maju.
+              if (tapPosition < screenWidth * 0.3) {
+                _previousPage();
+              } else {
+                _nextPage();
+              }
+            }, 
             onLongPressStart: (_) => _animController.stop(),
             onLongPressEnd: (_) {
               if (!_animController.isAnimating) _animController.forward();
             },
             child: PageView(
               controller: _pageController,
+              // Matikan swipe manual biar user wajib tap (opsional, biar mirip IG story beneran)
+              physics: const NeverScrollableScrollPhysics(), 
               onPageChanged: (index) {
                 setState(() {
                   _currentIndex = index;
@@ -176,7 +203,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: value,
-            backgroundColor: AppColors.white.withValues(alpha: 0.3),
+            backgroundColor: AppColors.white.withOpacity(0.3),
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.white),
             minHeight: 4,
           ),
@@ -225,30 +252,22 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   Widget _buildStoryPage1() {
     return Stack(
       children: [
-        Column(
-          children: [
-            Expanded(
-              flex: 4,
-              child: Container(color: AppColors.primaryXLight), 
+        // 🔥 FIX 1: Background menggunakan Sharp Gradient agar warna tidak bocor ke gambar
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.primaryXLight, // Cream atas
+                AppColors.primaryXLight, // Cream batas
+                darkChocolate,           // Cokelat gelap pekat
+                AppColors.primary,       // Cokelat standar bawah
+              ],
+              // Pemotongan warna tajam persis di 48% layar
+              stops: const [0.0, 0.48, 0.48, 1.0], 
             ),
-            Expanded(
-              flex: 5,
-              child: Container(
-                decoration: BoxDecoration(
-                  // 🔥 FIX GRADASI: Dark chocolate dominan dari atas, lalu pudar ke primary di bawah
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      darkChocolate, // Cokelat gelap pekat     
-                      AppColors.primary, // Cokelat standar (terang)       
-                    ],
-                    stops: const [0.5, 1.0], // 50% layar atas dipegang penuh oleh darkChocolate
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
         
         SafeArea(
@@ -266,10 +285,11 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
                 ),
               ),
               const Spacer(),
+              // Memastikan gambar menutupi area potong background dengan aman
               Image.asset(
                 'assets/images/pre-order.png',
                 width: double.infinity,
-                fit: BoxFit.cover,
+                fit: BoxFit.fitWidth, 
               ),
               const Spacer(),
               Text(
@@ -294,7 +314,6 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
   Widget _buildStoryPage2() {
     return Container(
       decoration: BoxDecoration(
-        // 🔥 FIX GRADASI: Dark chocolate sangat dominan untuk slide 2
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -302,7 +321,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
             darkChocolate, 
             AppColors.primary, 
           ],
-          stops: const [0.65, 1.0], // 65% layar ke atas dikuasai dark chocolate
+          stops: const [0.65, 1.0], 
         ),
       ),
       child: SafeArea(
@@ -355,7 +374,7 @@ class _PreOrderPageState extends State<PreOrderPage> with SingleTickerProviderSt
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
-          border: hideBorder ? null : Border(bottom: BorderSide(color: AppColors.white.withValues(alpha: 0.1), width: 1)),
+          border: hideBorder ? null : Border(bottom: BorderSide(color: AppColors.white.withOpacity(0.1), width: 1)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(
