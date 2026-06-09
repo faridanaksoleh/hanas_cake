@@ -202,7 +202,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           Navigator.pop(context); // Close loading dialog
           final midtrans = await MidtransSDK.init(
             config: MidtransConfig(
-              clientKey: 'Mid-client-tgtMCpKtxtZT3ePk',
+              clientKey: 'SB-Mid-client-tgtMCpKtxtZT3ePk',
               merchantBaseUrl: 'https://hanascake.syauqiebill.my.id/api/',
             ),
           );
